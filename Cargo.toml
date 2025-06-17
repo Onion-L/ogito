@@ -1,0 +1,19 @@
+[package]
+name = "repokit"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+node-bindgen = { version = "6.0" }
+
+
+[build-dependencies]
+node-bindgen = { version = "6.0", default-features = false, features = ["build"] }
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[package.metadata.tslink]
+node = "./dist/index.node"
+snake_case_naming = "methods"

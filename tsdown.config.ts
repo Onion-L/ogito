@@ -6,6 +6,6 @@ export default defineConfig({
   format: ['esm'],
   clean: true,
   minify: false,
-  outDir: 'dist',
+  outDir: 'output',
   treeshake: true
 })
