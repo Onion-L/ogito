@@ -7,10 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      cac:
-        specifier: ^6.7.14
-        version: 6.7.14
     devDependencies:
       '@types/node':
         specifier: ^24.0.3

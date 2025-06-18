@@ -7,11 +7,11 @@
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
     "outDir": "./dist",
-    "rootDir": "./package",
+    "rootDir": "npm",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "declaration": true
   },
-  "include": ["package/**/*"],
+  "include": ["npm/**/*"],
   "exclude": ["node_modules", "dist"]
 }
