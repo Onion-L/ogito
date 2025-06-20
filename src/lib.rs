@@ -1,6 +1,9 @@
-use std::{fs, path::Path, process::Command};
-
 use regex::Regex;
+use std::{
+    fs,
+    path::Path,
+    process::{Command, Stdio},
+};
 
 pub fn regit(url: &str, dir: &str) -> Result<(), String> {
     if is_github_url(url) {
@@ -8,7 +11,6 @@ pub fn regit(url: &str, dir: &str) -> Result<(), String> {
     } else {
         return Err("The source is not a Github URL".to_string());
     }
-
     Ok(())
 }
 
@@ -22,6 +24,8 @@ fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
         .arg("clone")
         .arg(url)
         .arg(dir)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
         .status()
         .expect("Failed to execute git clone");
 

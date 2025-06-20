@@ -1,5 +1,11 @@
+use std::time::Instant;
+
 use clap::{ArgAction, arg, command};
+use console::Emoji;
+use indicatif::HumanDuration;
 use regit::regit;
+
+static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", "");
 
 fn main() {
     let matches = command!()
@@ -13,6 +19,8 @@ fn main() {
         )
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .get_matches();
+
+    let started = Instant::now();
 
     let dir = matches
         .get_one::<String>("dir")
@@ -34,4 +42,6 @@ fn main() {
     if let Some(site) = matches.get_one::<String>("site") {
         println!("Value for site: {}", site);
     }
+
+    println!("{}Done in {}", SPARKLE, HumanDuration(started.elapsed()));
 }
