@@ -1,9 +1,5 @@
 use clap::{ArgAction, arg, command};
-use futures::executor::block_on;
-use regex::Regex;
-use std::path::Path;
-use tokio::fs;
-use tokio::process::Command;
+use regit::regit;
 
 fn main() {
     let matches = command!()
@@ -22,13 +18,11 @@ fn main() {
         .get_one::<String>("dir")
         .expect("Directory name is required");
 
+    let src = matches.get_one::<String>("src").unwrap();
     // get the value of the src argument
-    if let Some(src) = matches.get_one::<String>("src") {
-        if is_github_url(&src.to_string()) {
-            block_on(_run_git_clone(&src.to_string(), &dir));
-        } else {
-            panic!("The source is not a Github URL");
-        }
+    match regit(&src.to_string(), &dir) {
+        Ok(_) => println!("Successfully cloned the repository"),
+        Err(e) => panic!("Error: {}", e),
     }
 
     // get the value of the repo argument
@@ -39,31 +33,5 @@ fn main() {
     // get the value of the site argument
     if let Some(site) = matches.get_one::<String>("site") {
         println!("Value for site: {}", site);
-    }
-}
-
-fn is_github_url(input: &str) -> bool {
-    let re = Regex::new(r"^(?:https://)?github\.com/([^/]+)/([^/]+?)(?:\.git)?$").unwrap();
-    re.is_match(input)
-}
-
-async fn _run_git_clone(url: &str, dir: &str) {
-    println!("Cloning {} into {}", url, dir);
-    let clone_status = Command::new("git")
-        .arg("clone")
-        .arg(url)
-        .arg(dir)
-        .status()
-        .await
-        .unwrap();
-
-    if !clone_status.success() {
-        panic!("Failed to execute git clone");
-    }
-
-    let git_dir = Path::new(dir).join(".git");
-    match fs::remove_dir_all(git_dir).await {
-        Ok(_) => println!("Removed .git directory"),
-        Err(e) => panic!("Failed to remove .git directory: {}", e),
     }
 }
