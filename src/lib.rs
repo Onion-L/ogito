@@ -5,9 +5,47 @@ use std::{
     process::{Command, Stdio},
 };
 
-pub fn regit(url: &str, dir: &str) -> Result<(), String> {
+pub enum Site {
+    Github,
+    Gitlab,
+    Bitbucket,
+    Gitee,
+    Gitcode,
+}
+
+pub struct Config<'a> {
+    pub repo: Option<&'a String>,
+    pub dir: Option<&'a String>,
+    pub site: Option<&'a String>,
+    pub force: bool,
+}
+pub enum Mode {
+    Git,
+    Tar,
+}
+
+impl Mode {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Mode::Git => "git",
+            Mode::Tar => "tar",
+        }
+    }
+
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "git" => Some(Mode::Git),
+            "tar" => Some(Mode::Tar),
+            _ => None,
+        }
+    }
+}
+
+pub fn regit(url: &str, config: &Config) -> Result<(), String> {
+    dbg!(&config.force, &config.dir, &config.repo, &config.site);
+    let dir = config.dir.unwrap().to_string();
     if is_github_url(url) {
-        run_git_clone(url, dir)?;
+        run_git_clone(url, &dir)?;
     } else {
         return Err("The source is not a Github URL".to_string());
     }
