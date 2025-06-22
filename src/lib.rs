@@ -1,9 +1,11 @@
-use regex::Regex;
+mod validator;
+
 use std::{
     fs,
     path::Path,
     process::{Command, Stdio},
 };
+use validator::is_github_url;
 
 pub enum Site {
     Github,
@@ -12,13 +14,13 @@ pub enum Site {
     Gitee,
     Gitcode,
 }
-
 pub struct Config<'a> {
     pub repo: Option<&'a String>,
     pub dir: Option<&'a String>,
     pub site: Option<&'a String>,
     pub force: bool,
 }
+
 pub enum Mode {
     Git,
     Tar,
@@ -50,11 +52,6 @@ pub fn regit(url: &str, config: &Config) -> Result<(), String> {
         return Err("The source is not a Github URL".to_string());
     }
     Ok(())
-}
-
-fn is_github_url(input: &str) -> bool {
-    let re = Regex::new(r"^(?:https://)?github\.com/([^/]+)/([^/]+?)(?:\.git)?$").unwrap();
-    re.is_match(input)
 }
 
 fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
