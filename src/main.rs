@@ -7,7 +7,7 @@ use dialoguer::Confirm;
 use indicatif::HumanDuration;
 use regit::{Config, Mode, regit};
 
-static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", "⭐ ");
+static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
 
 fn main() {
     let matches = command!()
@@ -45,7 +45,7 @@ fn main() {
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
         match regit(&url.to_string(), &config) {
-            Ok(_) => println!("✅ Successfully cloned the repository"),
+            Ok(_) => {}
             Err(e) => panic!("Error: {}", e),
         }
     } else {
@@ -73,9 +73,9 @@ fn main() {
     }
 
     // get the value of the site argument
-    if let Some(site) = matches.get_one::<String>("site") {
-        println!("Value for site: {}", site);
-    }
+    // if let Some(site) = matches.get_one::<String>("site") {
+    //     println!("Value for site: {}", site);
+    // }
 
-    println!("{}Done in {}", SPARKLE, HumanDuration(started.elapsed()));
+    println!("{}Done in {}", FINISH, HumanDuration(started.elapsed()));
 }
