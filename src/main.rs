@@ -1,11 +1,10 @@
-use std::{fs, time::Instant};
-
 use clap::{ArgAction, arg, command};
 use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
-use regit::{Config, Mode, regit};
+use regit::{Config, Mode};
+use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
 
@@ -44,10 +43,7 @@ fn main() {
 
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
-        match regit(&url.to_string(), &config) {
-            Ok(_) => {}
-            Err(e) => panic!("Error: {}", e),
-        }
+        regit::clone(&url.to_string(), &config).unwrap();
     } else {
         let mut empty = fs::read_dir(dir).unwrap();
         if empty.next().is_some() {
@@ -57,25 +53,19 @@ fn main() {
                     .default(false)
                     .interact()
                     .unwrap();
-
                 if force {
-                    println!("Directory is overwritten");
-                    todo!();
+                    regit::force_clone(&url.to_string(), dir, &config).unwrap();
                 } else {
-                    println!("{}", style("Directory is not empty").red());
+                    println!("{}", style("❌ Directory is not empty").red().bold());
                     return;
                 }
             } else {
-                println!("hello");
-                return;
+                regit::force_clone(&url.to_string(), dir, &config).unwrap();
             }
+        } else {
+            regit::clone(&url.to_string(), &config).unwrap();
         }
     }
-
-    // get the value of the site argument
-    // if let Some(site) = matches.get_one::<String>("site") {
-    //     println!("Value for site: {}", site);
-    // }
 
     println!("{}Done in {}", FINISH, HumanDuration(started.elapsed()));
 }

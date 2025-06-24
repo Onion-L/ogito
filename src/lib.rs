@@ -1,4 +1,4 @@
-mod validator;
+pub mod utils;
 
 use console::style;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -9,7 +9,7 @@ use std::{
     thread,
     time::Duration,
 };
-use validator::is_github_url;
+use utils::is_github_url;
 
 pub enum Site {
     Github,
@@ -18,6 +18,7 @@ pub enum Site {
     Gitee,
     Gitcode,
 }
+
 pub struct Config<'a> {
     pub repo: Option<&'a String>,
     pub dir: Option<&'a String>,
@@ -47,13 +48,20 @@ impl Mode {
     }
 }
 
-pub fn regit(url: &str, config: &Config) -> Result<(), String> {
+pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
+    fs::remove_dir_all(dir).unwrap();
+    clone(url, config).unwrap();
+    Ok(())
+}
+
+pub fn clone(url: &str, config: &Config) -> Result<(), String> {
     let dir = config.dir.unwrap().to_string();
     if is_github_url(url) {
         run_git_clone(url, &dir)?;
     } else {
         return Err("The source is not a Github URL".to_string());
     }
+
     Ok(())
 }
 
