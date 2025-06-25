@@ -1,3 +1,4 @@
+pub mod file;
 pub mod utils;
 
 use console::style;

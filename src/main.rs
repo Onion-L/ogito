@@ -3,6 +3,7 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
+use regit::file::print_file;
 use regit::{Config, Mode};
 use std::{fs, time::Instant};
 
@@ -68,4 +69,13 @@ fn main() {
     }
 
     println!("{}Done in {}", FINISH, HumanDuration(started.elapsed()));
+
+    let tui = Confirm::new()
+        .with_prompt("Open TUI to manage the files?")
+        .default(false)
+        .interact()
+        .unwrap();
+    if tui {
+        print_file(dir, 0).unwrap();
+    }
 }
