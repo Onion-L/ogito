@@ -19,8 +19,8 @@ use utils::is_github_url;
 pub struct Config<'a> {
     pub repo: Option<&'a String>,
     pub dir: Option<&'a String>,
-    pub site: Option<&'a String>,
-    pub mode: Option<&'a String>,
+    pub site: Option<&'a Site>,
+    pub mode: Option<&'a Mode>,
     pub force: bool,
 }
 
@@ -34,11 +34,9 @@ pub fn clone(url: &str, config: &Config) -> Result<(), String> {
     dbg!(&config);
     let dir = config.dir.unwrap().to_string();
     if let Some(mode) = config.mode {
-        let mode = Mode::from_str(mode);
         match mode {
-            Some(Mode::Git) => run_git_clone(url, &dir)?,
-            Some(Mode::Tar) => run_tar_clone(url, &dir, config)?,
-            None => (),
+            Mode::Git => run_git_clone(url, &dir)?,
+            Mode::Tar => run_tar_clone(url, &dir, config)?,
         }
     }
 
@@ -108,7 +106,7 @@ fn run_tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
     println!("Hello I'm working on the tar mode");
 
     let host = match config.site {
-        Some(site) => site.to_string(),
+        Some(site) => site.to_str(),
         None => {
             let site_options = vec![Site::Github.to_str(), Site::Gitlab.to_str()];
             let selection = Select::with_theme(&ColorfulTheme::default())
@@ -117,7 +115,7 @@ fn run_tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
                 .items(&site_options)
                 .interact()
                 .map_err(|e| e.to_string())?;
-            site_options[selection].to_string()
+            site_options[selection]
         }
     };
     let (owner, repo) = extract_path_regex(url).unwrap();

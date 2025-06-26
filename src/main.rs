@@ -6,6 +6,7 @@ use indicatif::HumanDuration;
 use regit::Config;
 use regit::file::print_file;
 use regit::models::mode::Mode;
+use regit::models::site::Site;
 use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
@@ -18,11 +19,13 @@ fn main() {
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(true))
         .arg(
             arg!( -s --site <SITE> "Sets the site or use Github by default")
-                .default_value("github"),
+                .value_parser(Site::from_str)
+                .default_value(Site::Github.to_str()),
         )
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
+                .value_parser(Mode::from_str)
                 .default_value(Mode::Git.to_str()),
         )
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
@@ -39,8 +42,8 @@ fn main() {
     let config = Config {
         repo: matches.get_one::<String>("repo"),
         dir: matches.get_one::<String>("dir"),
-        site: matches.get_one::<String>("site"),
-        mode: matches.get_one::<String>("mode"),
+        site: matches.get_one::<Site>("site"),
+        mode: matches.get_one::<Mode>("mode"),
         force: matches.get_flag("force"),
     };
 

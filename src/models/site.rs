@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum Site {
     Github,
     Gitlab,
@@ -11,11 +12,11 @@ impl Site {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_str(s: &str) -> Result<Self, String> {
         match s {
-            "github" => Some(Site::Github),
-            "gitlab" => Some(Site::Gitlab),
-            _ => None,
+            "github" => Ok(Site::Github),
+            "gitlab" => Ok(Site::Gitlab),
+            _ => Err(format!("Invalid site: {}", s)),
         }
     }
 }

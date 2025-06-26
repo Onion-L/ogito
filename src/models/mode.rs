@@ -1,3 +1,4 @@
+#[derive(Debug, Clone)]
 pub enum Mode {
     Git,
     Tar,
@@ -11,11 +12,11 @@ impl Mode {
         }
     }
 
-    pub fn from_str(s: &str) -> Option<Self> {
+    pub fn from_str(s: &str) -> Result<Self, String> {
         match s {
-            "git" => Some(Mode::Git),
-            "tar" => Some(Mode::Tar),
-            _ => None,
+            "git" => Ok(Mode::Git),
+            "tar" => Ok(Mode::Tar),
+            _ => Err(format!("Invalid mode: {}", s)),
         }
     }
 }
