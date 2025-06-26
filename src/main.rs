@@ -3,8 +3,9 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
+use regit::Config;
 use regit::file::print_file;
-use regit::{Config, Mode};
+use regit::models::mode::Mode;
 use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
@@ -22,7 +23,7 @@ fn main() {
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
-                .default_value(Mode::Git.as_str()),
+                .default_value(Mode::Git.to_str()),
         )
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .get_matches();
@@ -39,6 +40,7 @@ fn main() {
         repo: matches.get_one::<String>("repo"),
         dir: matches.get_one::<String>("dir"),
         site: matches.get_one::<String>("site"),
+        mode: matches.get_one::<String>("mode"),
         force: matches.get_flag("force"),
     };
 
@@ -48,20 +50,17 @@ fn main() {
     } else {
         let mut empty = fs::read_dir(dir).unwrap();
         if empty.next().is_some() {
-            if !matches.get_flag("force") {
-                let force = Confirm::new()
-                    .with_prompt("Overwrite existing files?")
+            let force = matches.get_flag("force")
+                || Confirm::new()
+                    .with_prompt("Do you want to overwrite existing files?")
                     .default(false)
                     .interact()
                     .unwrap();
-                if force {
-                    regit::force_clone(&url.to_string(), dir, &config).unwrap();
-                } else {
-                    println!("{}", style("❌ Directory is not empty").red().bold());
-                    return;
-                }
-            } else {
+            if force {
                 regit::force_clone(&url.to_string(), dir, &config).unwrap();
+            } else {
+                println!("{}", style("❌ Directory is not empty").red().bold());
+                return;
             }
         } else {
             regit::clone(&url.to_string(), &config).unwrap();
@@ -77,5 +76,6 @@ fn main() {
         .unwrap();
     if tui {
         print_file(dir, 0).unwrap();
+        println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 }

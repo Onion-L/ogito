@@ -1,8 +1,11 @@
 pub mod file;
+pub mod models;
 pub mod utils;
 
 use console::style;
+use dialoguer::{Select, theme::ColorfulTheme};
 use indicatif::{ProgressBar, ProgressStyle};
+use models::{mode::Mode, site::Site};
 use std::{
     fs,
     path::Path,
@@ -12,41 +15,13 @@ use std::{
 };
 use utils::is_github_url;
 
-pub enum Site {
-    Github,
-    Gitlab,
-    Bitbucket,
-    Gitee,
-    Gitcode,
-}
-
+#[derive(Debug, Default)]
 pub struct Config<'a> {
     pub repo: Option<&'a String>,
     pub dir: Option<&'a String>,
     pub site: Option<&'a String>,
+    pub mode: Option<&'a String>,
     pub force: bool,
-}
-
-pub enum Mode {
-    Git,
-    Tar,
-}
-
-impl Mode {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            Mode::Git => "git",
-            Mode::Tar => "tar",
-        }
-    }
-
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s {
-            "git" => Some(Mode::Git),
-            "tar" => Some(Mode::Tar),
-            _ => None,
-        }
-    }
 }
 
 pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
@@ -56,18 +31,25 @@ pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> 
 }
 
 pub fn clone(url: &str, config: &Config) -> Result<(), String> {
+    dbg!(&config);
     let dir = config.dir.unwrap().to_string();
-    if is_github_url(url) {
-        run_git_clone(url, &dir)?;
-    } else {
-        return Err("The source is not a Github URL".to_string());
+    if let Some(mode) = config.mode {
+        let mode = Mode::from_str(mode);
+        match mode {
+            Some(Mode::Git) => run_git_clone(url, &dir)?,
+            Some(Mode::Tar) => run_tar_clone(url, &dir, config)?,
+            None => (),
+        }
     }
 
     Ok(())
 }
 
 fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
-    println!("{} Regit: {}", "🔄", style(url).bold(),);
+    if !is_github_url(url) {
+        return Err("The source is not a Github URL".to_string());
+    }
+    println!("{} Regit: {}", "🔄", style(url).bold());
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
@@ -120,4 +102,33 @@ fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
 
     let _ = handle.join();
     Ok(())
+}
+
+fn run_tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
+    println!("Hello I'm working on the tar mode");
+
+    let host = match config.site {
+        Some(site) => site.to_string(),
+        None => {
+            let site_options = vec![Site::Github.to_str(), Site::Gitlab.to_str()];
+            let selection = Select::with_theme(&ColorfulTheme::default())
+                .with_prompt("Pick the site you want to clone from (because you choose tar mode)")
+                .default(0)
+                .items(&site_options)
+                .interact()
+                .map_err(|e| e.to_string())?;
+            site_options[selection].to_string()
+        }
+    };
+    let (owner, repo) = extract_path_regex(url).unwrap();
+    println!("Let's clone the repo from {host}: {owner}/{repo} to {dir}");
+
+    Ok(())
+}
+
+fn extract_path_regex(url: &str) -> Option<(&str, &str)> {
+    let re = regex::Regex::new(r"https?://[^/]+/(.*)").ok()?;
+    let path = re.captures(url)?.get(1).map(|m| m.as_str())?;
+    let (owner, repo) = (path.split("/").next()?, path.split("/").last()?);
+    Some((owner, repo))
 }
