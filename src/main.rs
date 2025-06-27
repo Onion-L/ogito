@@ -19,8 +19,7 @@ fn main() {
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(true))
         .arg(
             arg!( -s --site <SITE> "Sets the site or use Github by default")
-                .value_parser(Site::from_str)
-                .default_value(Site::Github.to_str()),
+                .value_parser(Site::from_str),
         )
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")

@@ -1,11 +1,12 @@
 pub mod file;
 pub mod models;
-pub mod utils;
+pub mod regex;
 
 use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
 use indicatif::{ProgressBar, ProgressStyle};
 use models::{mode::Mode, site::Site};
+use regex::{extract_path, is_github_url};
 use std::{
     fs,
     path::Path,
@@ -13,7 +14,6 @@ use std::{
     thread,
     time::Duration,
 };
-use utils::is_github_url;
 
 #[derive(Debug, Default)]
 pub struct Config<'a> {
@@ -31,7 +31,6 @@ pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> 
 }
 
 pub fn clone(url: &str, config: &Config) -> Result<(), String> {
-    dbg!(&config);
     let dir = config.dir.unwrap().to_string();
     if let Some(mode) = config.mode {
         match mode {
@@ -118,15 +117,8 @@ fn run_tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
             site_options[selection]
         }
     };
-    let (owner, repo) = extract_path_regex(url).unwrap();
+    let (owner, repo) = extract_path(url).unwrap();
     println!("Let's clone the repo from {host}: {owner}/{repo} to {dir}");
 
     Ok(())
-}
-
-fn extract_path_regex(url: &str) -> Option<(&str, &str)> {
-    let re = regex::Regex::new(r"https?://[^/]+/(.*)").ok()?;
-    let path = re.captures(url)?.get(1).map(|m| m.as_str())?;
-    let (owner, repo) = (path.split("/").next()?, path.split("/").last()?);
-    Some((owner, repo))
 }
