@@ -1,4 +1,6 @@
-use std::{fs, path::PathBuf};
+use indicatif::ProgressBar;
+use std::fs::File;
+use std::{fs, io::Write, path::PathBuf};
 
 pub fn print_file(path: &str, indent: usize) -> Result<(), std::io::Error> {
     let entries: Vec<PathBuf> = fs::read_dir(path)?
@@ -29,4 +31,30 @@ pub fn print_file(path: &str, indent: usize) -> Result<(), std::io::Error> {
     }
 
     Ok(())
+}
+
+pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf, String> {
+    pb.set_message("🚀 Downloading...");
+
+    // path of temp directory in OS
+    let temp_dir = std::env::temp_dir();
+    let file_name = format!(
+        "{}_{}.tar.gz",
+        dir,
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs()
+    );
+    let temp_file_path = temp_dir.join(file_name);
+
+    let response = reqwest::blocking::get(url).map_err(|e| e.to_string())?;
+    if !response.status().is_success() {
+        return Err(format!("Dowload Error: {}", response.status()));
+    }
+
+    let bytes = response.bytes().map_err(|e| e.to_string())?;
+    let mut file = File::create(&temp_file_path).expect("Failed to create temp file");
+    Write::write_all(&mut file, &bytes).expect("Failed to write temp file");
+    Ok(temp_file_path)
 }

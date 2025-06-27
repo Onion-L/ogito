@@ -3,6 +3,7 @@ pub mod file;
 pub mod models;
 pub mod regex;
 
+use crate::file::download_file;
 use cmd::git::Git;
 use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
@@ -12,7 +13,6 @@ use models::{mode::Mode, site::Site};
 use regex::{extract_path, is_github_url};
 use std::{
     fs::{self, File},
-    io::Write,
     path::{Path, PathBuf},
     process::Command,
     thread,
@@ -193,32 +193,6 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     Ok(())
-}
-
-fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf, String> {
-    pb.set_message("🚀 Downloading...");
-
-    // path of temp directory in OS
-    let temp_dir = std::env::temp_dir();
-    let file_name = format!(
-        "{}_{}.tar.gz",
-        dir,
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs()
-    );
-    let temp_file_path = temp_dir.join(file_name);
-
-    let response = reqwest::blocking::get(url).map_err(|e| e.to_string())?;
-    if !response.status().is_success() {
-        return Err(format!("Dowload Error: {}", response.status()));
-    }
-
-    let bytes = response.bytes().map_err(|e| e.to_string())?;
-    let mut file = File::create(&temp_file_path).expect("Failed to create temp file");
-    Write::write_all(&mut file, &bytes).expect("Failed to write temp file");
-    Ok(temp_file_path)
 }
 
 fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {
