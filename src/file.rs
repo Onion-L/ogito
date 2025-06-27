@@ -13,7 +13,7 @@ pub fn print_file(path: &str, indent: usize) -> Result<(), std::io::Error> {
                 .unwrap_or_default();
 
             println!("{:indent$}📁 {}", "", dir_name, indent = indent);
-            print_file(&entry.to_string_lossy(), indent + 4)?;
+            print_file(&entry.to_string_lossy(), indent + 2)?;
         }
     }
 
