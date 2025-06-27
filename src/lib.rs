@@ -24,25 +24,25 @@ pub struct Config<'a> {
     pub force: bool,
 }
 
-pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
-    fs::remove_dir_all(dir).unwrap();
-    clone(url, config).unwrap();
-    Ok(())
-}
-
 pub fn clone(url: &str, config: &Config) -> Result<(), String> {
     let dir = config.dir.unwrap().to_string();
     if let Some(mode) = config.mode {
         match mode {
-            Mode::Git => run_git_clone(url, &dir)?,
-            Mode::Tar => run_tar_clone(url, &dir, config)?,
+            Mode::Git => git_clone(url, &dir)?,
+            Mode::Tar => tar_clone(url, &dir, config)?,
         }
     }
 
     Ok(())
 }
 
-fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
+pub fn force_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
+    fs::remove_dir_all(dir).unwrap();
+    clone(url, config).unwrap();
+    Ok(())
+}
+
+fn git_clone(url: &str, dir: &str) -> Result<(), String> {
     if !is_github_url(url) {
         return Err("The source is not a Github URL".to_string());
     }
@@ -101,7 +101,7 @@ fn run_git_clone(url: &str, dir: &str) -> Result<(), String> {
     Ok(())
 }
 
-fn run_tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
+fn tar_clone(url: &str, dir: &str, config: &Config) -> Result<(), String> {
     println!("Hello I'm working on the tar mode");
 
     let host = match config.site {
