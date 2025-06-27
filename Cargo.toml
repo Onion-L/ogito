@@ -7,5 +7,8 @@ edition = "2024"
 clap = { version = "4.5.40", features = ["cargo"] }
 console = "0.15.11"
 dialoguer = "0.11.0"
+flate2 = "1.1.2"
 indicatif = "0.17.11"
 regex = "1.11.1"
+reqwest = { version = "0.12.20", features = ["blocking"] }
+tar = "0.4.44"
