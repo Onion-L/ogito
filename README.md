@@ -38,7 +38,7 @@ regit https://github.com/user/repo -d my-project -s github
 ## TODO
 
 - [ ] Implement TUI (Text User Interface) for post-clone management
-- [ ] Implement tar mode download
+- [x] Implement tar mode download
 - [ ] Support more platforms (Gitlab, Bitbucket, Gitee, Gitcode, etc.)
 - [ ] Publish npm package
 - [ ] Implement caching mechanism
