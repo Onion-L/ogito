@@ -8,3 +8,21 @@ pub struct Config<'a> {
     pub mode: Option<&'a Mode>,
     pub force: bool,
 }
+
+impl<'a> Config<'a> {
+    pub fn from(
+        repo: Option<&'a String>,
+        dir: Option<&'a String>,
+        site: Option<&'a Site>,
+        mode: Option<&'a Mode>,
+        force: bool,
+    ) -> Self {
+        Self {
+            repo,
+            dir,
+            site,
+            mode,
+            force,
+        }
+    }
+}

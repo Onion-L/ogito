@@ -7,6 +7,7 @@ use regit::fetch::config::Config;
 use regit::file::print_file;
 use regit::models::mode::Mode;
 use regit::models::site::Site;
+use regit::regex::extract_path;
 use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
@@ -16,7 +17,7 @@ fn main() {
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
         .arg(arg!(-r --repo <REPO> "the repository name, e.g. 'user/repo'").required(false))
-        .arg(arg!(-d --dir <DIRNAME> "the directory name").required(true))
+        .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
         .arg(
             arg!( -s --site <SITE> "Sets the site or use Github by default")
                 .value_parser(Site::from_str),
@@ -32,19 +33,23 @@ fn main() {
 
     let started = Instant::now();
 
-    let dir = matches
-        .get_one::<String>("dir")
-        .expect("Directory name is required");
+    let url = matches
+        .get_one::<String>("url")
+        .expect("URL is required. regit <URL>");
 
-    let url = matches.get_one::<String>("url").unwrap();
+    let repo = matches.get_one::<String>("repo");
+    let site = matches.get_one::<Site>("site");
+    let mode = matches.get_one::<Mode>("mode");
+    let force = matches.get_flag("force");
 
-    let config = Config {
-        repo: matches.get_one::<String>("repo"),
-        dir: matches.get_one::<String>("dir"),
-        site: matches.get_one::<Site>("site"),
-        mode: matches.get_one::<Mode>("mode"),
-        force: matches.get_flag("force"),
+    let (_, repo_dir) = extract_path(url).unwrap();
+
+    let dir = match matches.get_one::<String>("dir") {
+        Some(dir) => dir,
+        None => &repo_dir.to_string(),
     };
+
+    let config = Config::from(repo, Some(dir), site, mode, force);
 
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
