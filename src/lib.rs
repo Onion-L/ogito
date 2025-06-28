@@ -3,22 +3,14 @@ pub mod file;
 pub mod models;
 pub mod regex;
 
-use crate::file::download_file;
+use crate::file::{download_file, extract_archive};
 use cmd::git::Git;
 use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
-use flate2::read::GzDecoder;
 use indicatif::{ProgressBar, ProgressStyle};
 use models::{mode::Mode, site::Site};
 use regex::{extract_path, is_github_url};
-use std::{
-    fs::{self, File},
-    path::{Path, PathBuf},
-    process::Command,
-    thread,
-    time::Duration,
-};
-use tar::Archive;
+use std::{fs, path::Path, process::Command, thread, time::Duration};
 
 #[derive(Debug, Default)]
 pub struct Config<'a> {
@@ -161,8 +153,6 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
         .map_err(|e| e.to_string())?;
 
     let hash = hash_list[branch].split("\t").collect::<Vec<&str>>()[0];
-    println!("Hash: {:?}", hash);
-    // println!("Remote: {:?}", remote);
     let archive_url = if host == "gitlab" {
         format!("{}/repository/archive.tar.gz?ref={}", url, hash)
     } else if host == "bitbucket" {
@@ -193,13 +183,4 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     Ok(())
-}
-
-fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {
-    let tar_gz = File::open(temp_file_path).expect("Failed to open the temp file");
-    let tar = GzDecoder::new(tar_gz);
-    let mut archive = Archive::new(tar);
-    archive.unpack(dir)?;
-
-    todo!("Remove the top level directory");
 }

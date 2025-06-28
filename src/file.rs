@@ -1,6 +1,9 @@
+use flate2::read::GzDecoder;
 use indicatif::ProgressBar;
-use std::fs::File;
+use std::fs::{File, create_dir_all};
+use std::path::Path;
 use std::{fs, io::Write, path::PathBuf};
+use tar::Archive;
 
 pub fn print_file(path: &str, indent: usize) -> Result<(), std::io::Error> {
     let entries: Vec<PathBuf> = fs::read_dir(path)?
@@ -57,4 +60,31 @@ pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf, 
     let mut file = File::create(&temp_file_path).expect("Failed to create temp file");
     Write::write_all(&mut file, &bytes).expect("Failed to write temp file");
     Ok(temp_file_path)
+}
+
+pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {
+    let tar_gz = File::open(temp_file_path).expect("Failed to open the temp file");
+    let tar = GzDecoder::new(tar_gz);
+    let mut archive = Archive::new(tar);
+
+    for entry_result in archive.entries()? {
+        let mut entry = entry_result?;
+        let path = entry.path()?.to_owned();
+        let path_str = path.to_string_lossy();
+
+        if path_str.matches('/').count() == 0 {
+            continue;
+        }
+
+        let components: Vec<&str> = path_str.split("/").collect();
+        let new_path = components[1..].join("/");
+        let target_path = Path::new(dir).join(new_path);
+
+        if let Some(parent) = target_path.parent() {
+            create_dir_all(parent)?;
+        }
+
+        entry.unpack(&target_path)?;
+    }
+    Ok(())
 }
