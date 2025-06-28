@@ -10,7 +10,8 @@ use regit::models::site::Site;
 use regit::regex::extract_path;
 use std::{fs, time::Instant};
 
-static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "✅ ");
+static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "🚀 ");
+static FIRE: Emoji<'_, '_> = Emoji("🔥 ", "🔥 ");
 
 fn main() {
     let matches = command!()
@@ -31,8 +32,6 @@ fn main() {
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .get_matches();
 
-    let started = Instant::now();
-
     let url = matches
         .get_one::<String>("url")
         .expect("URL is required. regit <URL>");
@@ -43,14 +42,13 @@ fn main() {
     let force = matches.get_flag("force");
 
     let (_, repo_dir) = extract_path(url).unwrap();
-
     let dir = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
         None => &repo_dir.to_string(),
     };
 
     let config = Config::from(repo, Some(dir), site, mode, force);
-
+    let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
         regit::clone(&url.to_string(), &config).unwrap();
@@ -77,7 +75,7 @@ fn main() {
     println!("{}Done in {}", FINISH, HumanDuration(started.elapsed()));
 
     let tui = Confirm::new()
-        .with_prompt("Open TUI to manage the files?")
+        .with_prompt("💻 Open TUI to manage the files?")
         .default(false)
         .interact()
         .unwrap();
@@ -85,4 +83,12 @@ fn main() {
         print_file(dir, 0).unwrap();
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
+
+    println!(
+        "{}{}",
+        FIRE,
+        style("The Repo is prepared and ready to use!")
+            .green()
+            .bold()
+    );
 }
