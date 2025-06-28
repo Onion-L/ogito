@@ -3,7 +3,7 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
-use regit::Config;
+use regit::fetch::config::Config;
 use regit::file::print_file;
 use regit::models::mode::Mode;
 use regit::models::site::Site;

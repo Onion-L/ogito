@@ -1,4 +1,5 @@
 pub mod cmd;
+pub mod fetch;
 pub mod file;
 pub mod models;
 pub mod regex;
@@ -7,19 +8,11 @@ use crate::file::{download_file, extract_archive};
 use cmd::git::Git;
 use console::style;
 use dialoguer::{Select, theme::ColorfulTheme};
+use fetch::config::Config;
 use indicatif::{ProgressBar, ProgressStyle};
 use models::{mode::Mode, site::Site};
 use regex::{extract_path, is_github_url};
 use std::{fs, path::Path, process::Command, thread, time::Duration};
-
-#[derive(Debug, Default)]
-pub struct Config<'a> {
-    pub repo: Option<&'a String>,
-    pub dir: Option<&'a String>,
-    pub site: Option<&'a Site>,
-    pub mode: Option<&'a Mode>,
-    pub force: bool,
-}
 
 pub fn clone(url: &str, config: &Config) -> Result<(), Box<dyn std::error::Error>> {
     let dir = config.dir.unwrap().to_string();
@@ -122,7 +115,6 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
         }
     };
     let (owner, repo) = extract_path(url).unwrap();
-    println!("Let's clone the repo from {host}: {owner}/{repo} to {dir}");
 
     let output = Command::new("git")
         .args(["ls-remote", url])
@@ -154,11 +146,15 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
 
     let hash = hash_list[branch].split("\t").collect::<Vec<&str>>()[0];
     let archive_url = if host == "gitlab" {
-        format!("{}/repository/archive.tar.gz?ref={}", url, hash)
-    } else if host == "bitbucket" {
-        format!("{}/get/{}.tar.gz", url, hash)
+        format!(
+            "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
+            owner, repo, hash
+        )
     } else {
-        format!("{}/archive/{}.tar.gz", url, hash)
+        format!(
+            "https://github.com/{}/{}/archive/{}.tar.gz",
+            owner, repo, hash
+        )
     };
 
     println!(
@@ -176,8 +172,10 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
     );
     pb.set_message("Downloading archive...");
     let temp_file = download_file(&archive_url, dir, &pb).unwrap();
+
     pb.set_message("Extracting files...");
     extract_archive(&temp_file, dir)?;
+
     std::fs::remove_file(temp_file).map_err(|e| e.to_string())?;
     pb.finish_and_clear();
     println!("{} Repository prepared!", style("✨").cyan().bold());
