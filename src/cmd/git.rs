@@ -1,6 +1,6 @@
 use std::{
     io::Error,
-    process::{Command, ExitStatus, Stdio},
+    process::{Command, ExitStatus, Output, Stdio},
 };
 
 pub struct Git<'a> {
@@ -21,12 +21,19 @@ impl<'a> Git<'a> {
         self
     }
 
-    pub fn execute(&self, arg: &str) -> Result<ExitStatus, Error> {
+    pub fn clone(&self) -> Result<ExitStatus, Error> {
         Command::new(self.cmd)
-            .arg(arg)
+            .arg("clone")
             .args(&self.args)
             .stdout(Stdio::null())
             .stderr(Stdio::null())
             .status()
+    }
+
+    pub fn ls_remote(&self) -> Result<Output, Error> {
+        Command::new(self.cmd)
+            .arg("ls-remote")
+            .args(&self.args)
+            .output()
     }
 }

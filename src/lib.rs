@@ -12,7 +12,7 @@ use fetch::config::Config;
 use indicatif::{ProgressBar, ProgressStyle};
 use models::{mode::Mode, site::Site};
 use regex::{extract_path, is_github_url};
-use std::{fs, path::Path, process::Command, thread, time::Duration};
+use std::{fs, path::Path, thread, time::Duration};
 
 pub fn clone(url: &str, config: &Config) -> Result<(), Box<dyn std::error::Error>> {
     let dir = config.dir.unwrap().to_string();
@@ -77,7 +77,7 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
     let mut git = Git::new();
     let clone_status = git
         .args(vec![url, dir])
-        .execute("clone")
+        .clone()
         .expect("Failed to execute git clone");
 
     pb.finish_and_clear();
@@ -116,9 +116,10 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
     };
     let (owner, repo) = extract_path(url).unwrap();
 
-    let output = Command::new("git")
-        .args(["ls-remote", url])
-        .output()
+    let mut git = Git::new();
+    let output = git
+        .args(vec![url])
+        .ls_remote()
         .expect("Failed to execute git ls-remote");
 
     let stdout = String::from_utf8(output.stdout).unwrap();
