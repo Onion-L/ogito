@@ -99,8 +99,6 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
 }
 
 fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Hello I'm working on the tar mode");
-
     let host = match config.site {
         Some(site) => site.to_str(),
         None => {
@@ -172,6 +170,27 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
             .unwrap(),
     );
     pb.set_message("Downloading archive...");
+
+    let pb_clone = pb.clone();
+    let handle = thread::spawn(move || {
+        let messages = [
+            "🔗 Connecting to remote server...",
+            "🔍 Getting repository information...",
+            "📥 Downloading files...",
+            "🔥 Checking file integrity...",
+        ];
+
+        for msg in messages {
+            thread::sleep(Duration::from_millis(500));
+            pb_clone.set_message(msg);
+        }
+
+        while !pb_clone.is_finished() {
+            thread::sleep(Duration::from_millis(500));
+            pb_clone.set_message("🚀 Downloading...");
+        }
+    });
+
     let temp_file = download_file(&archive_url, dir, &pb).unwrap();
 
     pb.set_message("Extracting files...");
@@ -180,6 +199,6 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
     std::fs::remove_file(temp_file).map_err(|e| e.to_string())?;
     pb.finish_and_clear();
     println!("{} Repository prepared!", style("✨").cyan().bold());
-
+    let _ = handle.join();
     Ok(())
 }
