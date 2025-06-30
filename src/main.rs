@@ -10,8 +10,8 @@ use regit::models::site::Site;
 use regit::regex::extract_path;
 use std::{fs, time::Instant};
 
-static FINISH: Emoji<'_, '_> = Emoji("🚀 ", "🚀 ");
-static FIRE: Emoji<'_, '_> = Emoji("🔥 ", "🔥 ");
+static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
+static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
 fn main() {
     let matches = command!()
@@ -35,7 +35,6 @@ fn main() {
     let url = matches
         .get_one::<String>("url")
         .expect("URL is required. regit <URL>");
-
     let repo = matches.get_one::<String>("repo");
     let site = matches.get_one::<Site>("site");
     let mode = matches.get_one::<Mode>("mode");
@@ -72,7 +71,7 @@ fn main() {
         }
     }
 
-    println!("{}Done in {}", FINISH, HumanDuration(started.elapsed()));
+    println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
 
     let tui = Confirm::new()
         .with_prompt("💻 Open TUI to manage the files?")
@@ -85,7 +84,7 @@ fn main() {
     }
 
     println!(
-        "{}{}",
+        "{} {}",
         FIRE,
         style("The Repo is prepared and ready to use!")
             .green()

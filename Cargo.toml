@@ -5,10 +5,13 @@ edition = "2024"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["cargo"] }
+color-eyre = "0.6.5"
 console = "0.15.11"
+crossterm = "0.29.0"
 dialoguer = "0.11.0"
 flate2 = "1.1.2"
 indicatif = "0.17.11"
+ratatui = "0.29.0"
 regex = "1.11.1"
 reqwest = { version = "0.12.20", features = ["blocking"] }
 tar = "0.4.44"
