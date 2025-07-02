@@ -1,10 +1,11 @@
 use clap::{ArgAction, arg, command};
+use color_eyre::{Result, eyre::eyre};
 use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
 use regit::fetch::config::Config;
-use regit::file::print_file;
+use regit::file::get_repo;
 use regit::models::mode::Mode;
 use regit::models::site::Site;
 use regit::regex::extract_path;
@@ -13,7 +14,7 @@ use std::{fs, time::Instant};
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
 static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
-fn main() {
+fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
@@ -64,7 +65,7 @@ fn main() {
                 regit::force_clone(&url.to_string(), dir, &config).unwrap();
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
-                return;
+                return Err(eyre!("Directory is not empty"));
             }
         } else {
             regit::clone(&url.to_string(), &config).unwrap();
@@ -79,7 +80,8 @@ fn main() {
         .interact()
         .unwrap();
     if tui {
-        print_file(dir, 0).unwrap();
+        let (dirs, files) = get_repo(dir).unwrap();
+        println!("dir: {:?}, file: {:?}", dirs, files);
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 
@@ -90,4 +92,5 @@ fn main() {
             .green()
             .bold()
     );
+    Ok(())
 }

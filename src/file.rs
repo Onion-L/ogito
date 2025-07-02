@@ -1,39 +1,30 @@
+use color_eyre::Result;
 use flate2::read::GzDecoder;
 use indicatif::ProgressBar;
+use std::ffi::OsString;
 use std::fs::{File, create_dir_all};
 use std::path::Path;
 use std::{fs, io::Write, path::PathBuf};
 use tar::Archive;
 
-pub fn print_file(path: &str, indent: usize) -> Result<(), std::io::Error> {
+pub fn get_repo(path: &str) -> std::io::Result<(Vec<OsString>, Vec<OsString>)> {
+    let current_dir = std::env::current_dir().unwrap();
+    let path = current_dir.join(path);
     let entries: Vec<PathBuf> = fs::read_dir(path)?
         .filter_map(|entry| entry.ok().map(|e| e.path()))
         .collect();
+    let mut dirs = Vec::new();
+    let mut files = Vec::new();
 
-    for entry in &entries {
+    for entry in entries.iter() {
         if entry.is_dir() {
-            let dir_name = entry
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_default();
-
-            println!("{:indent$}📁 {}", "", dir_name, indent = indent);
-            print_file(&entry.to_string_lossy(), indent + 2)?;
+            dirs.push(entry.file_name().unwrap().to_os_string());
+        } else {
+            files.push(entry.file_name().unwrap().to_os_string());
         }
     }
 
-    for entry in &entries {
-        if entry.is_file() {
-            let file_name = entry
-                .file_name()
-                .map(|n| n.to_string_lossy().to_string())
-                .unwrap_or_default();
-
-            println!("{:indent$}📄 {}", "", file_name, indent = indent);
-        }
-    }
-
-    Ok(())
+    Ok((dirs, files))
 }
 
 pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf, String> {
