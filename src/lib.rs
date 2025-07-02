@@ -3,6 +3,7 @@ pub mod fetch;
 pub mod file;
 pub mod models;
 pub mod regex;
+pub mod tui;
 
 use crate::file::{download_file, extract_archive};
 use cmd::git::Git;

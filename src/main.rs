@@ -4,12 +4,14 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
+use std::{fs, time::Instant};
+
 use regit::fetch::config::Config;
 use regit::file::get_repo;
 use regit::models::mode::Mode;
 use regit::models::site::Site;
 use regit::regex::extract_path;
-use std::{fs, time::Instant};
+use regit::tui::app::App;
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
 static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
@@ -81,7 +83,7 @@ fn main() -> Result<()> {
         .unwrap();
     if tui {
         let (dirs, files) = get_repo(dir).unwrap();
-        println!("dir: {:?}, file: {:?}", dirs, files);
+        let _ = App::from(dirs, files);
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 
