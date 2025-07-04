@@ -53,8 +53,18 @@ impl App {
 
 impl Widget for &mut App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let [repo_area, footer_area] =
-            Layout::vertical([Constraint::Fill(1), Constraint::Length(1)]).areas(area);
+        let [header_area, main_area, footer_area] = Layout::vertical([
+            Constraint::Length(2),
+            Constraint::Fill(1),
+            Constraint::Length(1),
+        ])
+        .areas(area);
+
+        Span::styled(
+            format!("{}", self.current_path.to_string_lossy()),
+            Style::new().fg(SLATE.c100),
+        )
+        .render(header_area, buf);
 
         let mut all_items: Vec<ListItem> = Vec::new();
 
@@ -70,19 +80,13 @@ impl Widget for &mut App {
             all_items.push(ListItem::new(line));
         }
 
-        let title = Span::styled(
-            format!("{}", self.current_path.to_string_lossy()),
-            Style::new().fg(SLATE.c100),
-        );
-
         let combined_list = List::new(all_items).block(
             Block::new()
-                .title(title)
                 .borders(Borders::NONE)
                 .border_style(Style::new().fg(SLATE.c400)),
         );
 
-        combined_list.render(repo_area, buf);
+        combined_list.render(main_area, buf);
 
         Paragraph::new("Press 'q', 'Esc', or 'Enter' to exit")
             .centered()
