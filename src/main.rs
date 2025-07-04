@@ -4,6 +4,7 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
+use std::ffi::OsString;
 use std::{fs, time::Instant};
 
 use regit::fetch::config::Config;
@@ -82,8 +83,10 @@ fn main() -> Result<()> {
         .interact()
         .unwrap();
     if tui {
+        let mut terminal = ratatui::init();
         let (dirs, files) = get_repo(dir).unwrap();
-        let _ = App::from(dirs, files);
+        let app = App::from(OsString::from(dir), dirs, files);
+        app.run(&mut terminal).unwrap();
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 
