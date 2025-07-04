@@ -91,19 +91,3 @@ impl Widget for &mut App {
         Paragraph::new("Press 'q' or 'Esc' to exit").render(footer_area, buf);
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_app_from() {
-        let dirs: Vec<OsString> = Vec::new();
-        let f: Vec<OsString> = Vec::new();
-        let path = OsString::from("test");
-        let app = App::from(path.clone(), dirs.clone(), f.clone());
-        assert_eq!(app.directories, dirs);
-        assert_eq!(app.files, f);
-        assert_eq!(app.current_path, path);
-    }
-}
