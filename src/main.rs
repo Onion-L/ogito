@@ -86,7 +86,8 @@ fn main() -> Result<()> {
         let mut terminal = ratatui::init();
         let (dirs, files) = get_repo(dir).unwrap();
         let app = App::from(OsString::from(dir), dirs, files);
-        app.run(&mut terminal).unwrap();
+        let _ = app.run(&mut terminal);
+        ratatui::restore();
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 

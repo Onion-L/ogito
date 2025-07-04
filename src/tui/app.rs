@@ -88,9 +88,7 @@ impl Widget for &mut App {
 
         combined_list.render(main_area, buf);
 
-        Paragraph::new("Press 'q', 'Esc', or 'Enter' to exit")
-            .centered()
-            .render(footer_area, buf);
+        Paragraph::new("Press 'q' or 'Esc' to exit").render(footer_area, buf);
     }
 }
 
