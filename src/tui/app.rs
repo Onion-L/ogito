@@ -4,27 +4,47 @@ use ratatui::{
     DefaultTerminal,
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
-    style::{Style, palette::tailwind::SLATE},
+    style::{
+        Color, Modifier, Style,
+        palette::{material::PURPLE, tailwind::SLATE},
+    },
     text::{Line, Span},
-    widgets::{Block, Borders, List, ListItem, Paragraph, Widget},
+    widgets::{
+        Block, HighlightSpacing, List, ListItem, ListState, Paragraph, StatefulWidget, Widget,
+    },
 };
 use std::{ffi::OsString, path::PathBuf};
 
+const SELECTED_STYLE: Style = Style::new()
+    .bg(PURPLE.c600)
+    .fg(Color::White)
+    .add_modifier(Modifier::BOLD);
+
 pub struct App {
-    pub current_path: PathBuf,
+    pub path: PathBuf,
     pub directories: Vec<OsString>,
     pub files: Vec<OsString>,
     pub exit: bool,
+    list_state: ListState,
 }
 
 impl App {
     pub fn from(current_path: OsString, directories: Vec<OsString>, files: Vec<OsString>) -> Self {
         let current_dir = std::env::current_dir().unwrap();
+        let mut list_state = ListState::default();
+
+        if !directories.is_empty() || !files.is_empty() {
+            list_state.select(Some(0));
+        }
+
+        let path = current_dir.join(current_path);
+
         Self {
-            current_path: current_dir.join(current_path),
+            path,
             directories,
             files,
             exit: false,
+            list_state,
         }
     }
 
@@ -46,8 +66,18 @@ impl App {
         }
         match key.code {
             KeyCode::Char('q') | KeyCode::Esc => self.exit = true,
+            KeyCode::Down | KeyCode::Char('j') => self.select_next(),
+            KeyCode::Up | KeyCode::Char('k') => self.select_previous(),
             _ => {}
         }
+    }
+
+    fn select_next(&mut self) {
+        self.list_state.select_next();
+    }
+
+    fn select_previous(&mut self) {
+        self.list_state.select_previous();
     }
 }
 
@@ -61,7 +91,7 @@ impl Widget for &mut App {
         .areas(area);
 
         Span::styled(
-            format!("{}", self.current_path.to_string_lossy()),
+            format!("{}", self.path.to_string_lossy()),
             Style::new().fg(SLATE.c100),
         )
         .render(header_area, buf);
@@ -80,13 +110,11 @@ impl Widget for &mut App {
             all_items.push(ListItem::new(line));
         }
 
-        let combined_list = List::new(all_items).block(
-            Block::new()
-                .borders(Borders::NONE)
-                .border_style(Style::new().fg(SLATE.c400)),
-        );
-
-        combined_list.render(main_area, buf);
+        let combined_list = List::new(all_items)
+            .block(Block::new())
+            .highlight_style(SELECTED_STYLE)
+            .highlight_spacing(HighlightSpacing::Always);
+        StatefulWidget::render(combined_list, main_area, buf, &mut self.list_state);
 
         Paragraph::new("Press 'q' or 'Esc' to exit").render(footer_area, buf);
     }
