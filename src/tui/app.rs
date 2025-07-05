@@ -10,10 +10,10 @@ use ratatui::{
     },
     text::{Line, Span},
     widgets::{
-        Block, HighlightSpacing, List, ListItem, ListState, Paragraph, StatefulWidget, Widget,
+        Block, HighlightSpacing, List, ListItem, ListState, Paragraph, StatefulWidget, Widget, Wrap,
     },
 };
-use std::{ffi::OsString, path::PathBuf};
+use std::{ffi::OsString, fs, path::PathBuf};
 
 const SELECTED_STYLE: Style = Style::new()
     .bg(PURPLE.c600)
@@ -25,7 +25,9 @@ pub struct App {
     pub directories: Vec<OsString>,
     pub files: Vec<OsString>,
     pub exit: bool,
-    list_state: ListState,
+    pub list_state: ListState,
+    pub file_content: String,
+    pub show_preview: bool,
 }
 
 impl App {
@@ -45,6 +47,8 @@ impl App {
             files,
             exit: false,
             list_state,
+            file_content: String::new(),
+            show_preview: false,
         }
     }
 
@@ -68,6 +72,7 @@ impl App {
             KeyCode::Char('q') | KeyCode::Esc => self.exit = true,
             KeyCode::Down | KeyCode::Char('j') => self.select_next(),
             KeyCode::Up | KeyCode::Char('k') => self.select_previous(),
+            KeyCode::Enter => self.handle_enter(),
             _ => {}
         }
     }
@@ -78,6 +83,21 @@ impl App {
 
     fn select_previous(&mut self) {
         self.list_state.select_previous();
+    }
+
+    fn handle_enter(&mut self) {
+        if let Some(selected) = self.list_state.selected() {
+            self.show_preview = true;
+            if selected >= self.directories.len() {
+                let file_index = selected - self.directories.len();
+                let file_name = &self.files[file_index];
+                let file_path = self.path.join(file_name);
+                let content = fs::read_to_string(file_path).unwrap();
+                self.file_content = content;
+            } else {
+                dbg!("directory");
+            }
+        }
     }
 }
 
@@ -96,6 +116,17 @@ impl Widget for &mut App {
         )
         .render(header_area, buf);
 
+        let (repo_area, gap_area, preview_area) = if self.show_preview {
+            let chunks = Layout::horizontal([
+                Constraint::Percentage(40),
+                Constraint::Percentage(1),
+                Constraint::Percentage(59),
+            ])
+            .split(main_area);
+            (chunks[0], Some(chunks[1]), Some(chunks[2]))
+        } else {
+            (main_area, None, None)
+        };
         let mut all_items: Vec<ListItem> = Vec::new();
 
         for dir in &self.directories {
@@ -114,8 +145,20 @@ impl Widget for &mut App {
             .block(Block::new())
             .highlight_style(SELECTED_STYLE)
             .highlight_spacing(HighlightSpacing::Always);
-        StatefulWidget::render(combined_list, main_area, buf, &mut self.list_state);
+        StatefulWidget::render(combined_list, repo_area, buf, &mut self.list_state);
 
+        if let Some(gap) = gap_area {
+            Block::new().render(gap, buf);
+        }
+
+        let preview_content = Paragraph::new(self.file_content.clone())
+            .block(Block::new())
+            .wrap(Wrap { trim: false })
+            .style(Style::new().fg(SLATE.c300));
+
+        if let Some(preview) = preview_area {
+            preview_content.render(preview, buf);
+        }
         Paragraph::new("Press 'q' or 'Esc' to exit").render(footer_area, buf);
     }
 }
