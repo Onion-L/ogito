@@ -15,6 +15,8 @@ use ratatui::{
 };
 use std::{ffi::OsString, fs, path::PathBuf};
 
+use crate::file::get_repo;
+
 const SELECTED_STYLE: Style = Style::new()
     .bg(PURPLE.c600)
     .fg(Color::White)
@@ -24,10 +26,10 @@ pub struct App {
     pub path: PathBuf,
     pub directories: Vec<OsString>,
     pub files: Vec<OsString>,
-    pub exit: bool,
     pub list_state: ListState,
     pub file_content: String,
     pub show_preview: bool,
+    pub exit: bool,
 }
 
 impl App {
@@ -87,15 +89,20 @@ impl App {
 
     fn handle_enter(&mut self) {
         if let Some(selected) = self.list_state.selected() {
-            self.show_preview = true;
             if selected >= self.directories.len() {
+                self.show_preview = true;
                 let file_index = selected - self.directories.len();
                 let file_name = &self.files[file_index];
                 let file_path = self.path.join(file_name);
                 let content = fs::read_to_string(file_path).unwrap();
                 self.file_content = content;
             } else {
-                dbg!("directory");
+                let current_dir = &self.directories[selected];
+                let path = self.path.join(current_dir);
+                let (mut dirs, files) = get_repo(&OsString::from(path)).unwrap();
+                let up_level = OsString::from("..");
+                dirs.insert(0, up_level);
+                dbg!(dirs, files);
             }
         }
     }

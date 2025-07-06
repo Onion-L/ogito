@@ -7,7 +7,7 @@ use std::path::Path;
 use std::{fs, io::Write, path::PathBuf};
 use tar::Archive;
 
-pub fn get_repo(path: &str) -> std::io::Result<(Vec<OsString>, Vec<OsString>)> {
+pub fn get_repo(path: &OsString) -> std::io::Result<(Vec<OsString>, Vec<OsString>)> {
     let current_dir = std::env::current_dir().unwrap();
     let path = current_dir.join(path);
     let entries: Vec<PathBuf> = fs::read_dir(path)?
@@ -18,9 +18,11 @@ pub fn get_repo(path: &str) -> std::io::Result<(Vec<OsString>, Vec<OsString>)> {
 
     for entry in entries.iter() {
         if entry.is_dir() {
-            dirs.push(entry.file_name().unwrap().to_os_string());
+            let dir_path = entry.file_name().unwrap().to_os_string();
+            dirs.push(dir_path);
         } else {
-            files.push(entry.file_name().unwrap().to_os_string());
+            let file_path = entry.file_name().unwrap().to_os_string();
+            files.push(file_path);
         }
     }
 
