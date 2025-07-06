@@ -41,6 +41,7 @@ impl App {
         }
 
         let path = current_dir.join(current_path);
+        let path = fs::canonicalize(&path).unwrap_or(path);
 
         Self {
             path,
@@ -92,12 +93,14 @@ impl App {
                 let file_index = selected - self.repo.directories.len();
                 let file_name = &self.repo.files[file_index];
                 let file_path = self.path.join(file_name);
+                let file_path = fs::canonicalize(&file_path).unwrap_or(file_path);
                 let content = fs::read_to_string(file_path).unwrap();
                 self.file_content = content;
             } else {
                 // TODO go back will never stop!!!
                 let current_dir = &self.repo.directories[selected];
                 let path = self.path.join(current_dir);
+                let path = fs::canonicalize(&path).unwrap_or(path);
                 let mut repo = get_repo(&OsString::from(&path)).unwrap();
                 let up_level = OsString::from("..");
                 repo.directories.insert(0, up_level);
@@ -119,7 +122,7 @@ impl Widget for &mut App {
         .areas(area);
 
         Span::styled(
-            format!("{}", self.path.to_string_lossy()),
+            &self.path.to_string_lossy()[4..],
             Style::new().fg(SLATE.c100),
         )
         .render(header_area, buf);
