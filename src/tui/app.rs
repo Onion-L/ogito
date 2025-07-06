@@ -95,12 +95,15 @@ impl App {
                 let content = fs::read_to_string(file_path).unwrap();
                 self.file_content = content;
             } else {
+                // TODO go back will never stop!!!
                 let current_dir = &self.repo.directories[selected];
                 let path = self.path.join(current_dir);
-                let mut repo = get_repo(&OsString::from(path)).unwrap();
+                let mut repo = get_repo(&OsString::from(&path)).unwrap();
                 let up_level = OsString::from("..");
                 repo.directories.insert(0, up_level);
-                dbg!(repo);
+                self.repo = repo;
+                self.path = path.clone();
+                self.show_preview = false;
             }
         }
     }
