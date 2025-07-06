@@ -15,7 +15,7 @@ use ratatui::{
 };
 use std::{ffi::OsString, fs, path::PathBuf};
 
-use crate::file::get_repo;
+use crate::file::{Repo, get_repo};
 
 const SELECTED_STYLE: Style = Style::new()
     .bg(PURPLE.c600)
@@ -24,8 +24,7 @@ const SELECTED_STYLE: Style = Style::new()
 
 pub struct App {
     pub path: PathBuf,
-    pub directories: Vec<OsString>,
-    pub files: Vec<OsString>,
+    pub repo: Repo,
     pub list_state: ListState,
     pub file_content: String,
     pub show_preview: bool,
@@ -33,11 +32,11 @@ pub struct App {
 }
 
 impl App {
-    pub fn from(current_path: OsString, directories: Vec<OsString>, files: Vec<OsString>) -> Self {
+    pub fn from(current_path: OsString, repo: Repo) -> Self {
         let current_dir = std::env::current_dir().unwrap();
         let mut list_state = ListState::default();
 
-        if !directories.is_empty() || !files.is_empty() {
+        if !repo.directories.is_empty() || !repo.files.is_empty() {
             list_state.select(Some(0));
         }
 
@@ -45,8 +44,7 @@ impl App {
 
         Self {
             path,
-            directories,
-            files,
+            repo,
             exit: false,
             list_state,
             file_content: String::new(),
@@ -89,20 +87,20 @@ impl App {
 
     fn handle_enter(&mut self) {
         if let Some(selected) = self.list_state.selected() {
-            if selected >= self.directories.len() {
+            if selected >= self.repo.directories.len() {
                 self.show_preview = true;
-                let file_index = selected - self.directories.len();
-                let file_name = &self.files[file_index];
+                let file_index = selected - self.repo.directories.len();
+                let file_name = &self.repo.files[file_index];
                 let file_path = self.path.join(file_name);
                 let content = fs::read_to_string(file_path).unwrap();
                 self.file_content = content;
             } else {
-                let current_dir = &self.directories[selected];
+                let current_dir = &self.repo.directories[selected];
                 let path = self.path.join(current_dir);
-                let (mut dirs, files) = get_repo(&OsString::from(path)).unwrap();
+                let mut repo = get_repo(&OsString::from(path)).unwrap();
                 let up_level = OsString::from("..");
-                dirs.insert(0, up_level);
-                dbg!(dirs, files);
+                repo.directories.insert(0, up_level);
+                dbg!(repo);
             }
         }
     }
@@ -136,13 +134,13 @@ impl Widget for &mut App {
         };
         let mut all_items: Vec<ListItem> = Vec::new();
 
-        for dir in &self.directories {
+        for dir in &self.repo.directories {
             let dir_name = dir.to_string_lossy();
             let line = Line::styled(format!("📁 {}", dir_name), SLATE.c400);
             all_items.push(ListItem::new(line));
         }
 
-        for file in &self.files {
+        for file in &self.repo.files {
             let file_name = file.to_string_lossy();
             let line = Line::styled(format!("📄 {}", file_name), SLATE.c400);
             all_items.push(ListItem::new(line));

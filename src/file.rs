@@ -7,26 +7,43 @@ use std::path::Path;
 use std::{fs, io::Write, path::PathBuf};
 use tar::Archive;
 
-pub fn get_repo(path: &OsString) -> std::io::Result<(Vec<OsString>, Vec<OsString>)> {
-    let current_dir = std::env::current_dir().unwrap();
-    let path = current_dir.join(path);
+#[derive(Debug)]
+pub struct Repo {
+    pub directories: Vec<OsString>,
+    pub files: Vec<OsString>,
+    pub path: PathBuf,
+}
+
+impl Repo {
+    pub fn new() -> Self {
+        Self {
+            directories: Vec::new(),
+            files: Vec::new(),
+            path: PathBuf::new(),
+        }
+    }
+}
+
+pub fn get_repo(path: &OsString) -> std::io::Result<Repo> {
+    let path = std::env::current_dir().unwrap().join(path);
+    let mut repo = Repo::new();
+    repo.path = path.clone();
+
     let entries: Vec<PathBuf> = fs::read_dir(path)?
         .filter_map(|entry| entry.ok().map(|e| e.path()))
         .collect();
-    let mut dirs = Vec::new();
-    let mut files = Vec::new();
 
     for entry in entries.iter() {
         if entry.is_dir() {
             let dir_path = entry.file_name().unwrap().to_os_string();
-            dirs.push(dir_path);
+            repo.directories.push(dir_path);
         } else {
             let file_path = entry.file_name().unwrap().to_os_string();
-            files.push(file_path);
+            repo.files.push(file_path);
         }
     }
 
-    Ok((dirs, files))
+    Ok(repo)
 }
 
 pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf, String> {

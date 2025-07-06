@@ -85,8 +85,8 @@ fn main() -> Result<()> {
     if tui {
         let mut terminal = ratatui::init();
         let dir_os = OsString::from(dir);
-        let (dirs, files) = get_repo(&dir_os).unwrap();
-        let app = App::from(dir_os, dirs, files);
+        let repo = get_repo(&dir_os).unwrap();
+        let app = App::from(dir_os, repo);
         let _ = app.run(&mut terminal);
         ratatui::restore();
         println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
