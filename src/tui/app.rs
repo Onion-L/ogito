@@ -29,6 +29,7 @@ pub struct App {
     pub file_content: String,
     pub show_preview: bool,
     pub exit: bool,
+    pub root: PathBuf,
 }
 
 impl App {
@@ -42,9 +43,10 @@ impl App {
 
         let path = current_dir.join(current_path);
         let path = fs::canonicalize(&path).unwrap_or(path);
-
+        let root = path.clone();
         Self {
             path,
+            root,
             repo,
             exit: false,
             list_state,
@@ -103,7 +105,10 @@ impl App {
                 let path = fs::canonicalize(&path).unwrap_or(path);
                 let mut repo = get_repo(&OsString::from(&path)).unwrap();
                 let up_level = OsString::from("..");
-                repo.directories.insert(0, up_level);
+
+                if path != self.root {
+                    repo.directories.insert(0, up_level);
+                }
                 self.repo = repo;
                 self.path = path.clone();
                 self.show_preview = false;
