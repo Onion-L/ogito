@@ -1,3 +1,4 @@
+use crate::file::{Repo, get_repo};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
@@ -10,12 +11,18 @@ use ratatui::{
     },
     text::{Line, Span},
     widgets::{
-        Block, HighlightSpacing, List, ListItem, ListState, Paragraph, StatefulWidget, Widget, Wrap,
+        Block, HighlightSpacing, List, ListItem, ListState, Paragraph, ScrollbarState,
+        StatefulWidget, Widget, Wrap,
     },
 };
 use std::{ffi::OsString, fs, path::PathBuf};
 
-use crate::file::{Repo, get_repo};
+// TODO make the preview section scrollable
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Focus {
+    FileList,
+    Preview,
+}
 
 const SELECTED_STYLE: Style = Style::new()
     .bg(PURPLE.c600)
@@ -30,6 +37,10 @@ pub struct App {
     pub show_preview: bool,
     pub exit: bool,
     pub root: PathBuf,
+    pub focus: Focus,
+    pub preview_scroll_offset: usize,
+    pub preview_lines: Vec<String>,
+    pub scrollbar_state: ScrollbarState,
 }
 
 impl App {
@@ -52,6 +63,10 @@ impl App {
             list_state,
             file_content: String::new(),
             show_preview: false,
+            focus: Focus::FileList,
+            preview_scroll_offset: 0,
+            preview_lines: Vec::new(),
+            scrollbar_state: ScrollbarState::default(),
         }
     }
 
@@ -88,32 +103,51 @@ impl App {
         self.list_state.select_previous();
     }
 
+    fn is_file_selected(&self, selected: usize) -> bool {
+        selected >= self.repo.directories.len()
+    }
+
+    fn get_canonical_path(&self, current_path: &OsString) -> PathBuf {
+        let path = self.path.join(current_path);
+        std::fs::canonicalize(&path).unwrap_or_else(|_| path.clone())
+    }
+
+    fn add_parent_directory_if_needed(&self, repo: &mut Repo, path: &PathBuf) {
+        if *path != self.root {
+            repo.directories.insert(0, "..".into());
+        }
+    }
+
     fn handle_enter(&mut self) {
         if let Some(selected) = self.list_state.selected() {
-            if selected >= self.repo.directories.len() {
-                self.show_preview = true;
-                let file_index = selected - self.repo.directories.len();
-                let file_name = &self.repo.files[file_index];
-                let file_path = self.path.join(file_name);
-                let file_path = fs::canonicalize(&file_path).unwrap_or(file_path);
-                let content = fs::read_to_string(file_path).unwrap();
-                self.file_content = content;
+            if self.is_file_selected(selected) {
+                self.handle_file_selection(selected);
             } else {
-                // TODO go back will never stop!!!
-                let current_dir = &self.repo.directories[selected];
-                let path = self.path.join(current_dir);
-                let path = fs::canonicalize(&path).unwrap_or(path);
-                let mut repo = get_repo(&OsString::from(&path)).unwrap();
-                let up_level = OsString::from("..");
-
-                if path != self.root {
-                    repo.directories.insert(0, up_level);
-                }
-                self.repo = repo;
-                self.path = path.clone();
-                self.show_preview = false;
+                self.handle_dir_selection(selected);
             }
         }
+    }
+
+    fn handle_dir_selection(&mut self, selected: usize) {
+        let current_dir = &self.repo.directories[selected];
+        let path = self.get_canonical_path(current_dir);
+        let mut repo = get_repo(&OsString::from(&path)).unwrap();
+        self.add_parent_directory_if_needed(&mut repo, &path);
+        self.repo = repo;
+        self.path = path.clone();
+        self.show_preview = false;
+    }
+
+    fn handle_file_selection(&mut self, selected: usize) {
+        self.show_preview = true;
+        let file_index = selected - self.repo.directories.len();
+        let file_name = &self.repo.files[file_index];
+        let file_path = self.get_canonical_path(file_name);
+        // TODO more file types
+        match fs::read_to_string(file_path) {
+            Ok(content) => self.file_content = content,
+            Err(e) => self.file_content = format!("Error reading file: {}", e),
+        };
     }
 }
 
@@ -170,7 +204,7 @@ impl Widget for &mut App {
         let preview_content = Paragraph::new(self.file_content.clone())
             .block(Block::new())
             .wrap(Wrap { trim: false })
-            .style(Style::new().fg(SLATE.c300));
+            .style(Style::new().fg(SLATE.c400));
 
         if let Some(preview) = preview_area {
             preview_content.render(preview, buf);
