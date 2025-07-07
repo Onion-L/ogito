@@ -39,7 +39,7 @@ pub fn is_code_file<P: AsRef<Path>>(path: P) -> bool {
     is_code_extension(extension)
 }
 
-pub fn is_code_extension(extension: &str) -> bool {
+fn is_code_extension(extension: &str) -> bool {
     let code_extensions = [
         "html",
         "htm",
