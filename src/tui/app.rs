@@ -111,7 +111,9 @@ impl App {
             };
 
             let path = self.get_canonical_path(name);
-            self.unchecked_list.insert(path);
+            if !self.unchecked_list.insert(path.clone()) {
+                self.unchecked_list.remove(&path);
+            }
         }
     }
 
@@ -201,13 +203,21 @@ impl Widget for &mut App {
 
         for dir in &self.repo.directories {
             let dir_name = dir.to_string_lossy();
-            let line = Line::styled(format!("📁 {}", dir_name), SLATE.c400);
+            let line = if self.unchecked_list.contains(&self.get_canonical_path(dir)) {
+                Line::styled(format!("❌ {}", dir_name), SLATE.c700)
+            } else {
+                Line::styled(format!("📁 {}", dir_name), SLATE.c400)
+            };
             all_items.push(ListItem::new(line));
         }
 
         for file in &self.repo.files {
             let file_name = file.to_string_lossy();
-            let line = Line::styled(format!("📄 {}", file_name), SLATE.c400);
+            let line = if self.unchecked_list.contains(&self.get_canonical_path(file)) {
+                Line::styled(format!("❌ {}", file_name), SLATE.c700)
+            } else {
+                Line::styled(format!("📄 {}", file_name), SLATE.c400)
+            };
             all_items.push(ListItem::new(line));
         }
 
