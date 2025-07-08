@@ -1,4 +1,4 @@
-use crate::file::{Repo, get_repo};
+use crate::file::{Repo, get_canonical_path, get_repo};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
@@ -110,7 +110,7 @@ impl App {
                 &self.repo.directories[selected]
             };
 
-            let path = self.get_canonical_path(name);
+            let path = get_canonical_path(&self.path, name);
             if !self.unchecked_list.insert(path.clone()) {
                 self.unchecked_list.remove(&path);
             }
@@ -127,11 +127,6 @@ impl App {
 
     fn is_file_selected(&self, selected: usize) -> bool {
         selected >= self.repo.directories.len()
-    }
-
-    fn get_canonical_path(&self, current_path: &OsString) -> PathBuf {
-        let path = self.path.join(current_path);
-        std::fs::canonicalize(&path).unwrap_or_else(|_| path.clone())
     }
 
     fn add_parent_directory_if_needed(&self, repo: &mut Repo, path: &PathBuf) {
@@ -152,7 +147,7 @@ impl App {
 
     fn handle_dir_selection(&mut self, selected: usize) {
         let current_dir = &self.repo.directories[selected];
-        let path = self.get_canonical_path(current_dir);
+        let path = get_canonical_path(&self.path, current_dir);
         let mut repo = get_repo(&OsString::from(&path)).unwrap();
         self.add_parent_directory_if_needed(&mut repo, &path);
         self.repo = repo;
@@ -164,7 +159,7 @@ impl App {
         self.show_preview = true;
         let file_index = selected - self.repo.directories.len();
         let file_name = &self.repo.files[file_index];
-        let file_path = self.get_canonical_path(file_name);
+        let file_path = get_canonical_path(&self.path, file_name);
         // TODO more file types
         match fs::read_to_string(file_path) {
             Ok(content) => self.file_content = content,
@@ -203,7 +198,10 @@ impl Widget for &mut App {
 
         for dir in &self.repo.directories {
             let dir_name = dir.to_string_lossy();
-            let line = if self.unchecked_list.contains(&self.get_canonical_path(dir)) {
+            let line = if self
+                .unchecked_list
+                .contains(&get_canonical_path(&self.path, dir))
+            {
                 Line::styled(format!("❌ {}", dir_name), SLATE.c700)
             } else {
                 Line::styled(format!("📁 {}", dir_name), SLATE.c400)
@@ -213,7 +211,10 @@ impl Widget for &mut App {
 
         for file in &self.repo.files {
             let file_name = file.to_string_lossy();
-            let line = if self.unchecked_list.contains(&self.get_canonical_path(file)) {
+            let line = if self
+                .unchecked_list
+                .contains(&get_canonical_path(&self.path, file))
+            {
                 Line::styled(format!("❌ {}", file_name), SLATE.c700)
             } else {
                 Line::styled(format!("📄 {}", file_name), SLATE.c400)
