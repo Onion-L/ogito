@@ -15,7 +15,7 @@ use ratatui::{
         StatefulWidget, Widget, Wrap,
     },
 };
-use std::{ffi::OsString, fs, path::PathBuf};
+use std::{collections::HashSet, ffi::OsString, fs, path::PathBuf};
 
 // TODO make the preview section scrollable
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -41,6 +41,7 @@ pub struct App {
     pub preview_scroll_offset: usize,
     pub preview_lines: Vec<String>,
     pub scrollbar_state: ScrollbarState,
+    pub unchecked_list: HashSet<PathBuf>,
 }
 
 impl App {
@@ -67,6 +68,7 @@ impl App {
             preview_scroll_offset: 0,
             preview_lines: Vec::new(),
             scrollbar_state: ScrollbarState::default(),
+            unchecked_list: HashSet::new(),
         }
     }
 
@@ -91,7 +93,25 @@ impl App {
             KeyCode::Down | KeyCode::Char('j') => self.select_next(),
             KeyCode::Up | KeyCode::Char('k') => self.select_previous(),
             KeyCode::Enter => self.handle_enter(),
+            KeyCode::Char(c) => match c {
+                // special case for non-visible characters
+                ' ' => self.handle_space(),
+                _ => {}
+            },
             _ => {}
+        }
+    }
+
+    fn handle_space(&mut self) {
+        if let Some(selected) = self.list_state.selected() {
+            let name = if self.is_file_selected(selected) {
+                &self.repo.files[selected - self.repo.directories.len()]
+            } else {
+                &self.repo.directories[selected]
+            };
+
+            let path = self.get_canonical_path(name);
+            self.unchecked_list.insert(path);
         }
     }
 
