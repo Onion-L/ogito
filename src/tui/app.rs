@@ -157,7 +157,7 @@ impl App {
 
     fn handle_file_selection(&mut self, selected: usize) {
         self.show_preview = true;
-        let file_index = selected - self.repo.directories.len();
+        let file_index = selected % self.repo.directories.len();
         let file_name = &self.repo.files[file_index];
         let file_path = get_canonical_path(&self.path, file_name);
         // TODO more file types
