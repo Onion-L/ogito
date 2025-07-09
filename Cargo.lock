@@ -1431,6 +1431,7 @@ dependencies = [
  "reqwest",
  "syntect",
  "tar",
+ "tempfile",
 ]
 
 [[package]]
