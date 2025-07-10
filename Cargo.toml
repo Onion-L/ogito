@@ -10,7 +10,7 @@ homepage = "https://github.com/Onion-L/regit"
 readme = "README.md"
 keywords = ["git", "tui", "cli", "tool"]
 categories = ["command-line-utilities"]
-include = ["src/", "LICENSE", "README.md"]
+exclude = ["node_modules/", "npm/", "target/", ".gitignore", "*.lock", "package.json", "pnpm-lock.yaml", "tsconfig.json", "tsdown.config.ts"]
 
 [[bin]]
 name = "regit"
