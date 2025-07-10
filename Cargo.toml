@@ -1,19 +1,19 @@
 [package]
-name = "regit"
+name = "tegit"
 version = "0.1.0"
 edition = "2024"
 authors = ["Onion-L <onionl5236@gmail.com>"]
 description = "A simple and efficient Git repository cloning management tool"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/Onion-L/regit"
-homepage = "https://github.com/Onion-L/regit"
+repository = "https://github.com/Onion-L/tegit"
+homepage = "https://github.com/Onion-L/tegit"
 readme = "README.md"
 keywords = ["git", "tui", "cli", "tool"]
 categories = ["command-line-utilities"]
 exclude = ["node_modules/", "npm/", "target/", ".gitignore", "*.lock", "package.json", "pnpm-lock.yaml", "tsconfig.json", "tsdown.config.ts"]
 
 [[bin]]
-name = "regit"
+name = "tegit"
 path = "src/main.rs"
 
 [dependencies]

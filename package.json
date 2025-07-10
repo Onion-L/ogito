@@ -1,10 +1,10 @@
 {
-  "name": "regit",
+  "name": "tegit",
   "version": "0.0.0",
   "main": "index.js",
   "type": "module",
   "bin": {
-    "regit": "dist/index.js"
+    "tegit": "dist/index.js"
   },
   "files": [
     "dist"

@@ -1415,26 +1415,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2b15c43186be67a4fd63bee50d0303afffcef381492ebe2c5d87f324e1b8815c"
 
 [[package]]
-name = "regit"
-version = "0.1.0"
-dependencies = [
- "clap",
- "color-eyre",
- "console",
- "crossterm 0.29.0",
- "dialoguer",
- "flate2",
- "indicatif",
- "mime_guess",
- "ratatui",
- "regex",
- "reqwest",
- "syntect",
- "tar",
- "tempfile",
-]
-
-[[package]]
 name = "reqwest"
 version = "0.12.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1860,6 +1840,26 @@ dependencies = [
  "filetime",
  "libc",
  "xattr",
+]
+
+[[package]]
+name = "tegit"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "console",
+ "crossterm 0.29.0",
+ "dialoguer",
+ "flate2",
+ "indicatif",
+ "mime_guess",
+ "ratatui",
+ "regex",
+ "reqwest",
+ "syntect",
+ "tar",
+ "tempfile",
 ]
 
 [[package]]

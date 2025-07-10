@@ -1,6 +1,6 @@
-# regit
+# tegit
 
-A simple and efficient Git repository cloning management tool. `regit` allows you to quickly clone repositories to create a clean project starting point.
+A simple and efficient Git repository cloning management tool. `tegit` allows you to quickly clone repositories to create a clean project starting point.
 
 ## Features
 
@@ -13,26 +13,26 @@ A simple and efficient Git repository cloning management tool. `regit` allows yo
 ## install
 
 ```
-cargo install regit
+cargo install tegit
 ```
 
 ## Usage
 
 ```bash
 # Basic usage
-regit <repository URL>
+tegit <repository URL>
 
 # Example
-regit https://github.com/user/repo
+tegit https://github.com/user/repo
 
 # Use specific direcotry name
-regit https://github.com/user/repo -d dirname
+tegit https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
-regit https://github.com/user/repo -d dirname -f
+tegit https://github.com/user/repo -d dirname -f
 
 # Specify site (currently supports GitHub)
-regit https://github.com/user/repo -d my-project -s github
+tegit https://github.com/user/repo -d my-project -s github
 ```
 
 ### Command Line Options
