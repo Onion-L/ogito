@@ -103,18 +103,19 @@ impl App {
     }
 
     fn handle_space(&mut self) {
-        if let Some(selected) = self.list_state.selected() {
-            let name = if self.is_file_selected(selected) {
-                &self.repo.files[selected - self.repo.directories.len()]
-            } else {
-                &self.repo.directories[selected]
-            };
+        // TODO Unchecked list
+        // if let Some(selected) = self.list_state.selected() {
+        //     let name = if self.is_file_selected(selected) {
+        //         &self.repo.files[selected - self.repo.directories.len()]
+        //     } else {
+        //         &self.repo.directories[selected]
+        //     };
 
-            let path = get_canonical_path(&self.path, name);
-            if !self.unchecked_list.insert(path.clone()) {
-                self.unchecked_list.remove(&path);
-            }
-        }
+        //     let path = get_canonical_path(&self.path, name);
+        //     if !self.unchecked_list.insert(path.clone()) {
+        //         self.unchecked_list.remove(&path);
+        //     }
+        // }
     }
 
     fn select_next(&mut self) {

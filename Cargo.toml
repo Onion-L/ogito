@@ -1,7 +1,19 @@
 [package]
 name = "regit"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2024"
+authors = ["Onion-L <onionl5236@gmail.com>"]
+description = "A simple and efficient Git repository cloning management tool"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Onion-L/regit"
+homepage = "https://github.com/Onion-L/regit"
+readme = "README.md"
+keywords = ["git", "tui", "cli", "tool"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "regit"
+path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.40", features = ["cargo"] }

@@ -10,6 +10,12 @@ A simple and efficient Git repository cloning management tool. `regit` allows yo
 - 📊 Beautiful progress indicators and status feedback
 - 💻 User-friendly command line interface
 
+## install
+
+```
+cargo install regit
+```
+
 ## Usage
 
 ```bash
