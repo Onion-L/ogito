@@ -1,6 +1,6 @@
-# tegit
+# ogito
 
-A simple and efficient Git repository cloning management tool. `tegit` allows you to quickly clone repositories to create a clean project starting point.
+A simple and efficient Git repository cloning management tool. `ogito` allows you to quickly clone repositories to create a clean project starting point.
 
 ## Features
 
@@ -13,26 +13,26 @@ A simple and efficient Git repository cloning management tool. `tegit` allows yo
 ## install
 
 ```
-cargo install tegit
+cargo install ogito
 ```
 
 ## Usage
 
 ```bash
 # Basic usage
-tegit <repository URL>
+ogito <repository URL>
 
 # Example
-tegit https://github.com/user/repo
+ogito https://github.com/user/repo
 
 # Use specific direcotry name
-tegit https://github.com/user/repo -d dirname
+ogito https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
-tegit https://github.com/user/repo -d dirname -f
+ogito https://github.com/user/repo -d dirname -f
 
 # Specify site (currently supports GitHub)
-tegit https://github.com/user/repo -d my-project -s github
+ogito https://github.com/user/repo -d my-project -s github
 ```
 
 ### Command Line Options

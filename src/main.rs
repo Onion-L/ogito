@@ -7,12 +7,12 @@ use indicatif::HumanDuration;
 use std::ffi::OsString;
 use std::{fs, time::Instant};
 
-use tegit::fetch::config::Config;
-use tegit::file::get_repo;
-use tegit::models::mode::Mode;
-use tegit::models::site::Site;
-use tegit::regex::extract_path;
-use tegit::tui::app::App;
+use ogito::fetch::config::Config;
+use ogito::file::get_repo;
+use ogito::models::mode::Mode;
+use ogito::models::site::Site;
+use ogito::regex::extract_path;
+use ogito::tui::app::App;
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
 static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
 
     let url = matches
         .get_one::<String>("url")
-        .expect("URL is required. tegit <URL>");
+        .expect("URL is required. ogito <URL>");
     let repo = matches.get_one::<String>("repo");
     let site = matches.get_one::<Site>("site");
     let mode = matches.get_one::<Mode>("mode");
@@ -54,7 +54,7 @@ fn main() -> Result<()> {
     let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
-        tegit::clone(&url.to_string(), &config).unwrap();
+        ogito::clone(&url.to_string(), &config).unwrap();
     } else {
         let mut empty = fs::read_dir(dir).unwrap();
         if empty.next().is_some() {
@@ -65,13 +65,13 @@ fn main() -> Result<()> {
                     .interact()
                     .unwrap();
             if force {
-                tegit::force_clone(&url.to_string(), dir, &config).unwrap();
+                ogito::force_clone(&url.to_string(), dir, &config).unwrap();
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
                 return Err(eyre!("Directory is not empty"));
             }
         } else {
-            tegit::clone(&url.to_string(), &config).unwrap();
+            ogito::clone(&url.to_string(), &config).unwrap();
         }
     }
 

@@ -45,7 +45,7 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
             "The source is  not a Github URL",
         ));
     }
-    println!("{} tegit: {}", "🔄", style(url).bold());
+    println!("{} ogito: {}", "🔄", style(url).bold());
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
