@@ -20,13 +20,16 @@ cargo install regit
 
 ```bash
 # Basic usage
-regit <repository URL> -d <destination directory>
+regit <repository URL>
 
 # Example
-regit https://github.com/user/repo -d my-project
+regit https://github.com/user/repo
+
+# Use specific direcotry name
+regit https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
-regit https://github.com/user/repo -d existing-dir -f
+regit https://github.com/user/repo -d dirname -f
 
 # Specify site (currently supports GitHub)
 regit https://github.com/user/repo -d my-project -s github
@@ -36,9 +39,9 @@ regit https://github.com/user/repo -d my-project -s github
 
 - `[url]` - Source file link
 - `-r, --repo <REPO>` - Repository name, e.g. 'user/repo'
-- `-d, --dir <DIRNAME>` - Destination directory name (required)
+- `-d, --dir <DIRNAME>` - Destination directory name
 - `-s, --site <SITE>` - Set site, default is GitHub
-- `-m, --mode <MODE>` - Operation mode (currently supports git mode)
+- `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
 
 ## TODO
