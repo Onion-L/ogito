@@ -26,6 +26,7 @@ impl<'a> Config<'a> {
         }
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -55,4 +56,3 @@ mod tests {
         assert!(!config.force);
     }
 }
-

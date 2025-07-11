@@ -4,8 +4,8 @@ use std::{
 };
 
 pub struct Git<'a> {
-    cmd: &'a str,
-    args: Vec<&'a str>,
+    pub cmd: &'a str,
+    pub args: Vec<&'a str>,
 }
 
 impl<'a> Git<'a> {
@@ -35,21 +35,5 @@ impl<'a> Git<'a> {
             .arg("ls-remote")
             .args(&self.args)
             .output()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_git_args() {
-        let mut git = Git::new();
-        git.args(vec!["https://github.com/owner/repo.git", "/tmp/repo"]);
-        assert_eq!(git.cmd, "git");
-        assert_eq!(
-            git.args,
-            vec!["https://github.com/owner/repo.git", "/tmp/repo"]
-        );
     }
 }
