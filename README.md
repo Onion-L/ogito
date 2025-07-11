@@ -1,6 +1,6 @@
-# ogito
+# ogito🍸
 
-A simple and efficient Git repository cloning management tool. `ogito` allows you to quickly clone repositories to create a clean project starting point.
+A simple and efficient Git repository cloning management tool. `ogito` allows you to quickly clone repositories to create a clean project.
 
 ## Features
 
