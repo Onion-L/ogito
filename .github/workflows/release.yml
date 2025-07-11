@@ -1,28 +1,23 @@
-name: Release on Tag
+name: Release
 
 on:
   push:
     tags:
       - 'v*'
+
 jobs:
-  publish:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install Rust
+      - name: Setup Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - name: Install cargo-edit
-        run: cargo install cargo-edit
-
-      - name: Set Cargo.toml version to match tag
-        run: |
-          TAG_VERSION="${GITHUB_REF#refs/tags/v}"
-          cargo set-version "$TAG_VERSION"
-
+      - name: Build
+        run: cargo build --release
       - name: Publish to crates.io
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
