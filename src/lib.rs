@@ -102,7 +102,7 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
 
 fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn std::error::Error>> {
     let host = match config.site {
-        Some(site) => site.to_str(),
+        Some(site) => site,
         None => {
             let site_options = vec![Site::Github.to_str(), Site::Gitlab.to_str()];
             let selection = Select::with_theme(&ColorfulTheme::default())
@@ -111,7 +111,7 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
                 .items(&site_options)
                 .interact()
                 .map_err(|e| e.to_string())?;
-            site_options[selection]
+            Site::from_str(site_options[selection]).unwrap()
         }
     };
     let (owner, repo) = extract_path(url).unwrap();
@@ -146,7 +146,7 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
         .map_err(|e| e.to_string())?;
 
     let hash = hash_list[branch].split("\t").collect::<Vec<&str>>()[0];
-    let archive_url = if host == "gitlab" {
+    let archive_url = if host == Site::Gitlab {
         format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
             owner, repo, hash

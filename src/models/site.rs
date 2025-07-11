@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Copy)]
 pub enum Site {
     Github,
     Gitlab,
@@ -12,15 +12,14 @@ impl Site {
         }
     }
 
-    pub fn from_str(s: &str) -> Result<Self, String> {
-        match s {
-            "github" => Ok(Site::Github),
-            "gitlab" => Ok(Site::Gitlab),
-            _ => Err(format!("Invalid site: {}", s)),
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s.to_lowercase().as_str() {
+            "github" => Some(Site::Github),
+            "gitlab" => Some(Site::Gitlab),
+            _ => None,
         }
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -32,15 +31,9 @@ mod tests {
     }
 
     #[test]
-    fn test_from_str_valid() {
-        assert_eq!(Site::from_str("github"), Ok(Site::Github));
-        assert_eq!(Site::from_str("gitlab"), Ok(Site::Gitlab));
-    }
-
-    #[test]
-    fn test_from_str_invalid() {
-        let err = Site::from_str("gitee");
-        assert!(err.is_err());
-        assert_eq!(err.unwrap_err(), "Invalid site: gitee");
+    fn test_from_str_option() {
+        assert_eq!(Site::from_str("github"), Some(Site::Github));
+        assert_eq!(Site::from_str("gitlab"), Some(Site::Gitlab));
+        assert_eq!(Site::from_str("gitee"), None);
     }
 }

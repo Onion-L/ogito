@@ -4,7 +4,7 @@ use crate::models::{mode::Mode, site::Site};
 pub struct Config<'a> {
     pub repo: Option<&'a String>,
     pub dir: Option<&'a String>,
-    pub site: Option<&'a Site>,
+    pub site: Option<Site>,
     pub mode: Option<&'a Mode>,
     pub force: bool,
 }
@@ -13,7 +13,7 @@ impl<'a> Config<'a> {
     pub fn from(
         repo: Option<&'a String>,
         dir: Option<&'a String>,
-        site: Option<&'a Site>,
+        site: Option<Site>,
         mode: Option<&'a Mode>,
         force: bool,
     ) -> Self {
@@ -26,7 +26,6 @@ impl<'a> Config<'a> {
         }
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -38,10 +37,10 @@ mod tests {
         let dir = String::from("dir");
         let site = Site::Github;
         let mode = Mode::Git;
-        let config = Config::from(Some(&repo), Some(&dir), Some(&site), Some(&mode), true);
+        let config = Config::from(Some(&repo), Some(&dir), Some(site), Some(&mode), true);
         assert_eq!(config.repo, Some(&repo));
         assert_eq!(config.dir, Some(&dir));
-        assert_eq!(config.site, Some(&site));
+        assert_eq!(config.site, Some(site));
         assert_eq!(config.mode, Some(&mode));
         assert!(config.force);
     }
@@ -56,3 +55,4 @@ mod tests {
         assert!(!config.force);
     }
 }
+

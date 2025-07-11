@@ -23,10 +23,7 @@ fn main() -> Result<()> {
         .arg(arg!([url] "the link to the source file"))
         .arg(arg!(-r --repo <REPO> "the repository name, e.g. 'user/repo'").required(false))
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
-        .arg(
-            arg!( -s --site <SITE> "Sets the site or use Github by default")
-                .value_parser(Site::from_str),
-        )
+        .arg(arg!( -s --site <SITE> "Sets the site or use Github by default"))
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
@@ -40,7 +37,7 @@ fn main() -> Result<()> {
         .get_one::<String>("url")
         .expect("URL is required. ogito <URL>");
     let repo = matches.get_one::<String>("repo");
-    let site = matches.get_one::<Site>("site");
+    let site = matches.get_one::<String>("site").unwrap();
     let mode = matches.get_one::<Mode>("mode");
     let force = matches.get_flag("force");
 
@@ -50,7 +47,7 @@ fn main() -> Result<()> {
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(repo, Some(dir), site, mode, force);
+    let config = Config::from(repo, Some(dir), Site::from_str(site), mode, force);
     let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
