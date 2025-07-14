@@ -17,7 +17,7 @@ fn test_extract_path() {
 
     let url_git = "https://github.com/owner/repo.git";
     let result = extract_path(url_git);
-    assert_eq!(result, Some(("owner", "repo.git")));
+    assert_eq!(result, Some(("owner", "repo")));
 
     let invalid = "https://gitlab.com/owner/repo";
     assert!(extract_path(invalid).is_some());
