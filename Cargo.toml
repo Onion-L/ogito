@@ -23,6 +23,7 @@ console = "0.15.11"
 crossterm = "0.29.0"
 dialoguer = "0.11.0"
 flate2 = "1.1.2"
+tokio = { version = "1", features = ["full"] }
 indicatif = "0.17.11"
 mime_guess = "2.0.5"
 ratatui = "0.29.0"

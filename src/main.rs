@@ -17,7 +17,8 @@ use ogito::tui::app::App;
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
 static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
@@ -54,7 +55,7 @@ fn main() -> Result<()> {
     let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
-        ogito::clone(&url.to_string(), &config).unwrap();
+        ogito::clone(&url.to_string(), &config).await.unwrap();
     } else {
         let mut empty = fs::read_dir(dir).unwrap();
         if empty.next().is_some() {
@@ -65,13 +66,15 @@ fn main() -> Result<()> {
                     .interact()
                     .unwrap();
             if force {
-                ogito::force_clone(&url.to_string(), dir, &config).unwrap();
+                ogito::force_clone(&url.to_string(), dir, &config)
+                    .await
+                    .unwrap();
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
                 return Err(eyre!("Directory is not empty"));
             }
         } else {
-            ogito::clone(&url.to_string(), &config).unwrap();
+            ogito::clone(&url.to_string(), &config).await.unwrap();
         }
     }
 

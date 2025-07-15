@@ -16,25 +16,25 @@ use models::{mode::Mode, site::Site};
 use regex::{extract_path, is_github_url};
 use std::{fs, path::Path, thread, time::Duration};
 
-pub fn clone(url: &str, config: &Config) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<(), Box<dyn std::error::Error>> {
     let dir = config.dir.unwrap().to_string();
     if let Some(mode) = config.mode {
         match mode {
             Mode::Git => git_clone(url, &dir)?,
-            Mode::Tar => tar_clone(url, &dir, config)?,
+            Mode::Tar => tar_clone(url, &dir, config).await?,
         }
     }
 
     Ok(())
 }
 
-pub fn force_clone(
+pub async fn force_clone<'a>(
     url: &str,
     dir: &str,
-    config: &Config,
+    config: &Config<'a>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     fs::remove_dir_all(dir).unwrap();
-    clone(url, config).unwrap();
+    clone(url, config).await?;
     Ok(())
 }
 
@@ -100,7 +100,11 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
     Ok(())
 }
 
-fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn std::error::Error>> {
+async fn tar_clone(
+    url: &str,
+    dir: &str,
+    config: &Config<'_>,
+) -> Result<(), Box<dyn std::error::Error>> {
     let host = match config.site {
         Some(site) => site,
         None => {
@@ -193,7 +197,7 @@ fn tar_clone(url: &str, dir: &str, config: &Config<'_>) -> Result<(), Box<dyn st
         }
     });
 
-    let temp_file = download_file(&archive_url, dir, &pb).unwrap();
+    let temp_file = download_file(&archive_url, dir, &pb).await?;
 
     pb.set_message("Extracting files...");
     extract_archive(&temp_file, dir)?;

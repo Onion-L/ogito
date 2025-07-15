@@ -47,7 +47,7 @@ pub fn get_repo(path: &OsString) -> std::io::Result<Repo> {
     Ok(repo)
 }
 
-pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf> {
+pub async fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf> {
     pb.set_message("🚀 Downloading...");
 
     let temp_dir = std::env::temp_dir();
@@ -60,12 +60,12 @@ pub fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf> 
     );
     let temp_file_path = temp_dir.join(file_name);
 
-    let response = reqwest::blocking::get(url).map_err(|e| eyre!(e))?;
+    let response = reqwest::get(url).await?;
     if !response.status().is_success() {
         return Err(eyre!("Download Error: {}", response.status()));
     }
 
-    let bytes = response.bytes().map_err(|e| eyre!(e))?;
+    let bytes = response.bytes().await?;
     let mut file = File::create(&temp_file_path).expect("Failed to create temp file");
     Write::write_all(&mut file, &bytes).expect("Failed to write temp file");
     Ok(temp_file_path)
