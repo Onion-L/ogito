@@ -23,7 +23,10 @@ fn main() -> Result<()> {
         .arg(arg!([url] "the link to the source file"))
         .arg(arg!(-r --repo <REPO> "the repository name, e.g. 'user/repo'").required(false))
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
-        .arg(arg!( -s --site <SITE> "Sets the site or use Github by default").default_value("github"))
+        .arg(
+            arg!( -s --site <SITE> "Sets the site or use Github by default")
+                .default_value("github"),
+        )
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
@@ -37,7 +40,7 @@ fn main() -> Result<()> {
         .get_one::<String>("url")
         .expect("URL is required. ogito <URL>");
     let repo = matches.get_one::<String>("repo");
-    let site = matches.get_one::<String>("site").expect("The site is not found");
+    let site = matches.get_one::<String>("site").unwrap();
     let mode = matches.get_one::<Mode>("mode");
     let force = matches.get_flag("force");
 

@@ -18,12 +18,6 @@ use ratatui::{
 use std::{collections::HashSet, ffi::OsString, fs, path::PathBuf};
 
 // TODO make the preview section scrollable
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum Focus {
-    FileList,
-    Preview,
-}
-
 const SELECTED_STYLE: Style = Style::new()
     .bg(PURPLE.c600)
     .fg(Color::White)
@@ -37,9 +31,7 @@ pub struct App {
     pub show_preview: bool,
     pub exit: bool,
     pub root: PathBuf,
-    pub focus: Focus,
     pub preview_scroll_offset: usize,
-    pub preview_lines: Vec<String>,
     pub scrollbar_state: ScrollbarState,
     pub unchecked_list: HashSet<PathBuf>,
 }
@@ -64,9 +56,7 @@ impl App {
             list_state,
             file_content: String::new(),
             show_preview: false,
-            focus: Focus::FileList,
             preview_scroll_offset: 0,
-            preview_lines: Vec::new(),
             scrollbar_state: ScrollbarState::default(),
             unchecked_list: HashSet::new(),
         }
@@ -89,7 +79,7 @@ impl App {
             return;
         }
         match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => self.exit = true,
+            KeyCode::Char('q') | KeyCode::Esc => self.handle_exit(),
             KeyCode::Down | KeyCode::Char('j') => self.select_next(),
             KeyCode::Up | KeyCode::Char('k') => self.select_previous(),
             KeyCode::Enter => self.handle_enter(),
@@ -102,20 +92,28 @@ impl App {
         }
     }
 
+    fn handle_exit(&mut self) {
+        if self.show_preview {
+            self.show_preview = false;
+        } else {
+            self.exit = true
+        }
+    }
+
     fn handle_space(&mut self) {
         // TODO Unchecked list
-        // if let Some(selected) = self.list_state.selected() {
-        //     let name = if self.is_file_selected(selected) {
-        //         &self.repo.files[selected - self.repo.directories.len()]
-        //     } else {
-        //         &self.repo.directories[selected]
-        //     };
+        if let Some(selected) = self.list_state.selected() {
+            let name = if self.is_file_selected(selected) {
+                &self.repo.files[selected - self.repo.directories.len()]
+            } else {
+                &self.repo.directories[selected]
+            };
 
-        //     let path = get_canonical_path(&self.path, name);
-        //     if !self.unchecked_list.insert(path.clone()) {
-        //         self.unchecked_list.remove(&path);
-        //     }
-        // }
+            let path = get_canonical_path(&self.path, name);
+            if !self.unchecked_list.insert(path.clone()) {
+                self.unchecked_list.remove(&path);
+            }
+        }
     }
 
     fn select_next(&mut self) {
