@@ -1,20 +1,27 @@
 use ogito::models::mode::Mode;
 
 #[test]
-fn mode_to_str() {
-    assert_eq!(Mode::Git.to_str(), "git");
-    assert_eq!(Mode::Tar.to_str(), "tar");
+fn mode_from_string() {
+    let git_str = String::from("git");
+    let tar_str = String::from("tar");
+    let invalid_str = String::from("zip");
+
+    assert_eq!(Mode::from(&git_str), Mode::Git);
+    assert_eq!(Mode::from(&tar_str), Mode::Tar);
+    assert_eq!(Mode::from(&invalid_str), Mode::Uninitialized);
 }
 
 #[test]
-fn mode_from_str_valid() {
-    assert_eq!(Mode::from_str("git"), Ok(Mode::Git));
-    assert_eq!(Mode::from_str("tar"), Ok(Mode::Tar));
-}
+fn mode_into() {
+    let git_str = String::from("git");
+    let tar_str = String::from("tar");
+    let invalid_str = String::from("zip");
 
-#[test]
-fn mode_from_str_invalid() {
-    let err = Mode::from_str("zip");
-    assert!(err.is_err());
-    assert_eq!(err.unwrap_err(), "Invalid mode: zip");
+    let git_mode: Mode = (&git_str).into();
+    let tar_mode: Mode = (&tar_str).into();
+    let invalid_mode: Mode = (&invalid_str).into();
+
+    assert_eq!(git_mode, Mode::Git);
+    assert_eq!(tar_mode, Mode::Tar);
+    assert_eq!(invalid_mode, Mode::Uninitialized);
 }

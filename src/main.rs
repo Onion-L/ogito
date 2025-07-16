@@ -9,7 +9,6 @@ use std::{fs, time::Instant};
 
 use ogito::fetch::config::Config;
 use ogito::file::get_repo;
-use ogito::models::mode::Mode;
 use ogito::models::site::Site;
 use ogito::regex::extract_path;
 use ogito::tui::app::App;
@@ -31,8 +30,7 @@ async fn main() -> Result<()> {
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
-                .value_parser(Mode::from_str)
-                .default_value(Mode::Git.to_str()),
+                .default_value("git"),
         )
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .get_matches();
@@ -42,7 +40,7 @@ async fn main() -> Result<()> {
         .expect("URL is required. ogito <URL>");
     let repo = matches.get_one::<String>("repo");
     let site = matches.get_one::<String>("site").unwrap();
-    let mode = matches.get_one::<Mode>("mode");
+    let mode = matches.get_one::<String>("mode").unwrap();
     let force = matches.get_flag("force");
 
     let (_, repo_dir) = extract_path(url).unwrap();
@@ -51,7 +49,7 @@ async fn main() -> Result<()> {
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(repo, Some(dir), Site::from_str(site), mode, force);
+    let config = Config::from(repo, Some(dir), Site::from_str(site), mode.into(), force);
     let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {

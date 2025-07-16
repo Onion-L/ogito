@@ -18,13 +18,11 @@ use std::{fs, path::Path, thread, time::Duration};
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<(), Box<dyn std::error::Error>> {
     let dir = config.dir.unwrap().to_string();
-    if let Some(mode) = config.mode {
-        match mode {
-            Mode::Git => git_clone(url, &dir)?,
-            Mode::Tar => tar_clone(url, &dir, config).await?,
-        }
+    match config.mode {
+        Mode::Git => git_clone(url, &dir)?,
+        Mode::Tar => tar_clone(url, &dir, config).await?,
+        _ => return Err(format!("Invalid mode: {:?}", config.mode).into()),
     }
-
     Ok(())
 }
 

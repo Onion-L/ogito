@@ -2,21 +2,15 @@
 pub enum Mode {
     Git,
     Tar,
+    Uninitialized,
 }
 
-impl Mode {
-    pub fn to_str(&self) -> &'static str {
-        match self {
-            Mode::Git => "git",
-            Mode::Tar => "tar",
-        }
-    }
-
-    pub fn from_str(s: &str) -> Result<Self, String> {
-        match s {
-            "git" => Ok(Mode::Git),
-            "tar" => Ok(Mode::Tar),
-            _ => Err(format!("Invalid mode: {}", s)),
+impl From<&String> for Mode {
+    fn from(value: &String) -> Mode {
+        match value.as_str() {
+            "git" => Mode::Git,
+            "tar" => Mode::Tar,
+            _ => Mode::Uninitialized,
         }
     }
 }
