@@ -23,7 +23,6 @@ fn test_extract_path() {
     assert!(extract_path(invalid).is_some());
 }
 
-// ... existing code ...
 #[test]
 fn test_extract_host() {
     let github_url = "https://github.com/owner/repo";
