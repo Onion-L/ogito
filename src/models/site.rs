@@ -2,21 +2,15 @@
 pub enum Site {
     Github,
     Gitlab,
+    Unknown,
 }
 
-impl Site {
-    pub fn to_str(&self) -> &'static str {
-        match self {
-            Site::Github => "github",
-            Site::Gitlab => "gitlab",
-        }
-    }
-
-    pub fn from_str(s: &str) -> Option<Self> {
-        match s.to_lowercase().as_str() {
-            "github" => Some(Site::Github),
-            "gitlab" => Some(Site::Gitlab),
-            _ => None,
+impl From<String> for Site {
+    fn from(value: String) -> Site {
+        match value.to_lowercase().as_str() {
+            "github" => Site::Github,
+            "gitlab" => Site::Gitlab,
+            _ => Site::Unknown,
         }
     }
 }

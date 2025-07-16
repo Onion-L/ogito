@@ -2,7 +2,7 @@
 pub enum Mode {
     Git,
     Tar,
-    Uninitialized,
+    Unknown,
 }
 
 impl From<&String> for Mode {
@@ -10,7 +10,7 @@ impl From<&String> for Mode {
         match value.as_str() {
             "git" => Mode::Git,
             "tar" => Mode::Tar,
-            _ => Mode::Uninitialized,
+            _ => Mode::Unknown,
         }
     }
 }
