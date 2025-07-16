@@ -96,6 +96,13 @@ impl App {
         if self.show_preview {
             self.show_preview = false;
         } else {
+            for path in std::mem::take(&mut self.unchecked_list) {
+                if path.is_dir() {
+                    fs::remove_dir_all(path).unwrap();
+                } else if path.is_file() {
+                    fs::remove_file(path).unwrap();
+                }
+            }
             self.exit = true
         }
     }
