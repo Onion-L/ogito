@@ -8,7 +8,7 @@ fn mode_from_string() {
 
     assert_eq!(Mode::from(&git_str), Mode::Git);
     assert_eq!(Mode::from(&tar_str), Mode::Tar);
-    assert_eq!(Mode::from(&invalid_str), Mode::Uninitialized);
+    assert_eq!(Mode::from(&invalid_str), Mode::Unknown);
 }
 
 #[test]
@@ -23,5 +23,5 @@ fn mode_into() {
 
     assert_eq!(git_mode, Mode::Git);
     assert_eq!(tar_mode, Mode::Tar);
-    assert_eq!(invalid_mode, Mode::Uninitialized);
+    assert_eq!(invalid_mode, Mode::Unknown);
 }
