@@ -4,13 +4,13 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
-use std::ffi::OsString;
-use std::{fs, time::Instant};
-
+use ogito::clone::{clone, force_clone};
 use ogito::fetch::config::Config;
 use ogito::file::get_repo;
 use ogito::regex::extract_path;
 use ogito::tui::app::App;
+use std::ffi::OsString;
+use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
 static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
     let started = Instant::now();
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
-        ogito::clone(&url.to_string(), &config).await.unwrap();
+        clone(&url.to_string(), &config).await.unwrap();
     } else {
         let mut empty = fs::read_dir(dir).unwrap();
         if empty.next().is_some() {
@@ -58,15 +58,13 @@ async fn main() -> Result<()> {
                     .interact()
                     .unwrap();
             if force {
-                ogito::force_clone(&url.to_string(), dir, &config)
-                    .await
-                    .unwrap();
+                force_clone(&url.to_string(), dir, &config).await.unwrap();
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
                 return Err(eyre!("Directory is not empty"));
             }
         } else {
-            ogito::clone(&url.to_string(), &config).await.unwrap();
+            clone(&url.to_string(), &config).await.unwrap();
         }
     }
 
