@@ -1,8 +1,7 @@
 use std::{
     io::Error,
-    process::{Command, ExitStatus, Output, Stdio},
+    process::{Command, Output},
 };
-// TODO rewrite with git2 crate
 pub struct Git<'a> {
     pub cmd: &'a str,
     pub args: Vec<&'a str>,
@@ -19,15 +18,6 @@ impl<'a> Git<'a> {
     pub fn args(&mut self, args: Vec<&'a str>) -> &mut Self {
         self.args = args;
         self
-    }
-
-    pub fn clone(&self) -> Result<ExitStatus, Error> {
-        Command::new(self.cmd)
-            .arg("clone")
-            .args(&self.args)
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .status()
     }
 
     pub fn ls_remote(&self) -> Result<Output, Error> {
