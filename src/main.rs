@@ -69,7 +69,7 @@ async fn main() -> Result<()> {
     }
 
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
-
+    println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     let tui = Confirm::new()
         .with_prompt("💻 Open TUI to manage the files?")
         .default(false)
@@ -82,7 +82,6 @@ async fn main() -> Result<()> {
         let app = App::from(dir_os, repo);
         let _ = app.run(&mut terminal);
         ratatui::restore();
-        println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
     }
 
     println!(

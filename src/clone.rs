@@ -7,9 +7,8 @@ use crate::{
     regex::extract_host,
     regex::{extract_path, is_github_url},
 };
-// use cmd::git::Git;
 use console::style;
-use dialoguer::{Select, theme::ColorfulTheme};
+// use dialoguer::{Select, theme::ColorfulTheme};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
 
@@ -108,7 +107,8 @@ async fn tar_clone(url: &str, dir: &str) -> Result<(), Box<dyn std::error::Error
     let binding = stdout.clone();
     let hash_list = binding.split("\n").collect::<Vec<&str>>();
 
-    let hash: Vec<&str> = stdout
+    // TODO select from different commits
+    /*let hash: Vec<&str> = stdout
         .split("\n")
         .filter_map(|line| {
             let parts: Vec<&str> = line.split("\t").collect();
@@ -119,15 +119,15 @@ async fn tar_clone(url: &str, dir: &str) -> Result<(), Box<dyn std::error::Error
             }
         })
         .collect();
-
     let branch: usize = Select::with_theme(&ColorfulTheme::default())
         .with_prompt("Pick the branch you want to clone")
         .default(0)
         .items(&hash)
         .interact()
         .map_err(|e| e.to_string())?;
+      */
 
-    let hash = hash_list[branch].split("\t").collect::<Vec<&str>>()[0];
+    let hash = hash_list[0].split("\t").collect::<Vec<&str>>()[0];
 
     let archive_url = if let Some(site) = host {
         if Site::from(site) == Site::Gitlab {
