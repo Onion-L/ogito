@@ -8,6 +8,7 @@ use crate::{
     regex::{extract_path, is_valid_url},
 };
 use console::style;
+use git2::Repository;
 // use dialoguer::{Select, theme::ColorfulTheme};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
@@ -70,24 +71,26 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
         }
     });
 
-    let mut git = Git::new();
-    let clone_status = git
-        .args(vec![url, dir])
-        .clone()
-        .expect("Failed to execute git clone");
-
+    let status = Repository::clone(url, dir);
     pb.finish_and_clear();
 
-    if !clone_status.success() {
-        println!("{} Git clone failed!", style("❌").red().bold());
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::Other,
-            "Failed to execute git clone",
-        ));
-    }
+    let repo = match status {
+        Ok(repo) => {
+            println!("{} Repository cloned!", style("✨").cyan().bold());
+            repo
+        }
+        Err(e) => {
+            println!("{} Git clone failed!", style("❌").red().bold());
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                e.to_string(),
+            ));
+        }
+    };
+    drop(repo);
 
     let git_dir = Path::new(dir).join(".git");
-    fs::remove_dir_all(git_dir).expect("Failed to remove .git directory");
+    remove_dir_all::remove_dir_all(git_dir).expect("Failed to remove .git directory");
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     let _ = handle.join();

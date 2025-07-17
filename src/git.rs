@@ -2,7 +2,7 @@ use std::{
     io::Error,
     process::{Command, ExitStatus, Output, Stdio},
 };
-
+// TODO rewrite with git2 crate
 pub struct Git<'a> {
     pub cmd: &'a str,
     pub args: Vec<&'a str>,
