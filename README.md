@@ -40,7 +40,6 @@ ogito https://github.com/user/repo -d my-project -s github
 - `[url]` - Source file link
 - `-r, --repo <REPO>` - Repository name, e.g. 'user/repo'
 - `-d, --dir <DIRNAME>` - Destination directory name
-- `-s, --site <SITE>` - Set site, default is GitHub
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
 
@@ -50,8 +49,7 @@ ogito https://github.com/user/repo -d my-project -s github
 - [x] Implement tar mode download
 - [ ] Support more platforms (Gitlab, Bitbucket, Gitee, Gitcode, etc.)
 - [ ] Publish npm package
-- [ ] Implement caching mechanism
-- [ ] Add more tests
+- [ ] Select from specific commit or branch
 - [ ] Optimize error handling and user feedback
 - [ ] Enhance project documentation
 
