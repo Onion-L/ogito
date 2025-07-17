@@ -23,6 +23,11 @@ const SELECTED_STYLE: Style = Style::new()
     .fg(Color::White)
     .add_modifier(Modifier::BOLD);
 
+const COLOR_HEADER: Color = SLATE.c100;
+const COLOR_ENTRY: Color = SLATE.c400;
+const COLOR_DISABLED: Color = SLATE.c700;
+const PREVIEW_STYLE: Style = Style::new().fg(COLOR_ENTRY);
+
 pub struct App {
     pub path: PathBuf,
     pub repo: Repo,
@@ -183,11 +188,7 @@ impl Widget for &mut App {
         ])
         .areas(area);
 
-        Span::styled(
-            &self.path.to_string_lossy()[4..],
-            Style::new().fg(SLATE.c100),
-        )
-        .render(header_area, buf);
+        Span::styled(&self.path.to_string_lossy()[4..], COLOR_HEADER).render(header_area, buf);
 
         let (repo_area, gap_area, preview_area) = if self.show_preview {
             let chunks = Layout::horizontal([
@@ -208,9 +209,9 @@ impl Widget for &mut App {
                 .unchecked_list
                 .contains(&get_canonical_path(&self.path, dir))
             {
-                Line::styled(format!("❌ {}", dir_name), SLATE.c700)
+                Line::styled(format!("❌ {}", dir_name), COLOR_DISABLED)
             } else {
-                Line::styled(format!("📁 {}", dir_name), SLATE.c400)
+                Line::styled(format!("📁 {}", dir_name), COLOR_ENTRY)
             };
             all_items.push(ListItem::new(line));
         }
@@ -221,9 +222,9 @@ impl Widget for &mut App {
                 .unchecked_list
                 .contains(&get_canonical_path(&self.path, file))
             {
-                Line::styled(format!("❌ {}", file_name), SLATE.c700)
+                Line::styled(format!("❌ {}", file_name), COLOR_DISABLED)
             } else {
-                Line::styled(format!("📄 {}", file_name), SLATE.c400)
+                Line::styled(format!("📄 {}", file_name), COLOR_ENTRY)
             };
             all_items.push(ListItem::new(line));
         }
@@ -241,7 +242,7 @@ impl Widget for &mut App {
         let preview_content = Paragraph::new(self.file_content.clone())
             .block(Block::new())
             .wrap(Wrap { trim: false })
-            .style(Style::new().fg(SLATE.c400));
+            .style(PREVIEW_STYLE);
 
         if let Some(preview) = preview_area {
             preview_content.render(preview, buf);
