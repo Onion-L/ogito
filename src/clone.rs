@@ -90,7 +90,7 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
     drop(repo);
 
     let git_dir = Path::new(dir).join(".git");
-    remove_dir_all::remove_dir_all(git_dir).expect("Failed to remove .git directory");
+    fs::remove_dir_all(git_dir).expect("Failed to remove .git directory");
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     let _ = handle.join();
