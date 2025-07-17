@@ -1,4 +1,4 @@
-use crate::models::mode::Mode;
+use crate::models::Mode;
 
 #[derive(Debug)]
 pub struct Config<'a> {

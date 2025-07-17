@@ -1,5 +1,5 @@
 use ogito::fetch::config::Config;
-use ogito::models::mode::Mode;
+use ogito::models::Mode;
 
 #[test]
 fn test_config_from_all_fields() {

@@ -2,8 +2,8 @@ use crate::{
     cmd::git::Git,
     fetch::config::Config,
     file::{download_file, extract_archive},
-    models::mode::Mode,
-    models::site::Site,
+    models::Mode,
+    models::Site,
     regex::extract_host,
     regex::{extract_path, is_github_url},
 };

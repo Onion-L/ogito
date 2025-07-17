@@ -1,4 +1,4 @@
-use ogito::models::mode::Mode;
+use ogito::models::Mode;
 
 #[test]
 fn mode_from_string() {
