@@ -53,7 +53,6 @@ ogito https://github.com/user/repo -d my-project -s github
 - [ ] Implement caching mechanism
 - [ ] Add more tests
 - [ ] Optimize error handling and user feedback
-- [ ] Add multilingual support
 - [ ] Enhance project documentation
 
 ## Contributing
