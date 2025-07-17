@@ -1,4 +1,4 @@
-use ogito::cmd::git::Git;
+use ogito::git::Git;
 
 #[test]
 fn test_git_args() {

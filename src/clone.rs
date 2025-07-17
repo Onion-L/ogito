@@ -1,7 +1,7 @@
 use crate::{
-    cmd::git::Git,
     fetch::config::Config,
     file::{download_file, extract_archive},
+    git::Git,
     models::Mode,
     models::Site,
     regex::extract_host,
