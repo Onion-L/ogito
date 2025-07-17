@@ -5,7 +5,7 @@ use crate::{
     models::Mode,
     models::Site,
     regex::extract_host,
-    regex::{extract_path, is_github_url},
+    regex::{extract_path, is_valid_url},
 };
 use console::style;
 // use dialoguer::{Select, theme::ColorfulTheme};
@@ -33,10 +33,10 @@ pub async fn force_clone<'a>(
 }
 
 fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
-    if !is_github_url(url) {
+    if !is_valid_url(url) {
         return Err(std::io::Error::new(
             std::io::ErrorKind::InvalidInput,
-            "The source is  not a Github URL",
+            "The source is not a valid URL",
         ));
     }
     println!("{} ogito: {}", "🔄", style(url).bold());

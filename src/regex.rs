@@ -1,7 +1,7 @@
 use regex::Regex;
 
-pub fn is_github_url(input: &str) -> bool {
-    let re = Regex::new(r"^(?:https://)?github\.com/([^/]+)/([^/]+?)(?:\.git)?$").unwrap();
+pub fn is_valid_url(input: &str) -> bool {
+    let re = Regex::new(r"^(?:https://)?(github|gitlab)\.com/([^/]+)/([^/]+?)(?:\.git)?$").unwrap();
     re.is_match(input)
 }
 
