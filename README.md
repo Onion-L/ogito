@@ -1,5 +1,10 @@
 # ogito🍸
 
+![Crates.io Version](https://img.shields.io/crates/v/ogito)
+![Crates.io License](https://img.shields.io/crates/l/ogito)
+![Crates.io Total Downloads](https://img.shields.io/crates/d/ogito)
+
+
 A simple and efficient Git repository cloning management tool. `ogito` allows you to quickly clone repositories to create a clean project.
 
 ## Features
