@@ -2,7 +2,7 @@ name: NPM Release
 
 on:
   push:
-    branches: ['npm']
+    branches: ['main']
     # tags:
     #   - 'v*'
 
@@ -11,16 +11,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            npm-name: win32-x64
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-            npm-name: win32-arm64-msvc
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             npm-name: linux-x64
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             npm-name: linux-arm64
           - os: macos-latest
@@ -29,13 +23,19 @@ jobs:
           - os: macos-latest
             target: aarch64-apple-darwin
             npm-name: darwin-arm64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            npm-name: win32-x64
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            npm-name: win32-arm64
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install
+      - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
@@ -44,6 +44,7 @@ jobs:
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
           sudo dpkg --add-architecture arm64
+          # Add ubuntu-ports for arm64 packages and then update
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/arm64.list
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports jammy-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
@@ -70,15 +71,15 @@ jobs:
   #         name: binaries
   #         path: ogito-*.tar.gz
 
-  # publish-platform-packages:
+  # publish:
   #   needs: build-binaries
-  #   runs-on: ubuntu-22.04
+  #   runs-on: ubuntu-latest
 
   #   steps:
   #     - uses: actions/checkout@v4
 
   #     - name: Download artifacts
-  #       uses: actions/download-artifact@v3
+  #       uses: actions/download-artifact@v4
   #       with:
   #         name: binaries
   #         path: .
@@ -92,41 +93,26 @@ jobs:
   #     - name: Install dependencies
   #       run: pnpm install --frozen-lockfile
 
+  #     - name: Get version from Cargo.toml
+  #       id: cargo
+  #       run: echo "version=$(grep '^version' Cargo.toml | sed -e 's/version = \"\(.*\)\"/\1/')" >> $GITHUB_OUTPUT
+
+  #     - name: Update package versions
+  #       run: |
+  #         VERSION=${{ steps.cargo.outputs.version }}
+  #         pnpm version --no-git-tag-version "$VERSION"
+  #         # This sed command updates the version of @ogito/* in optionalDependencies
+  #         sed -i -E "s/(\"@ogito\/[a-z0-9-]+\": \")[^\"]+(\")/\1$VERSION\2/g" package.json
+
   #     - name: Generate platform packages
   #       run: pnpm run script
 
-  # - name: Publish platform packages
-  #   env:
-  #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  #   run: pnpm -r --filter "@ogito/*" publish --access public --no-git-checks
-
-  # publish-main-package:
-  #   needs: publish-platform-packages
-  #   runs-on: ubuntu-latest
-
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: '20'
-  #         registry-url: 'https://registry.npmjs.org'
-
-  #     - name: Install dependencies
-  #       run: pnpm install
-
-  #     - name: Update version
-  #       run: |
-  #         VERSION=${GITHUB_REF#refs/tags/v}
-  #         npm version --no-git-tag-version "$VERSION"
-
-  #     - name: Build
-  #       run: pnpm build
-
-  #     - name: Publish
+  #     - name: Publish platform packages
   #       env:
   #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-  #       run: |
-  #         cd dist
-  #         npm publish
+  #       run: pnpm -r --filter "@ogito/*" publish --access public --no-git-checks
+
+  #     - name: Publish main package
+  #       env:
+  #         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+  #       run: pnpm publish --access public --no-git-checks
