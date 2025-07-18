@@ -1,26 +1,41 @@
 {
   "name": "ogito",
-  "version": "0.0.0",
-  "main": "index.js",
+  "version": "0.0.11",
   "type": "module",
   "bin": {
-    "ogito": "dist/index.js"
+    "ogito": "dist/run.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsdown"
+    "build": "tsdown",
+    "dev": "tsx ./npm/index.ts",
+    "prepublishOnly": "pnpm run build",
+    "postinstall": "node ./dist/install.js"
+  },
+  "optionalDependencies": {
+    "@ogito/darwin-arm64": "0.2.2",
+    "@ogito/darwin-x64": "0.2.2",
+    "@ogito/linux-arm64": "0.2.2",
+    "@ogito/linux-x64": "0.2.2",
+    "@ogito/win32-arm64": "0.2.2",
+    "@ogito/win32-x64": "0.2.2"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "@types/node": "^24.0.3",
-    "tsdown": "^0.12.8"
+    "tsdown": "^0.12.8",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
+    "tar": "^7.4.3"
   }
 }

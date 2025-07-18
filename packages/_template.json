@@ -1,0 +1,12 @@
+{
+  "name": "@ogito/{{os}}-{{arch}}",
+  "version": "{{version}}",
+  "description": "ogito binary for {{os}}-{{arch}}",
+  "os": ["{{os}}"],
+  "bin": {
+    "ogito": "{{bin}}"
+  },
+  "cpu": ["{{arch}}"],
+  "files": ["ogito-{{os}}-{{arch}}.tar.gz"],
+  "license": "MIT"
+}

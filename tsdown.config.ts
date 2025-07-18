@@ -1,11 +1,11 @@
 import { defineConfig } from 'tsdown'
 
 export default defineConfig({
-  entry: ['./package/index.ts'],
+  entry: ['./npm'],
   target: 'esnext',
   format: ['esm'],
   clean: true,
   minify: false,
-  outDir: 'output',
+  outDir: 'dist',
   treeshake: true
 })
