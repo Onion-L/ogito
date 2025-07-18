@@ -47,7 +47,7 @@ jobs:
           tar -czf ogito-${{ matrix.npm-name }}.tar.gz -C target/${{ matrix.target }}/release ogito*
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: binaries
           path: ogito-*.tar.gz
