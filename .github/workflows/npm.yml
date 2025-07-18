@@ -1,8 +1,9 @@
-name: Release
+name: NPM Release
 
 on:
   push:
-    branches: ['npm']
+    tags:
+      - 'v*'
 
 jobs:
   build-binaries:
@@ -99,7 +100,7 @@ jobs:
 
       - name: Update version
         run: |
-          VERSION="v0.0.1"
+          VERSION=${GITHUB_REF#refs/tags/v}
           npm version --no-git-tag-version "$VERSION"
 
       - name: Build
