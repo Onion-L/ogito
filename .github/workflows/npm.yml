@@ -42,7 +42,16 @@ jobs:
 
       - name: Set OpenSSL env vars (macOS)
         if: runner.os == 'macOS'
-        run: echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig" >> $GITHUB_ENV
+        run: |
+          if [[ "${{ matrix.target }}" == "aarch64-apple-darwin" ]]; then
+          # Native ARM64 build: Use the standard ARM64 Homebrew OpenSSL.
+            echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig" >> $GITHUB_ENV
+          elif [[ "${{ matrix.target }}" == "x86_64-apple-darwin" ]]; then
+            # Cross-compiling for x86_64: Install the x86_64 version of OpenSSL
+            # using Rosetta 2 and point to its pkg-config.
+            arch -x86_64 brew install openssl@3
+            echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@3/lib/pkgconfig" >> $GITHUB_ENV
+          fi
 
       # - name: Install cross-compilation deps for ARM64 (Ubuntu only)
       #   if: matrix.target == 'aarch64-unknown-linux-gnu'
