@@ -11,18 +11,18 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            npm-name: linux-x64
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-            npm-name: linux-arm64
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            npm-name: darwin-x64
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            npm-name: darwin-arm64
+          # - os: ubuntu-latest
+          #   target: x86_64-unknown-linux-gnu
+          #   npm-name: linux-x64
+          # - os: ubuntu-latest
+          #   target: aarch64-unknown-linux-gnu
+          #   npm-name: linux-arm64
+          # - os: macos-latest
+          #   target: x86_64-apple-darwin
+          #   npm-name: darwin-x64
+          # - os: macos-latest
+          #   target: aarch64-apple-darwin
+          #   npm-name: darwin-arm64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             npm-name: win32-x64
