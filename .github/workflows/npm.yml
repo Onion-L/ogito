@@ -43,28 +43,14 @@ jobs:
       - name: Set OpenSSL env vars (macOS)
         if: runner.os == 'macOS'
         run: |
-          if [[ "${{ matrix.target }}" == "aarch64-apple-darwin" ]]; then
-          # Native ARM64 build: Use the standard ARM64 Homebrew OpenSSL.
-            echo "PKG_CONFIG_PATH=$(brew --prefix openssl@3)/lib/pkgconfig" >> $GITHUB_ENV
-          elif [[ "${{ matrix.target }}" == "x86_64-apple-darwin" ]]; then
-            # Cross-compiling for x86_64: Install the x86_64 version of OpenSSL
-            # using Rosetta 2 and point to its pkg-config.
-            arch -x86_64 brew install openssl@3
-            echo "PKG_CONFIG_PATH=/usr/local/opt/openssl@3/lib/pkgconfig" >> $GITHUB_ENV
-          fi
+          sudo apt install pkg-config
+          sudo apt-get install libudev-dev
 
-      # - name: Install cross-compilation deps for ARM64 (Ubuntu only)
-      #   if: matrix.target == 'aarch64-unknown-linux-gnu'
-      #   run: |
-      #     sudo dpkg --add-architecture arm64
-      #     CODENAME=$(lsb_release -cs)
-      #     # Add ubuntu-ports for arm64 packages using the dynamic codename
-      #     echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports $CODENAME main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/arm64.list
-      #     echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports $CODENAME-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-      #     echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports $CODENAME-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-      #     echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports $CODENAME-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/arm64.list
-      #     sudo apt-get update
-      #     sudo apt-get install -y gcc-aarch64-linux-gnu libssl-dev:arm64
+      - name: Install cross-compilation deps for ARM64 (Ubuntu only)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt install pkg-config
+          sudo apt-get install libudev-dev
 
       # - name: Set cross-compilation env vars for ARM64 (Ubuntu only)
       #   if: matrix.target == 'aarch64-unknown-linux-gnu'
