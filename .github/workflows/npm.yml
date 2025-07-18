@@ -2,7 +2,7 @@ name: NPM Release
 
 on:
   push:
-    branches: ['main']
+    branches: ['npm']
     # tags:
     #   - 'v*'
 
