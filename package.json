@@ -15,7 +15,8 @@
     "build": "tsdown",
     "dev": "tsx ./npm/index.ts",
     "prepublishOnly": "pnpm run build",
-    "postinstall": "node ./dist/install.js"
+    "postinstall": "node ./dist/install.js",
+    "script": "tsx script/pkg.ts"
   },
   "optionalDependencies": {
     "@ogito/darwin-arm64": "0.2.2",
