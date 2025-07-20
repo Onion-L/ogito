@@ -86,7 +86,7 @@ jobs:
 
       - name: Set version from tag
         run: |
-          VERSION=${GITHUB_REF_NAME##*/v}
+          VERSION=${GITHUB_REF_NAME#v}
           echo "Publishing version $VERSION"
           pnpm pkg set version=$VERSION
 
@@ -112,7 +112,7 @@ jobs:
       - name: Dynamically add optionalDependencies
         shell: bash
         run: |
-          VERSION=${GITHUB_REF_NAME##*/v}
+          VERSION=${GITHUB_REF_NAME#v}
           SCOPE=$(pnpm pkg get name | jq -r 'if (. | startswith("@")) then (. | split("/")[0]) else "" end')
           TARGETS=( "darwin-arm64" "darwin-x64" "linux-arm64" "linux-x64" "win32-arm64" "win32-x64" )
           for target in "${TARGETS[@]}"; do
@@ -121,9 +121,6 @@ jobs:
             echo "Adding optional dependency: $pkg_name"
             pnpm pkg set "optionalDependencies.$pkg_name=$VERSION"
           done
-
-      # - name: Link workspace packages
-      #   run: pnpm install --ignore-scripts --no-frozen-lockfile
 
       - name: Publish packages to npm
         run: pnpm -r publish --access public --no-git-checks
