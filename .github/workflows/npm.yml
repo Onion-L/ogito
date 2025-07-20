@@ -121,6 +121,9 @@ jobs:
             pnpm pkg set "optionalDependencies.$pkg_name=workspace:*"
           done
 
+      - name: Link workspace packages
+        run: pnpm install --ignore-scripts
+
       - name: Publish packages to npm
         run: pnpm -r publish --access public --no-git-checks
         env:
