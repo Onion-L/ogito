@@ -12,7 +12,7 @@ const targets = [
   { os: 'win32', arch: 'arm64' }
 ]
 
-export const pkg = () => {
+const moveBinaries = () => {
   for (const t of targets) {
     const dir = `packages/${t.os}-${t.arch}`
     mkdirSync(dir, { recursive: true })
@@ -28,3 +28,5 @@ export const pkg = () => {
     writeFileSync(join(dir, 'package.json'), pkg)
   }
 }
+
+moveBinaries()

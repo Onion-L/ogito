@@ -1,4 +1,4 @@
-name: Build Multi-platform Binaries
+name: Build and Publish
 
 on:
   push:
@@ -51,3 +51,59 @@ jobs:
 
       - name: Build
         run: cargo build --release --target=${{ matrix.target }}
+
+      - name: Package
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+            tar -czf ../../../ogito-${{ matrix.npm-name }}.tar.gz ogito.exe
+          else
+            tar -czf ../../../ogito-${{ matrix.npm-name }}.tar.gz ogito
+          fi
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ogito-binaries
+          path: ogito-${{ matrix.npm-name }}.tar.gz
+
+  publish:
+    name: Prepare and Publish Packages
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          name: ogito-binaries
+          path: ogito-binaries/
+
+      - name: Move binaries to root
+        run: |
+          mv ogito-binaries/* .
+          rmdir ogito-binaries
+
+      - name: Verify downloaded files
+        run: ls -la
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Prepare packages
+        run: pnpm run script
+
+      - name: Publish packages to npm
+        run: pnpm -r publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
