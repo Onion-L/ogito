@@ -119,7 +119,7 @@ jobs:
             pkg_name="$target"
             [[ -n "$SCOPE" ]] && pkg_name="$SCOPE/$target"
             echo "Adding optional dependency: $pkg_name"
-            pnpm pkg set "optionalDependencies.$pkg_name=$VERSION"
+            pnpm pkg set "optionalDependencies.@ogito/$pkg_name=$VERSION"
           done
 
       - name: Publish packages to npm
