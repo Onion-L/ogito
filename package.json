@@ -19,17 +19,17 @@
     "script": "tsx script/script.ts"
   },
   "optionalDependencies": {
-    "@ogito/darwin-arm64": "0.2.2",
-    "@ogito/darwin-x64": "0.2.2",
-    "@ogito/linux-arm64": "0.2.2",
-    "@ogito/linux-x64": "0.2.2",
-    "@ogito/win32-arm64": "0.2.2",
-    "@ogito/win32-x64": "0.2.2"
+    "@ogito/darwin-arm64": "workspace:*",
+    "@ogito/darwin-x64": "workspace:*",
+    "@ogito/linux-arm64": "workspace:*",
+    "@ogito/linux-x64": "workspace:*",
+    "@ogito/win32-arm64": "workspace:*",
+    "@ogito/win32-x64": "workspace:*"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["git", "tui", "cli", "degit", "terminal"],
+  "author": "Onion-L <onionl5236@gmail.com>",
   "license": "MIT",
-  "description": "",
+  "description": "A simple and efficient Git repository cloning management tool",
   "devDependencies": {
     "@types/node": "^24.0.3",
     "tsdown": "^0.12.8",
