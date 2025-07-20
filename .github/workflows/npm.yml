@@ -112,17 +112,18 @@ jobs:
       - name: Dynamically add optionalDependencies
         shell: bash
         run: |
+          VERSION=${GITHUB_REF_NAME##*/v}
           SCOPE=$(pnpm pkg get name | jq -r 'if (. | startswith("@")) then (. | split("/")[0]) else "" end')
           TARGETS=( "darwin-arm64" "darwin-x64" "linux-arm64" "linux-x64" "win32-arm64" "win32-x64" )
           for target in "${TARGETS[@]}"; do
             pkg_name="$target"
             [[ -n "$SCOPE" ]] && pkg_name="$SCOPE/$target"
             echo "Adding optional dependency: $pkg_name"
-            pnpm pkg set "optionalDependencies.$pkg_name=workspace:*"
+            pnpm pkg set "optionalDependencies.$pkg_name=$VERSION"
           done
 
-      - name: Link workspace packages
-        run: pnpm install --ignore-scripts --no-frozen-lockfile
+      # - name: Link workspace packages
+      #   run: pnpm install --ignore-scripts --no-frozen-lockfile
 
       - name: Publish packages to npm
         run: pnpm -r publish --access public --no-git-checks
