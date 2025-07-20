@@ -65,7 +65,7 @@ jobs:
       - name: Upload binary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ogito-binaries
+          name: ogito-binary-${{ matrix.npm-name }}
           path: ogito-${{ matrix.npm-name }}.tar.gz
 
   publish:
@@ -86,13 +86,12 @@ jobs:
       - name: Download all binaries
         uses: actions/download-artifact@v4
         with:
-          name: ogito-binaries
-          path: ogito-binaries/
+          path: all-binaries
 
       - name: Move binaries to root
         run: |
-          mv ogito-binaries/* .
-          rmdir ogito-binaries
+          mv all-binaries/*/* .
+          rm -rf all-binaries
 
       - name: Verify downloaded files
         run: ls -la
