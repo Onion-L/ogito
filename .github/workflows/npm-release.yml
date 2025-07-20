@@ -1,8 +1,9 @@
-name: Build and Publish
+name: NPM Release
 
 on:
   push:
-    branches: [main]
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -82,6 +83,12 @@ jobs:
           node-version: 20
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Set version from tag
+        run: |
+          VERSION=${GITHUB_REF_NAME##*/v}
+          echo "Publishing version $VERSION"
+          pnpm pkg set version=$VERSION
 
       - name: Download all binaries
         uses: actions/download-artifact@v4
