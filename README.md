@@ -4,7 +4,6 @@
 ![Crates.io License](https://img.shields.io/crates/l/ogito)
 ![Crates.io Total Downloads](https://img.shields.io/crates/d/ogito)
 
-
 A simple and efficient Git repository cloning management tool. `ogito` allows you to quickly clone repositories to create a clean project.
 
 ## Features
@@ -17,8 +16,12 @@ A simple and efficient Git repository cloning management tool. `ogito` allows yo
 
 ## install
 
-```
+```bash
+# cargo
 cargo install ogito
+
+# npm
+npm install -g ogito
 ```
 
 ## Usage
@@ -53,7 +56,7 @@ ogito https://github.com/user/repo -d my-project -s github
 - [ ] Implement TUI (Text User Interface) for post-clone management
 - [x] Implement tar mode download
 - [ ] Support more platforms (Gitlab, Bitbucket, Gitee, Gitcode, etc.)
-- [ ] Publish npm package
+- [x] Publish npm package
 - [ ] Select from specific commit or branch
 - [ ] Optimize error handling and user feedback
 - [ ] Enhance project documentation
