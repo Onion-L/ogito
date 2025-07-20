@@ -18,14 +18,7 @@
     "postinstall": "node ./dist/install.js",
     "script": "tsx script/script.ts"
   },
-  "optionalDependencies": {
-    "@ogito/darwin-arm64": "workspace:*",
-    "@ogito/darwin-x64": "workspace:*",
-    "@ogito/linux-arm64": "workspace:*",
-    "@ogito/linux-x64": "workspace:*",
-    "@ogito/win32-arm64": "workspace:*",
-    "@ogito/win32-x64": "workspace:*"
-  },
+
   "keywords": ["git", "tui", "cli", "degit", "terminal"],
   "author": "Onion-L <onionl5236@gmail.com>",
   "license": "MIT",
