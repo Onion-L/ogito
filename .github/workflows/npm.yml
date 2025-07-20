@@ -122,7 +122,7 @@ jobs:
           done
 
       - name: Link workspace packages
-        run: pnpm install --ignore-scripts
+        run: pnpm install --ignore-scripts --no-frozen-lockfile
 
       - name: Publish packages to npm
         run: pnpm -r publish --access public --no-git-checks
