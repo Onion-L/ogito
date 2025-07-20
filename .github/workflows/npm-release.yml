@@ -97,7 +97,7 @@ jobs:
         run: ls -la
 
       - name: Install dependencies
-        run: pnpm install --ignore-scripts
+        run: pnpm install --ignore-scripts --no-git-checks
 
       - name: Prepare packages
         run: pnpm run script
