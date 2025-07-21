@@ -21,6 +21,7 @@ async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
+        .arg_required_else_help(true)
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
