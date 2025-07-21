@@ -132,20 +132,16 @@ async fn tar_clone(url: &str, dir: &str) -> Result<(), Box<dyn std::error::Error
 
     let hash = hash_list[0].split("\t").collect::<Vec<&str>>()[0];
 
-    let archive_url = if let Some(site) = host {
-        match Site::from(site) {
-            Site::Gitlab => format!(
-                "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
-                owner, repo, hash
-            ),
-            Site::Github => format!(
-                "https://github.com/{}/{}/archive/{}.tar.gz",
-                owner, repo, hash
-            ),
-            _ => String::new(),
-        }
-    } else {
-        String::new()
+    let archive_url = match host.map(Site::from) {
+        Some(Site::Gitlab) => format!(
+            "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
+            owner, repo, hash
+        ),
+        Some(Site::Github) => format!(
+            "https://github.com/{}/{}/archive/{}.tar.gz",
+            owner, repo, hash
+        ),
+        _ => String::new(),
     };
 
     println!(
