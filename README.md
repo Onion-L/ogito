@@ -51,16 +51,6 @@ ogito https://github.com/user/repo -d my-project -s github
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
 
-## TODO
-
-- [ ] Implement TUI (Text User Interface) for post-clone management
-- [x] Implement tar mode download
-- [ ] Support more platforms (Gitlab, Bitbucket, Gitee, Gitcode, etc.)
-- [x] Publish npm package
-- [ ] Select from specific commit or branch
-- [ ] Optimize error handling and user feedback
-- [ ] Enhance project documentation
-
 ## Contributing
 
 Contributions are welcome! Feel free to submit issues and pull requests.
