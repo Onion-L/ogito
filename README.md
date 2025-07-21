@@ -49,6 +49,7 @@ ogito https://github.com/user/repo -d my-project -s github
 - `-d, --dir <DIRNAME>` - Destination directory name
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
+- `--keep-history` - Keep the history of the repository
 
 ## Contributing
 
