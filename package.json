@@ -11,7 +11,6 @@
     "LICENSE"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsdown",
     "dev": "tsx ./npm/index.ts",
     "prepublishOnly": "pnpm run build",
