@@ -38,9 +38,6 @@ ogito https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
 ogito https://github.com/user/repo -d dirname -f
-
-# Specify site (currently supports GitHub and Gitlab)
-ogito https://github.com/user/repo -d my-project -s github
 ```
 
 ### Command Line Options
