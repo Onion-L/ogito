@@ -1,4 +1,4 @@
-use clap::{ArgAction, arg, command};
+use clap::{Arg, ArgAction, arg, command};
 use color_eyre::eyre::ContextCompat;
 use color_eyre::{Result, eyre::eyre};
 use console::Emoji;
@@ -21,8 +21,6 @@ async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
-        .arg(arg!(-b --branch <BRANCH> "the branch to clone").required(false))
-        .arg(arg!(-c --commit <COMMIT> "the commit to clone").required(false))
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
@@ -30,6 +28,12 @@ async fn main() -> Result<()> {
                 .default_value("git"),
         )
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+        .arg(
+            Arg::new("keep-history")
+                .long("keep-history")
+                .help("keep the history of the repository")
+                .action(ArgAction::SetTrue),
+        )
         .get_matches();
 
     let url = matches
@@ -38,15 +42,16 @@ async fn main() -> Result<()> {
     let mode = matches
         .get_one::<String>("mode")
         .ok_or_else(|| eyre!("Mode is required. ogito -m <MODE>"))?;
-    let force = matches.get_flag("force");
 
+    let force = matches.get_flag("force");
+    let keep_history = matches.get_flag("keep-history");
     let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
     let dir = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(dir, mode.into(), force);
+    let config = Config::from(dir, mode.into(), force, keep_history);
     let started = Instant::now();
 
     // check if the directory exists

@@ -7,16 +7,16 @@ This is the roadmap for the project. It is not a commitment, but a guide for the
 - [x] Publish npm package
 - [x] Implement tar mode download
 - [x] Implement TUI (Text User Interface) for post-clone management
-- [ ] Select from specific commit or branch
+- [x] Keep git history
 
 ## 0.4.x
 
 - [ ] Monorepo support
-- [ ] Https tarball / Git protocol
+- [ ] Select from specific commit or branch
 - [ ] Basic cache
 
 ## 0.5.x
 
+- [ ] Https tarball / Git protocol
 - [ ] File search
-- [ ] Keep git history
 - [ ] Https, tar, ssh support

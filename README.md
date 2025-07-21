@@ -46,7 +46,6 @@ ogito https://github.com/user/repo -d my-project -s github
 ### Command Line Options
 
 - `[url]` - Source file link
-- `-r, --repo <REPO>` - Repository name, e.g. 'user/repo'
 - `-d, --dir <DIRNAME>` - Destination directory name
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory

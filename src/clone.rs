@@ -8,6 +8,7 @@ use crate::{
     regex::{extract_path, is_valid_url},
 };
 use console::style;
+use dialoguer::Confirm;
 use git2::Repository;
 // use dialoguer::{Select, theme::ColorfulTheme};
 use color_eyre::{Result, eyre::eyre};
@@ -16,10 +17,11 @@ use std::{fs, path::Path, thread, time::Duration};
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let dir = config.dir;
+    let keep_history = config.keep_history;
 
     match config.mode {
-        Mode::Git => git_clone(url, &dir)?,
-        Mode::Tar => tar_clone(url, &dir).await?,
+        Mode::Git => git_clone(url, &dir, keep_history)?,
+        Mode::Tar => tar_clone(url, &dir, keep_history).await?,
         _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
     Ok(())
@@ -31,7 +33,7 @@ pub async fn force_clone<'a>(url: &str, dir: &str, config: &Config<'a>) -> Resul
     Ok(())
 }
 
-fn git_clone(url: &str, dir: &str) -> Result<()> {
+fn git_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
     if !is_valid_url(url) {
         return Err(eyre!("The source is not a valid URL"));
     }
@@ -80,16 +82,31 @@ fn git_clone(url: &str, dir: &str) -> Result<()> {
         }
     };
     drop(repo);
-
-    let git_dir = Path::new(dir).join(".git");
-    fs::remove_dir_all(git_dir)?;
+    if !keep_history {
+        let git_dir = Path::new(dir).join(".git");
+        fs::remove_dir_all(git_dir)?;
+    }
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     let _ = handle.join();
     Ok(())
 }
 
-async fn tar_clone(url: &str, dir: &str) -> Result<()> {
+async fn tar_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
+    if keep_history {
+        let use_git = Confirm::new()
+            .with_prompt("Tar mode does not support keep history, do you want to use git instead?")
+            .default(false)
+            .interact()
+            .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+        if use_git {
+            git_clone(url, dir, true)?;
+        } else {
+            return Err(eyre!(
+                "Tar mode does not support keep history, please use git instead"
+            ));
+        }
+    }
     let (owner, repo) = extract_path(url).unwrap();
     let host = extract_host(url);
     let mut git = Git::new();
