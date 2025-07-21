@@ -16,7 +16,7 @@ pub fn extract_path(url: &str) -> Option<(&str, &str)> {
 }
 
 pub fn extract_host(url: &str) -> Option<String> {
-    let re = Regex::new(r"https?://(?:www\.)?([^.]+)\.com").unwrap();
+    let re = Regex::new(r"https?://(?:www\.)?([^.]+)\.com").ok()?;
     re.captures(url)
         .and_then(|caps| caps.get(1).map(|m| m.as_str().to_string()))
 }

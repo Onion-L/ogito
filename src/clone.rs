@@ -10,36 +10,30 @@ use crate::{
 use console::style;
 use git2::Repository;
 // use dialoguer::{Select, theme::ColorfulTheme};
+use color_eyre::{Result, eyre::eyre};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
 
-pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<(), Box<dyn std::error::Error>> {
+pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let dir = config.dir;
 
     match config.mode {
         Mode::Git => git_clone(url, &dir)?,
         Mode::Tar => tar_clone(url, &dir).await?,
-        _ => return Err(format!("Invalid mode: {:?}", config.mode).into()),
+        _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
     Ok(())
 }
 
-pub async fn force_clone<'a>(
-    url: &str,
-    dir: &str,
-    config: &Config<'a>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    fs::remove_dir_all(dir).unwrap();
+pub async fn force_clone<'a>(url: &str, dir: &str, config: &Config<'a>) -> Result<()> {
+    fs::remove_dir_all(dir)?;
     clone(url, config).await?;
     Ok(())
 }
 
-fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
+fn git_clone(url: &str, dir: &str) -> Result<()> {
     if !is_valid_url(url) {
-        return Err(std::io::Error::new(
-            std::io::ErrorKind::InvalidInput,
-            "The source is not a valid URL",
-        ));
+        return Err(eyre!("The source is not a valid URL"));
     }
     println!("{} ogito: {}", "🔄", style(url).bold());
 
@@ -82,30 +76,27 @@ fn git_clone(url: &str, dir: &str) -> Result<(), std::io::Error> {
         }
         Err(e) => {
             println!("{} Git clone failed!", style("❌").red().bold());
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                e.to_string(),
-            ));
+            return Err(eyre!("Git clone failed: {}", e));
         }
     };
     drop(repo);
 
     let git_dir = Path::new(dir).join(".git");
-    fs::remove_dir_all(git_dir).expect("Failed to remove .git directory");
+    fs::remove_dir_all(git_dir)?;
     println!("{} Repository prepared!", style("✨").cyan().bold());
 
     let _ = handle.join();
     Ok(())
 }
 
-async fn tar_clone(url: &str, dir: &str) -> Result<(), Box<dyn std::error::Error>> {
+async fn tar_clone(url: &str, dir: &str) -> Result<()> {
     let (owner, repo) = extract_path(url).unwrap();
     let host = extract_host(url);
     let mut git = Git::new();
     let output = git
         .args(vec![url])
         .ls_remote()
-        .expect("Failed to execute git ls-remote");
+        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
 
     let stdout = String::from_utf8(output.stdout).unwrap();
     let binding = stdout.clone();
@@ -185,7 +176,7 @@ async fn tar_clone(url: &str, dir: &str) -> Result<(), Box<dyn std::error::Error
     pb.set_message("Extracting files...");
     extract_archive(&temp_file, dir)?;
 
-    std::fs::remove_file(temp_file).map_err(|e| e.to_string())?;
+    std::fs::remove_file(temp_file)?;
     pb.finish_and_clear();
     println!("{} Repository prepared!", style("✨").cyan().bold());
     let _ = handle.join();

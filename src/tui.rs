@@ -42,16 +42,12 @@ pub struct App {
 }
 
 impl App {
-    pub fn from(current_path: OsString, repo: Repo) -> Self {
-        let current_dir = std::env::current_dir().unwrap();
+    pub fn from(path: PathBuf, repo: Repo) -> Self {
         let mut list_state = ListState::default();
-
         if !repo.directories.is_empty() || !repo.files.is_empty() {
             list_state.select(Some(0));
         }
 
-        let path = current_dir.join(current_path);
-        let path = fs::canonicalize(&path).unwrap_or(path);
         let root = path.clone();
         Self {
             path,
@@ -113,7 +109,6 @@ impl App {
     }
 
     fn handle_space(&mut self) {
-        // TODO Unchecked list
         if let Some(selected) = self.list_state.selected() {
             let name = if self.is_file_selected(selected) {
                 &self.repo.files[selected - self.repo.directories.len()]

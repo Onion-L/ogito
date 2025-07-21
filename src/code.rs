@@ -5,7 +5,7 @@ pub fn is_code_file<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
 
     let extension = match path.extension() {
-        Some(ext) => ext.to_str().unwrap_or(""),
+        Some(ext) => ext.to_str(),
         None => return false,
     };
 
@@ -39,7 +39,7 @@ pub fn is_code_file<P: AsRef<Path>>(path: P) -> bool {
     is_code_extension(extension)
 }
 
-fn is_code_extension(extension: &str) -> bool {
+fn is_code_extension(extension: Option<&str>) -> bool {
     let code_extensions = [
         "html",
         "htm",
@@ -180,6 +180,6 @@ fn is_code_extension(extension: &str) -> bool {
         "ld",
         "lds",
     ];
-    let ext_lower = extension.to_lowercase();
-    code_extensions.contains(&ext_lower.as_str())
+    let ext_lower = extension.map(|ext| ext.to_lowercase());
+    code_extensions.contains(&ext_lower.as_deref().unwrap_or(""))
 }

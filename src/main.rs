@@ -51,24 +51,24 @@ async fn main() -> Result<()> {
 
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
-        clone(&url.to_string(), &config).await.unwrap();
+        clone(&url.to_string(), &config).await?;
     } else {
-        let mut empty = fs::read_dir(dir).unwrap();
+        let mut empty = fs::read_dir(dir)?;
         if empty.next().is_some() {
             let force = matches.get_flag("force")
                 || Confirm::new()
                     .with_prompt("Do you want to overwrite existing files?")
                     .default(false)
                     .interact()
-                    .unwrap();
+                    .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
             if force {
-                force_clone(&url.to_string(), dir, &config).await.unwrap();
+                force_clone(&url.to_string(), dir, &config).await?;
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
                 return Err(eyre!("Directory is not empty"));
             }
         } else {
-            clone(&url.to_string(), &config).await.unwrap();
+            clone(&url.to_string(), &config).await?;
         }
     }
 
@@ -78,13 +78,16 @@ async fn main() -> Result<()> {
         .with_prompt("💻 Open TUI to manage the files?")
         .default(false)
         .interact()
-        .unwrap();
+        .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
     if tui {
         let mut terminal = ratatui::init();
+        let current_dir = std::env::current_dir()?;
         let dir_os = OsString::from(dir);
-        let repo = get_repo(&dir_os).unwrap();
-        let app = App::from(dir_os, repo);
-        let _ = app.run(&mut terminal);
+        let repo = get_repo(&dir_os)?;
+        let current_path = current_dir.join(dir_os);
+        let path = fs::canonicalize(&current_path)?;
+        let app = App::from(path, repo);
+        app.run(&mut terminal)?;
         ratatui::restore();
     }
 
