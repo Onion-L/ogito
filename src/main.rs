@@ -21,7 +21,8 @@ async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
-        .arg(arg!(-r --repo <REPO> "the repository name, e.g. 'user/repo'").required(false))
+        .arg(arg!(-b --branch <BRANCH> "the branch to clone").required(false))
+        .arg(arg!(-c --commit <COMMIT> "the commit to clone").required(false))
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
@@ -34,20 +35,20 @@ async fn main() -> Result<()> {
     let url = matches
         .get_one::<String>("url")
         .ok_or_else(|| eyre!("URL is required. ogito <URL>"))?;
-    let repo = matches.get_one::<String>("repo");
     let mode = matches
         .get_one::<String>("mode")
         .ok_or_else(|| eyre!("Mode is required. ogito -m <MODE>"))?;
     let force = matches.get_flag("force");
-    let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
 
+    let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
     let dir = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(repo, Some(dir), mode.into(), force);
+    let config = Config::from(dir, mode.into(), force);
     let started = Instant::now();
+
     // check if the directory exists
     if !fs::metadata(dir).is_ok() {
         clone(&url.to_string(), &config).await.unwrap();
