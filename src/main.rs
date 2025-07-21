@@ -1,4 +1,5 @@
 use clap::{ArgAction, arg, command};
+use color_eyre::eyre::ContextCompat;
 use color_eyre::{Result, eyre::eyre};
 use console::Emoji;
 use console::style;
@@ -32,12 +33,14 @@ async fn main() -> Result<()> {
 
     let url = matches
         .get_one::<String>("url")
-        .expect("URL is required. ogito <URL>");
+        .ok_or_else(|| eyre!("URL is required. ogito <URL>"))?;
     let repo = matches.get_one::<String>("repo");
-    let mode = matches.get_one::<String>("mode").unwrap();
+    let mode = matches
+        .get_one::<String>("mode")
+        .ok_or_else(|| eyre!("Mode is required. ogito -m <MODE>"))?;
     let force = matches.get_flag("force");
+    let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
 
-    let (_, repo_dir) = extract_path(url).unwrap();
     let dir = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
         None => &repo_dir.to_string(),

@@ -8,8 +8,6 @@ This is the roadmap for the project. It is not a commitment, but a guide for the
 - [x] Implement tar mode download
 - [x] Implement TUI (Text User Interface) for post-clone management
 - [ ] Select from specific commit or branch
-- [ ] Consistent error handling and logging
-- [ ] Support more platforms
 
 ## 0.4.x
 
