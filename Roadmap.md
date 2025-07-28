@@ -12,7 +12,8 @@ This is the roadmap for the project. It is not a commitment, but a guide for the
 ## 0.4.x
 
 - [ ] Monorepo support
-- [ ] Select from specific commit or branch
+- [x] Select from specific branch
+- [ ] Select from specific commit
 - [ ] Basic cache
 
 ## 0.5.x

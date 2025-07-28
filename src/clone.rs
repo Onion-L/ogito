@@ -146,7 +146,6 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
 
     // TODO select from different commits
     let refs = get_remote_refs(&url)?;
-
     let hash = match config.branch {
         Some(branch) => {
             if branch != "INTERACTIVE" {
@@ -185,7 +184,6 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         }
     };
 
-    // let hash = &refs[0].hash;
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",

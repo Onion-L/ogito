@@ -38,6 +38,9 @@ ogito https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
 ogito https://github.com/user/repo -d dirname -f
+
+# Clone specific branch (you have to use --branch=branch_name or -b=branch_name for this option)
+ogito https://github.com/user/repo --branch=branch_name
 ```
 
 ### Command Line Options
@@ -47,6 +50,7 @@ ogito https://github.com/user/repo -d dirname -f
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
 - `--keep-history` - Keep the history of the repository
+- `-b --branch` - Select specific branch to clone (you have to use -b=<branch_name> or --branch=<branch_name> for this option)
 
 ## Contributing
 
