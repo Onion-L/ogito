@@ -21,8 +21,14 @@ async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
-        .arg_required_else_help(true)
         .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
+        .arg(
+            arg!(-b --branch [BRANCH] "the branch to clone")
+                .required(false)
+                .require_equals(true)
+                .num_args(0..=1)
+                .default_missing_value("INTERACTIVE"),
+        )
         .arg(
             arg!(-m --mode <MODE> "the mode of the operation")
                 .required(false)
@@ -35,6 +41,7 @@ async fn main() -> Result<()> {
                 .help("keep the history of the repository")
                 .action(ArgAction::SetTrue),
         )
+        .arg_required_else_help(true)
         .get_matches();
 
     let url = matches
@@ -45,6 +52,7 @@ async fn main() -> Result<()> {
         .ok_or_else(|| eyre!("Mode is required. ogito -m <MODE>"))?;
 
     let force = matches.get_flag("force");
+    let branch = matches.get_one::<String>("branch");
     let keep_history = matches.get_flag("keep-history");
     let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
     let dir = match matches.get_one::<String>("dir") {
@@ -52,7 +60,7 @@ async fn main() -> Result<()> {
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(dir, mode.into(), force, keep_history);
+    let config = Config::from(dir, mode.into(), force, keep_history, branch);
     let started = Instant::now();
 
     // check if the directory exists

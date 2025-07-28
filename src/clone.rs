@@ -8,20 +8,26 @@ use crate::{
     regex::{extract_path, is_valid_url},
 };
 use console::style;
-use dialoguer::Confirm;
-use git2::Repository;
+use dialoguer::{Confirm, Select, theme::ColorfulTheme};
+use git2::build::RepoBuilder;
 // use dialoguer::{Select, theme::ColorfulTheme};
 use color_eyre::{Result, eyre::eyre};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
+
+#[derive(Debug, Clone)]
+struct RemoteRef {
+    hash: String,
+    name: String,
+}
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let dir = config.dir;
     let keep_history = config.keep_history;
 
     match config.mode {
-        Mode::Git => git_clone(url, &dir, keep_history)?,
-        Mode::Tar => tar_clone(url, &dir, keep_history).await?,
+        Mode::Git => git_clone(url, config)?,
+        Mode::Tar => tar_clone(url, config, &dir, keep_history).await?,
         _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
     Ok(())
@@ -33,7 +39,7 @@ pub async fn force_clone<'a>(url: &str, dir: &str, config: &Config<'a>) -> Resul
     Ok(())
 }
 
-fn git_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
+fn git_clone(url: &str, config: &Config) -> Result<()> {
     if !is_valid_url(url) {
         return Err(eyre!("The source is not a valid URL"));
     }
@@ -64,11 +70,42 @@ fn git_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
 
         while !pb_clone.is_finished() {
             thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message("🚀 Downloading...");
+            pb_clone.set_message("ogito🍸...");
         }
     });
 
-    let status = Repository::clone(url, dir);
+    let dir_path = Path::new(config.dir);
+    let mut builder = RepoBuilder::new();
+
+    let status = match config.branch {
+        Some(branch) => {
+            pb.finish_and_clear();
+            if branch != "INTERACTIVE" {
+                builder.branch(branch);
+            } else {
+                let refs = get_remote_refs(&url)?;
+                let binding = refs.clone();
+                let refs_name: Vec<String> = binding
+                    .into_iter()
+                    .map(|r| r.name)
+                    .filter(|r| r != "HEAD")
+                    .collect();
+
+                let branch: usize = Select::with_theme(&ColorfulTheme::default())
+                    .with_prompt("Pick the branch you want to clone")
+                    .default(0)
+                    .items(&refs_name)
+                    .interact()
+                    .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+
+                let branch_name = &refs[branch + 1].name.split('/').last().unwrap();
+                builder.branch(branch_name);
+            }
+            builder.clone(url, dir_path)
+        }
+        None => builder.clone(url, dir_path),
+    };
+
     pb.finish_and_clear();
 
     let repo = match status {
@@ -82,17 +119,21 @@ fn git_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
         }
     };
     drop(repo);
-    if !keep_history {
-        let git_dir = Path::new(dir).join(".git");
+    if !config.keep_history {
+        let git_dir = dir_path.join(".git");
         fs::remove_dir_all(git_dir)?;
     }
-    println!("{} Repository prepared!", style("✨").cyan().bold());
 
     let _ = handle.join();
     Ok(())
 }
 
-async fn tar_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
+async fn tar_clone<'a>(
+    url: &str,
+    config: &Config<'a>,
+    dir: &str,
+    keep_history: bool,
+) -> Result<()> {
     if keep_history {
         let use_git = Confirm::new()
             .with_prompt("Tar mode does not support keep history, do you want to use git instead?")
@@ -100,7 +141,7 @@ async fn tar_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
             .interact()
             .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
         if use_git {
-            git_clone(url, dir, true)?;
+            git_clone(url, config)?;
         } else {
             return Err(eyre!(
                 "Tar mode does not support keep history, please use git instead"
@@ -109,38 +150,10 @@ async fn tar_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
     }
     let (owner, repo) = extract_path(url).unwrap();
     let host = extract_host(url);
-    let mut git = Git::new();
-    let output = git
-        .args(vec![url])
-        .ls_remote()
-        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-    let binding = stdout.clone();
-    let hash_list = binding.split("\n").collect::<Vec<&str>>();
 
     // TODO select from different commits
-    /*let hash: Vec<&str> = stdout
-        .split("\n")
-        .filter_map(|line| {
-            let parts: Vec<&str> = line.split("\t").collect();
-            if parts.len() == 2 && !parts[1].is_empty() {
-                Some(parts[1])
-            } else {
-                None
-            }
-        })
-        .collect();
-    let branch: usize = Select::with_theme(&ColorfulTheme::default())
-        .with_prompt("Pick the branch you want to clone")
-        .default(0)
-        .items(&hash)
-        .interact()
-        .map_err(|e| e.to_string())?;
-      */
-
-    let hash = hash_list[0].split("\t").collect::<Vec<&str>>()[0];
-
+    let refs = get_remote_refs(&url)?;
+    let hash = &refs[0].hash;
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
@@ -198,4 +211,31 @@ async fn tar_clone(url: &str, dir: &str, keep_history: bool) -> Result<()> {
     println!("{} Repository prepared!", style("✨").cyan().bold());
     let _ = handle.join();
     Ok(())
+}
+
+fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
+    let mut git = Git::new();
+    let output = git
+        .args(vec![url])
+        .ls_remote()
+        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+
+    let refs = stdout
+        .lines()
+        .filter_map(|line| {
+            let parts: Vec<&str> = line.split('\t').collect();
+            if parts.len() == 2 {
+                Some(RemoteRef {
+                    hash: parts[0].to_string(),
+                    name: parts[1].to_string(),
+                })
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<RemoteRef>>();
+
+    Ok(refs)
 }
