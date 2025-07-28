@@ -13,8 +13,7 @@ This is the roadmap for the project. It is not a commitment, but a guide for the
 
 - [ ] Monorepo support
 - [x] Select from specific branch
-- [ ] Select from specific commit
-- [ ] Basic cache
+- [ ] Basic cache (for tarball download)
 
 ## 0.5.x
 
