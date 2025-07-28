@@ -40,7 +40,8 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     if !is_valid_url(url) {
         return Err(eyre!("The source is not a valid URL"));
     }
-    println!("{} ogito: {}", "🔄", style(url).bold());
+
+    println!("{} ogito: {}", "🍸", style(url).bold());
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
@@ -67,7 +68,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
 
         while !pb_clone.is_finished() {
             thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message("ogito🍸...");
+            pb_clone.set_message("Downloading...");
         }
     });
 
@@ -84,8 +85,8 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
                 let binding = refs.clone();
                 let refs_name: Vec<String> = binding
                     .into_iter()
-                    .map(|r| r.name)
-                    .filter(|r| r != "HEAD")
+                    .filter(|r| r.name.starts_with("refs/heads/"))
+                    .map(|r| r.name.replace("refs/heads/", ""))
                     .collect();
 
                 let branch: usize = Select::with_theme(&ColorfulTheme::default())
@@ -95,7 +96,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
                     .interact()
                     .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
 
-                let branch_name = &refs[branch + 1].name.split('/').last().unwrap();
+                let branch_name = &refs[branch + 1].name;
                 builder.branch(branch_name);
             }
             builder.clone(url, dir_path)
@@ -107,15 +108,15 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
 
     let repo = match status {
         Ok(repo) => {
-            println!("{} Repository cloned!", style("✨").cyan().bold());
+            println!("{} Repository cloned!", style("🎉").cyan().bold());
             repo
         }
         Err(e) => {
-            println!("{} Git clone failed!", style("❌").red().bold());
-            return Err(eyre!("Git clone failed: {}", e));
+            return Err(eyre!("❌ Git clone failed: {}", e));
         }
     };
     drop(repo);
+
     if !config.keep_history {
         let git_dir = dir_path.join(".git");
         fs::remove_dir_all(git_dir)?;
@@ -160,10 +161,11 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
             } else {
                 let refs = get_remote_refs(&url)?;
                 let binding = refs.clone();
+
                 let refs_name: Vec<String> = binding
                     .into_iter()
-                    .map(|r| r.name)
-                    .filter(|r| r != "HEAD")
+                    .filter(|r| r.name.starts_with("refs/heads/"))
+                    .map(|r| r.name.replace("refs/heads/", ""))
                     .collect();
 
                 let branch: usize = Select::with_theme(&ColorfulTheme::default())
