@@ -22,12 +22,9 @@ struct RemoteRef {
 }
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
-    let dir = config.dir;
-    let keep_history = config.keep_history;
-
     match config.mode {
         Mode::Git => git_clone(url, config)?,
-        Mode::Tar => tar_clone(url, config, &dir, keep_history).await?,
+        Mode::Tar => tar_clone(url, config).await?,
         _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
     Ok(())
@@ -128,13 +125,8 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     Ok(())
 }
 
-async fn tar_clone<'a>(
-    url: &str,
-    config: &Config<'a>,
-    dir: &str,
-    keep_history: bool,
-) -> Result<()> {
-    if keep_history {
+async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
+    if config.keep_history {
         let use_git = Confirm::new()
             .with_prompt("Tar mode does not support keep history, do you want to use git instead?")
             .default(false)
@@ -148,12 +140,52 @@ async fn tar_clone<'a>(
             ));
         }
     }
+
     let (owner, repo) = extract_path(url).unwrap();
     let host = extract_host(url);
 
     // TODO select from different commits
     let refs = get_remote_refs(&url)?;
-    let hash = &refs[0].hash;
+
+    let hash = match config.branch {
+        Some(branch) => {
+            if branch != "INTERACTIVE" {
+                let remote_ref = refs
+                    .iter()
+                    .find(|r| {
+                        r.name == format!("refs/heads/{}", branch)
+                            || r.name == format!("refs/tags/{}", branch)
+                    })
+                    .ok_or_else(|| eyre!("Branch or tag '{}' not found.", branch))?;
+                remote_ref.hash.clone()
+            } else {
+                let refs = get_remote_refs(&url)?;
+                let binding = refs.clone();
+                let refs_name: Vec<String> = binding
+                    .into_iter()
+                    .map(|r| r.name)
+                    .filter(|r| r != "HEAD")
+                    .collect();
+
+                let branch: usize = Select::with_theme(&ColorfulTheme::default())
+                    .with_prompt("Pick the branch you want to clone")
+                    .default(0)
+                    .items(&refs_name)
+                    .interact()
+                    .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+
+                refs[branch + 1].hash.clone()
+            }
+        }
+        None => {
+            let head_ref = refs.iter().find(|r| r.name == "HEAD").ok_or_else(|| {
+                eyre!("No HEAD reference found, cannot determine default branch.")
+            })?;
+            head_ref.hash.clone()
+        }
+    };
+
+    // let hash = &refs[0].hash;
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
@@ -200,6 +232,8 @@ async fn tar_clone<'a>(
             pb_clone.set_message("🚀 Downloading...");
         }
     });
+
+    let dir = config.dir;
 
     let temp_file = download_file(&archive_url, dir, &pb).await?;
 
