@@ -1,6 +1,6 @@
 [package]
 name = "ogito"
-version = "0.3.1"
+version = "0.4.0"
 edition = "2024"
 authors = ["Onion-L <onionl5236@gmail.com>"]
 description = "A simple and efficient Git repository cloning management tool"
@@ -34,4 +34,4 @@ tar = "0.4.44"
 tempfile = "3.20.0"
 git2 = "0.20.2"
 # Multiple platforms needed
-# openssl = { version = "0.10.73", features = ["vendored"] }
+openssl = { version = "0.10.73", features = ["vendored"] }
