@@ -1,25 +1,18 @@
 use crate::{
     fetch::config::Config,
     file::{download_file, extract_archive},
-    git::Git,
+    git::get_remote_refs,
     models::Mode,
     models::Site,
     regex::extract_host,
     regex::{extract_path, is_valid_url},
 };
+use color_eyre::{Result, eyre::eyre};
 use console::style;
 use dialoguer::{Confirm, Select, theme::ColorfulTheme};
 use git2::build::RepoBuilder;
-// use dialoguer::{Select, theme::ColorfulTheme};
-use color_eyre::{Result, eyre::eyre};
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
-
-#[derive(Debug, Clone)]
-struct RemoteRef {
-    hash: String,
-    name: String,
-}
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     match config.mode {
@@ -245,31 +238,4 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     println!("{} Repository prepared!", style("✨").cyan().bold());
     let _ = handle.join();
     Ok(())
-}
-
-fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
-    let mut git = Git::new();
-    let output = git
-        .args(vec![url])
-        .ls_remote()
-        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
-
-    let stdout = String::from_utf8(output.stdout).unwrap();
-
-    let refs = stdout
-        .lines()
-        .filter_map(|line| {
-            let parts: Vec<&str> = line.split('\t').collect();
-            if parts.len() == 2 {
-                Some(RemoteRef {
-                    hash: parts[0].to_string(),
-                    name: parts[1].to_string(),
-                })
-            } else {
-                None
-            }
-        })
-        .collect::<Vec<RemoteRef>>();
-
-    Ok(refs)
 }

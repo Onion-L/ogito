@@ -1,7 +1,9 @@
+use color_eyre::{Result, eyre::eyre};
 use std::{
     io::Error,
     process::{Command, Output},
 };
+
 pub struct Git<'a> {
     pub cmd: &'a str,
     pub args: Vec<&'a str>,
@@ -26,4 +28,37 @@ impl<'a> Git<'a> {
             .args(&self.args)
             .output()
     }
+}
+
+#[derive(Debug, Clone)]
+pub struct RemoteRef {
+    pub hash: String,
+    pub name: String,
+}
+
+pub fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
+    let mut git = Git::new();
+    let output = git
+        .args(vec![url])
+        .ls_remote()
+        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
+
+    let stdout = String::from_utf8(output.stdout).unwrap();
+
+    let refs = stdout
+        .lines()
+        .filter_map(|line| {
+            let parts: Vec<&str> = line.split('\t').collect();
+            if parts.len() == 2 {
+                Some(RemoteRef {
+                    hash: parts[0].to_string(),
+                    name: parts[1].to_string(),
+                })
+            } else {
+                None
+            }
+        })
+        .collect::<Vec<RemoteRef>>();
+
+    Ok(refs)
 }
