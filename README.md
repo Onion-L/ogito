@@ -33,7 +33,7 @@ ogito <repository URL>
 # Example
 ogito https://github.com/user/repo
 
-# Use specific direcotry name
+# Use specific directory name
 ogito https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
