@@ -129,7 +129,7 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
             .interact()
             .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
         if use_git {
-            git_clone(url, config)?;
+            return git_clone(url, config);
         } else {
             return Err(eyre!(
                 "Tar mode does not support keep history, please use git instead"

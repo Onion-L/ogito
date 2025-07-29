@@ -49,7 +49,7 @@ ogito https://github.com/user/repo --branch=branch_name
 - `-d, --dir <DIRNAME>` - Destination directory name
 - `-m, --mode <MODE>` - Operation mode (git or tar)
 - `-f, --force` - Force operation, override existing directory
-- `--keep-history` - Keep the history of the repository
+- `-H, --keep-history` - Keep the history of the repository
 - `-b --branch` - Select specific branch to clone (you have to use -b=<branch_name> or --branch=<branch_name> for this option)
 
 ## Contributing

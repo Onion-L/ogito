@@ -37,6 +37,7 @@ async fn main() -> Result<()> {
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .arg(
             Arg::new("keep-history")
+                .short('H')
                 .long("keep-history")
                 .help("keep the history of the repository")
                 .action(ArgAction::SetTrue),

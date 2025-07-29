@@ -1,6 +1,6 @@
 [package]
 name = "ogito"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2024"
 authors = ["Onion-L <onionl5236@gmail.com>"]
 description = "A simple and efficient Git repository cloning management tool"
