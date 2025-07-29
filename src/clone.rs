@@ -85,13 +85,15 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
                     .collect();
 
                 let branch: usize = Select::with_theme(&ColorfulTheme::default())
-                    .with_prompt("Pick the branch you want to clone")
+                    .with_prompt(
+                        "Pick the branch you want to clone (if you want to clone a tag, please use the tar mode)",
+                    )
                     .default(0)
                     .items(&refs_name)
                     .interact()
                     .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
 
-                let branch_name = &refs[branch + 1].name;
+                let branch_name = &refs[branch + 1].name.replace("refs/heads/", "");
                 builder.branch(branch_name);
             }
             builder.clone(url, dir_path)
@@ -140,7 +142,6 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let (owner, repo) = extract_path(url).unwrap();
     let host = extract_host(url);
 
-    // TODO select from different commits
     let refs = get_remote_refs(&url)?;
     let hash = match config.branch {
         Some(branch) => {
