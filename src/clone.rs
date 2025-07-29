@@ -160,8 +160,10 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
 
                 let refs_name: Vec<String> = binding
                     .into_iter()
-                    .filter(|r| r.name.starts_with("refs/heads/"))
-                    .map(|r| r.name.replace("refs/heads/", ""))
+                    .filter(|r| {
+                        r.name.starts_with("refs/heads/") || r.name.starts_with("refs/tags/")
+                    })
+                    .map(|r| r.name.replace("refs/heads/", "").replace("refs/tags/", ""))
                     .collect();
 
                 let branch: usize = Select::with_theme(&ColorfulTheme::default())
