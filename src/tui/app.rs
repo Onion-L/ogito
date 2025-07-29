@@ -1,14 +1,13 @@
 use crate::file::{Repo, get_canonical_path, get_repo};
+use crate::tui::colors::{
+    COLOR_DISABLED, COLOR_ENTRY, COLOR_HEADER, PREVIEW_STYLE, SELECTED_STYLE,
+};
 use color_eyre::Result;
 use crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind};
 use ratatui::{
     DefaultTerminal,
     buffer::Buffer,
     layout::{Constraint, Layout, Rect},
-    style::{
-        Color, Modifier, Style,
-        palette::{material::PURPLE, tailwind::SLATE},
-    },
     text::{Line, Span},
     widgets::{
         Block, HighlightSpacing, List, ListItem, ListState, Paragraph, ScrollbarState,
@@ -18,16 +17,6 @@ use ratatui::{
 use std::{collections::HashSet, ffi::OsString, fs, path::PathBuf};
 
 // TODO make the preview section scrollable
-const SELECTED_STYLE: Style = Style::new()
-    .bg(PURPLE.c600)
-    .fg(Color::White)
-    .add_modifier(Modifier::BOLD);
-
-const COLOR_HEADER: Color = SLATE.c100;
-const COLOR_ENTRY: Color = SLATE.c400;
-const COLOR_DISABLED: Color = SLATE.c700;
-const PREVIEW_STYLE: Style = Style::new().fg(COLOR_ENTRY);
-
 pub struct App {
     pub path: PathBuf,
     pub repo: Repo,
@@ -116,7 +105,7 @@ impl App {
                 &self.repo.directories[selected]
             };
 
-            let path = get_canonical_path(&self.path, name);
+            let path = get_canonical_path(&self.path, name).unwrap();
             if !self.unchecked_list.insert(path.clone()) {
                 self.unchecked_list.remove(&path);
             }
@@ -153,7 +142,7 @@ impl App {
 
     fn handle_dir_selection(&mut self, selected: usize) {
         let current_dir = &self.repo.directories[selected];
-        let path = get_canonical_path(&self.path, current_dir);
+        let path = get_canonical_path(&self.path, current_dir).unwrap();
         let mut repo = get_repo(&OsString::from(&path)).unwrap();
         self.add_parent_directory_if_needed(&mut repo, &path);
         self.repo = repo;
@@ -165,7 +154,7 @@ impl App {
         self.show_preview = true;
         let file_index = selected % self.repo.directories.len();
         let file_name = &self.repo.files[file_index];
-        let file_path = get_canonical_path(&self.path, file_name);
+        let file_path = get_canonical_path(&self.path, file_name).unwrap();
         // TODO more file types
         match fs::read_to_string(file_path) {
             Ok(content) => self.file_content = content,
@@ -202,7 +191,7 @@ impl Widget for &mut App {
             let dir_name = dir.to_string_lossy();
             let line = if self
                 .unchecked_list
-                .contains(&get_canonical_path(&self.path, dir))
+                .contains(&get_canonical_path(&self.path, dir).unwrap())
             {
                 Line::styled(format!("❌ {}", dir_name), COLOR_DISABLED)
             } else {
@@ -215,7 +204,7 @@ impl Widget for &mut App {
             let file_name = file.to_string_lossy();
             let line = if self
                 .unchecked_list
-                .contains(&get_canonical_path(&self.path, file))
+                .contains(&get_canonical_path(&self.path, file).unwrap())
             {
                 Line::styled(format!("❌ {}", file_name), COLOR_DISABLED)
             } else {

@@ -98,7 +98,9 @@ pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<(
     Ok(())
 }
 
-pub fn get_canonical_path(root: &PathBuf, current_path: &OsString) -> PathBuf {
+pub fn get_canonical_path(root: &PathBuf, current_path: &OsString) -> Result<PathBuf> {
     let path = root.join(current_path);
-    std::fs::canonicalize(&path).unwrap_or_else(|_| path.clone())
+    std::fs::canonicalize(&path)
+        .map_err(|e| eyre!("Failed to canonicalize path: {}", e))
+        .or_else(|_| Ok(path.clone()))
 }

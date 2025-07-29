@@ -9,7 +9,7 @@ use ogito::clone::{clone, force_clone};
 use ogito::fetch::config::Config;
 use ogito::file::get_repo;
 use ogito::regex::extract_path;
-use ogito::tui::App;
+use ogito::tui::app::App;
 use std::ffi::OsString;
 use std::{fs, time::Instant};
 
