@@ -43,7 +43,8 @@ pub fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
         .ls_remote()
         .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
 
-    let stdout = String::from_utf8(output.stdout).unwrap();
+    let stdout = String::from_utf8(output.stdout)
+        .map_err(|e| eyre!("Failed to convert output to string: {}", e))?;
 
     let refs = stdout
         .lines()

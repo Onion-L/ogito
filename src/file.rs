@@ -1,7 +1,6 @@
 use color_eyre::Result;
 use color_eyre::eyre::eyre;
 use flate2::read::GzDecoder;
-use indicatif::ProgressBar;
 use std::ffi::OsString;
 use std::fs::{File, create_dir_all};
 use std::path::Path;
@@ -47,9 +46,7 @@ pub fn get_repo(path: &OsString) -> std::io::Result<Repo> {
     Ok(repo)
 }
 
-pub async fn download_file(url: &str, dir: &str, pb: &ProgressBar) -> Result<PathBuf> {
-    pb.set_message("🚀 Downloading...");
-
+pub async fn download_file(url: &str, dir: &str) -> Result<PathBuf> {
     let temp_dir = std::env::temp_dir();
     let file_name = format!(
         "{}_{}.tar.gz",

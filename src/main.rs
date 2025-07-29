@@ -85,9 +85,8 @@ async fn main() -> Result<()> {
             clone(&url.to_string(), &config).await?;
         }
     }
-
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
-    println!("{}", style("TUI is cooking right now 🫕").bold().yellow());
+
     let tui = Confirm::new()
         .with_prompt("💻 Open TUI to manage the files?")
         .default(false)
@@ -112,5 +111,6 @@ async fn main() -> Result<()> {
             .green()
             .bold()
     );
+
     Ok(())
 }

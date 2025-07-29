@@ -20,6 +20,8 @@ pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         Mode::Tar => tar_clone(url, config).await?,
         _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
+    println!("{} Repository is ready!", style("✨").cyan().bold());
+
     Ok(())
 }
 
@@ -30,7 +32,7 @@ pub async fn force_clone<'a>(url: &str, dir: &str, config: &Config<'a>) -> Resul
 }
 
 fn git_clone(url: &str, config: &Config) -> Result<()> {
-    if !is_valid_url(url) {
+    if !is_valid_url(url)? {
         return Err(eyre!("The source is not a valid URL"));
     }
 
@@ -228,14 +230,14 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
 
     let dir = config.dir;
 
-    let temp_file = download_file(&archive_url, dir, &pb).await?;
+    pb.set_message("🚚 Downloading archive...");
+    let temp_file = download_file(&archive_url, dir).await?;
 
     pb.set_message("Extracting files...");
     extract_archive(&temp_file, dir)?;
 
     std::fs::remove_file(temp_file)?;
     pb.finish_and_clear();
-    println!("{} Repository prepared!", style("✨").cyan().bold());
     let _ = handle.join();
     Ok(())
 }

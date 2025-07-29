@@ -2,12 +2,12 @@ use ogito::regex::{extract_host, extract_path, is_valid_url};
 
 #[test]
 fn test_is_github_url() {
-    assert!(is_valid_url("https://github.com/owner/repo"));
-    assert!(is_valid_url("github.com/owner/repo"));
-    assert!(is_valid_url("https://github.com/owner/repo.git"));
-    assert!(is_valid_url("https://gitlab.com/owner/repo"));
-    assert!(!is_valid_url("random string"));
-    assert!(!is_valid_url("https://example.com/owner/repo"));
+    assert!(is_valid_url("https://github.com/owner/repo").unwrap());
+    assert!(is_valid_url("github.com/owner/repo").unwrap());
+    assert!(is_valid_url("https://github.com/owner/repo.git").unwrap());
+    assert!(is_valid_url("https://gitlab.com/owner/repo").unwrap());
+    assert!(!is_valid_url("random string").unwrap());
+    assert!(!is_valid_url("https://example.com/owner/repo").unwrap());
 }
 
 #[test]
