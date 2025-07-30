@@ -104,10 +104,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     pb.finish_and_clear();
 
     let repo = match status {
-        Ok(repo) => {
-            println!("{} Repository cloned!", style("🎉").cyan().bold());
-            repo
-        }
+        Ok(repo) => repo,
         Err(e) => {
             return Err(eyre!("❌ Git clone failed: {}", e));
         }

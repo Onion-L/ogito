@@ -7,10 +7,10 @@ use dialoguer::Confirm;
 use indicatif::HumanDuration;
 use ogito::clone::{clone, force_clone};
 use ogito::fetch::config::Config;
-use ogito::file::get_repo;
+// use ogito::file::get_repo;
+// use ogito::tui::app::App;
+// use std::ffi::OsString;
 use ogito::regex::extract_path;
-use ogito::tui::app::App;
-use std::ffi::OsString;
 use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
@@ -88,19 +88,20 @@ async fn main() -> Result<()> {
     }
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
 
-    let tui = Confirm::new()
-        .with_prompt("💻 Open TUI to manage the files?")
-        .default(false)
-        .interact()
-        .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+    // TODO A new TUI, a template manager not a file manager
+    // let tui = Confirm::new()
+    //     .with_prompt("💻 Open TUI to manage the files?")
+    //     .default(false)
+    //     .interact()
+    //     .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
 
-    if tui {
-        let terminal = &mut ratatui::init();
-        let path = fs::canonicalize(std::env::current_dir()?.join(dir))?;
-        let repo = get_repo(&OsString::from(dir))?;
-        App::from(path, repo).run(terminal)?;
-        ratatui::restore();
-    }
+    // if tui {
+    //     let terminal = &mut ratatui::init();
+    //     let path = fs::canonicalize(std::env::current_dir()?.join(dir))?;
+    //     let repo = get_repo(&OsString::from(dir))?;
+    //     App::from(path, repo).run(terminal)?;
+    //     ratatui::restore();
+    // }
 
     println!(
         "{} {}",
