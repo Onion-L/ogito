@@ -58,46 +58,48 @@ impl App {
                 frame.render_widget(&mut self, frame.area());
             })?;
             if let Event::Key(key) = event::read()? {
-                self.handle_key(key);
+                self.handle_key(key)?;
             };
         }
         Ok(())
     }
 
-    fn handle_key(&mut self, key: KeyEvent) {
+    fn handle_key(&mut self, key: KeyEvent) -> Result<()> {
         if key.kind != KeyEventKind::Press {
-            return;
+            return Ok(());
         }
         match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => self.handle_exit(),
+            KeyCode::Char('q') | KeyCode::Esc => self.handle_exit()?,
             KeyCode::Down | KeyCode::Char('j') => self.select_next(),
             KeyCode::Up | KeyCode::Char('k') => self.select_previous(),
-            KeyCode::Enter => self.handle_enter(),
+            KeyCode::Enter => self.handle_enter()?,
             KeyCode::Char(c) => match c {
                 // special case for non-visible characters
-                ' ' => self.handle_space(),
+                ' ' => self.handle_space()?,
                 _ => {}
             },
             _ => {}
         }
+        Ok(())
     }
 
-    fn handle_exit(&mut self) {
+    fn handle_exit(&mut self) -> Result<()> {
         if self.show_preview {
             self.show_preview = false;
         } else {
             for path in std::mem::take(&mut self.unchecked_list) {
                 if path.is_dir() {
-                    fs::remove_dir_all(path).unwrap();
+                    fs::remove_dir_all(path)?;
                 } else if path.is_file() {
-                    fs::remove_file(path).unwrap();
+                    fs::remove_file(path)?;
                 }
             }
             self.exit = true
         }
+        Ok(())
     }
 
-    fn handle_space(&mut self) {
+    fn handle_space(&mut self) -> Result<()> {
         if let Some(selected) = self.list_state.selected() {
             let name = if self.is_file_selected(selected) {
                 &self.repo.files[selected - self.repo.directories.len()]
@@ -105,11 +107,13 @@ impl App {
                 &self.repo.directories[selected]
             };
 
-            let path = get_canonical_path(&self.path, name).unwrap();
+            let path = get_canonical_path(&self.path, name)?;
             if !self.unchecked_list.insert(path.clone()) {
                 self.unchecked_list.remove(&path);
             }
         }
+
+        Ok(())
     }
 
     fn select_next(&mut self) {
@@ -130,36 +134,42 @@ impl App {
         }
     }
 
-    fn handle_enter(&mut self) {
+    fn handle_enter(&mut self) -> Result<()> {
         if let Some(selected) = self.list_state.selected() {
             if self.is_file_selected(selected) {
-                self.handle_file_selection(selected);
+                self.handle_file_selection(selected)?;
             } else {
-                self.handle_dir_selection(selected);
+                self.handle_dir_selection(selected)?;
             }
         }
+
+        Ok(())
     }
 
-    fn handle_dir_selection(&mut self, selected: usize) {
+    fn handle_dir_selection(&mut self, selected: usize) -> Result<()> {
         let current_dir = &self.repo.directories[selected];
-        let path = get_canonical_path(&self.path, current_dir).unwrap();
-        let mut repo = get_repo(&OsString::from(&path)).unwrap();
+        let path = get_canonical_path(&self.path, current_dir)?;
+        let mut repo = get_repo(&OsString::from(&path))?;
         self.add_parent_directory_if_needed(&mut repo, &path);
         self.repo = repo;
         self.path = path.clone();
         self.show_preview = false;
+
+        Ok(())
     }
 
-    fn handle_file_selection(&mut self, selected: usize) {
+    fn handle_file_selection(&mut self, selected: usize) -> Result<()> {
         self.show_preview = true;
         let file_index = selected - self.repo.directories.len();
         let file_name = &self.repo.files[file_index];
-        let file_path = get_canonical_path(&self.path, file_name).unwrap();
+        let file_path = get_canonical_path(&self.path, file_name)?;
         // TODO more file types
         match fs::read_to_string(file_path) {
             Ok(content) => self.file_content = content,
             Err(e) => self.file_content = format!("Error reading file: {}", e),
         };
+
+        Ok(())
     }
 }
 
