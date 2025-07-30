@@ -93,15 +93,12 @@ async fn main() -> Result<()> {
         .default(false)
         .interact()
         .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+
     if tui {
-        let mut terminal = ratatui::init();
-        let current_dir = std::env::current_dir()?;
-        let dir_os = OsString::from(dir);
-        let repo = get_repo(&dir_os)?;
-        let current_path = current_dir.join(dir_os);
-        let path = fs::canonicalize(&current_path)?;
-        let app = App::from(path, repo);
-        app.run(&mut terminal)?;
+        let terminal = &mut ratatui::init();
+        let path = fs::canonicalize(std::env::current_dir()?.join(dir))?;
+        let repo = get_repo(&OsString::from(dir))?;
+        App::from(path, repo).run(terminal)?;
         ratatui::restore();
     }
 
