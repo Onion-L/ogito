@@ -35,15 +35,13 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     if !is_valid_url(url)? {
         return Err(eyre!("The source is not a valid URL"));
     }
-
     println!("{} ogito: {}", "🍸", style(url).bold());
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
         ProgressStyle::default_spinner()
             .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
-            .template("{spinner:.green} {msg}")
-            .unwrap(),
+            .template("{spinner:.green} {msg}")?,
     );
     pb.set_message("Downloading repository...");
 
@@ -136,7 +134,7 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         }
     }
 
-    let (owner, repo) = extract_path(url).unwrap();
+    let (owner, repo) = extract_path(url).ok_or_else(|| eyre!("Invalid URL"))?;
     let host = extract_host(url);
 
     let refs = get_remote_refs(&url)?;
@@ -203,8 +201,7 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     pb.set_style(
         ProgressStyle::default_spinner()
             .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
-            .template("{spinner:.green} {msg}")
-            .unwrap(),
+            .template("{spinner:.green} {msg}")?,
     );
     pb.set_message("Downloading archive...");
 

@@ -1,4 +1,3 @@
-use color_eyre::Result;
 use ogito::file::{Repo, get_canonical_path};
 use std::ffi::OsString;
 use std::fs::File;
@@ -14,19 +13,17 @@ fn test_repo_new() {
 }
 
 #[test]
-fn test_get_canonical_path_success() -> Result<()> {
+fn test_get_canonical_path_success() {
     let temp_dir = tempdir().unwrap();
     let temp_path = temp_dir.path().to_path_buf();
 
     let test_file = temp_path.join("test.txt");
-    File::create(&test_file)?;
+    File::create(&test_file).unwrap();
 
-    let canonical = get_canonical_path(&temp_path, &OsString::from("test.txt"))?;
+    let canonical = get_canonical_path(&temp_path, &OsString::from("test.txt")).unwrap();
 
     assert!(canonical.is_absolute());
     assert!(canonical.ends_with("test.txt"));
-
-    Ok(())
 }
 
 #[test]

@@ -24,7 +24,7 @@ impl Repo {
     }
 }
 
-pub fn get_repo(path: &OsString) -> std::io::Result<Repo> {
+pub fn get_repo(path: &OsString) -> Result<Repo> {
     let path = std::env::current_dir()?.join(path);
     let mut repo = Repo::new();
     repo.path = path.clone();
@@ -63,13 +63,13 @@ pub async fn download_file(url: &str, dir: &str) -> Result<PathBuf> {
     }
 
     let bytes = response.bytes().await?;
-    let mut file = File::create(&temp_file_path).expect("Failed to create temp file");
-    Write::write_all(&mut file, &bytes).expect("Failed to write temp file");
+    let mut file = File::create(&temp_file_path)?;
+    Write::write_all(&mut file, &bytes)?;
     Ok(temp_file_path)
 }
 
 pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {
-    let tar_gz = File::open(temp_file_path).expect("Failed to open the temp file");
+    let tar_gz = File::open(temp_file_path)?;
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
 
