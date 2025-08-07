@@ -65,14 +65,18 @@ pub async fn download_file(url: &str, repo_info: &RepoInfo) -> Result<PathBuf> {
 
     let archive_path = repo_path.join("archive.tar.gz");
 
-    let response = reqwest::get(url).await?;
-    if !response.status().is_success() {
-        return Err(eyre!("Download Error: {}", response.status()));
+    if !archive_path.exists() {
+        let response = reqwest::get(url).await?;
+        if !response.status().is_success() {
+            return Err(eyre!("Download Error: {}", response.status()));
+        }
+
+        let bytes = response.bytes().await?;
+        let mut file = File::create(&archive_path)?;
+        Write::write_all(&mut file, &bytes)?;
+        return Ok(archive_path);
     }
 
-    let bytes = response.bytes().await?;
-    let mut file = File::create(&archive_path)?;
-    Write::write_all(&mut file, &bytes)?;
     Ok(archive_path)
 }
 
