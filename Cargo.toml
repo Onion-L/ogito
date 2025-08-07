@@ -34,4 +34,5 @@ tar = "0.4.44"
 tempfile = "3.20.0"
 git2 = "0.20.2"
 dirs = "6.0.0"
+serde_json = "1.0.142"
 openssl = { version = "0.10.73", features = ["vendored"] }

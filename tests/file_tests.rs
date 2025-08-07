@@ -1,4 +1,5 @@
-use ogito::file::{Repo, get_canonical_path};
+use ogito::file::cache::Repo;
+use ogito::file::file::get_canonical_path;
 use std::ffi::OsString;
 use std::fs::File;
 use std::path::PathBuf;

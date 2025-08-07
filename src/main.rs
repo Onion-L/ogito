@@ -1,4 +1,4 @@
-use clap::{Arg, ArgAction, arg, command};
+use clap::{Arg, ArgAction, Command, arg, command};
 use color_eyre::eyre::ContextCompat;
 use color_eyre::{Result, eyre::eyre};
 use console::Emoji;
@@ -38,16 +38,30 @@ async fn main() -> Result<()> {
                 .help("keep the history of the repository")
                 .action(ArgAction::SetTrue),
         )
+        .arg(
+            Arg::new("cache")
+                .long("cache")
+                .help("save the repository to the cache")
+                .action(ArgAction::SetTrue),
+        )
         .arg_required_else_help(true)
+        .subcommand(Command::new("list").about("List all templates"))
         .get_matches();
 
     let url = matches.get_one::<String>("url");
+
+    if let Some(list) = matches.subcommand_matches("list") {
+        dbg!(list);
+        todo!()
+    }
+
     if let Some(url) = url {
         let mode = matches.get_one::<String>("mode").unwrap();
         let branch = matches.get_one::<String>("branch");
 
         let force = matches.get_flag("force");
         let keep_history = matches.get_flag("keep-history");
+        let cache = matches.get_flag("cache");
 
         let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
         let dir = match matches.get_one::<String>("dir") {
@@ -55,7 +69,7 @@ async fn main() -> Result<()> {
             None => &repo_dir.to_string(),
         };
 
-        let config = Config::from(dir, mode.into(), force, keep_history, branch);
+        let config = Config::from(dir, mode.into(), cache, force, keep_history, branch);
         let started = Instant::now();
         // check if the directory exists
         if !fs::metadata(dir).is_ok() {

@@ -1,11 +1,9 @@
 use crate::{
     fetch::config::Config,
-    file::{download_file, extract_archive},
+    file::{cache::CacheMetadata, file},
     git::get_remote_refs,
-    models::Mode,
-    models::Site,
-    regex::extract_host,
-    regex::{extract_path, is_valid_url},
+    models::{Mode, Site},
+    regex::{extract_host, extract_path, is_valid_url},
 };
 use color_eyre::{Result, eyre::eyre};
 use console::style;
@@ -15,10 +13,14 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
-    match config.mode {
-        Mode::Git => git_clone(url, config)?,
-        Mode::Tar => tar_clone(url, config).await?,
-        _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
+    if config.cache {
+        tar_clone(url, config).await?;
+    } else {
+        match config.mode {
+            Mode::Git => git_clone(url, config)?,
+            Mode::Tar => tar_clone(url, config).await?,
+            _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
+        }
     }
     println!("{} Repository is ready!", style("✨").cyan().bold());
 
@@ -118,22 +120,6 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     Ok(())
 }
 
-pub struct RepoInfo {
-    pub owner: String,
-    pub repo: String,
-    pub hash: String,
-}
-
-impl RepoInfo {
-    pub fn new(owner: &str, repo: &str, hash: &str) -> Self {
-        Self {
-            owner: owner.to_string(),
-            repo: repo.to_string(),
-            hash: hash.to_string(),
-        }
-    }
-}
-
 async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     if config.keep_history {
         let use_git = Confirm::new()
@@ -195,16 +181,16 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         }
     };
 
-    let repo_info = RepoInfo::new(&owner, &repo, &hash);
+    let cache_metadata = CacheMetadata::new(&owner, &repo, &hash);
 
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
-            repo_info.owner, repo_info.repo, repo_info.hash
+            cache_metadata.owner, cache_metadata.repo, cache_metadata.hash
         ),
         Some(Site::Github) => format!(
             "https://github.com/{}/{}/archive/{}.tar.gz",
-            repo_info.owner, repo_info.repo, repo_info.hash
+            cache_metadata.owner, cache_metadata.repo, cache_metadata.hash
         ),
         _ => String::new(),
     };
@@ -246,12 +232,16 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let dir = config.dir;
 
     pb.set_message("🚚 Downloading archive...");
-    let temp_file = download_file(&archive_url, &repo_info).await?;
+    let temp_file = file::download_file(&archive_url, &cache_metadata).await?;
 
     pb.set_message("Extracting files...");
-    extract_archive(&temp_file, dir)?;
+    file::extract_archive(&temp_file, dir)?;
 
     pb.finish_and_clear();
     let _ = handle.join();
+    if !config.cache {
+        fs::remove_file(temp_file)?;
+    }
+
     Ok(())
 }

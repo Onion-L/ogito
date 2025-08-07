@@ -1,4 +1,4 @@
-use crate::clone::RepoInfo;
+use crate::file::cache::{CacheConfig, CacheMetadata, Repo};
 use color_eyre::Result;
 use color_eyre::eyre::eyre;
 use flate2::read::GzDecoder;
@@ -7,23 +7,6 @@ use std::fs::{File, create_dir_all};
 use std::path::Path;
 use std::{fs, io::Write, path::PathBuf};
 use tar::Archive;
-
-#[derive(Debug)]
-pub struct Repo {
-    pub directories: Vec<OsString>,
-    pub files: Vec<OsString>,
-    pub path: PathBuf,
-}
-
-impl Repo {
-    pub fn new() -> Self {
-        Self {
-            directories: Vec::new(),
-            files: Vec::new(),
-            path: PathBuf::new(),
-        }
-    }
-}
 
 pub fn get_repo(path: &OsString) -> Result<Repo> {
     let path = std::env::current_dir()?.join(path);
@@ -47,22 +30,13 @@ pub fn get_repo(path: &OsString) -> Result<Repo> {
     Ok(repo)
 }
 
-pub async fn download_file(url: &str, repo_info: &RepoInfo) -> Result<PathBuf> {
-    let cache_dir = dirs::cache_dir()
-        .ok_or(eyre!("Failed to get cache directory"))?
-        .join(".ogito")
-        .join("cache");
+pub async fn download_file(url: &str, cache_metadata: &CacheMetadata) -> Result<PathBuf> {
+    let cache = CacheConfig::new(cache_metadata);
+    std::fs::create_dir_all(&cache.cache_dir)?;
 
-    std::fs::create_dir_all(&cache_dir)?;
+    std::fs::create_dir_all(&cache.cache_hash_path)?;
 
-    let repo_path = cache_dir
-        .join(&repo_info.owner)
-        .join(&repo_info.repo)
-        .join(&repo_info.hash[..2])
-        .join(&repo_info.hash[2..]);
-    std::fs::create_dir_all(&repo_path)?;
-
-    let archive_path = repo_path.join("archive.tar.gz");
+    let archive_path = cache.archive_path;
 
     if !archive_path.exists() {
         let response = reqwest::get(url).await?;

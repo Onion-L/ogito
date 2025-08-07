@@ -1,4 +1,5 @@
-use crate::file::{Repo, get_canonical_path, get_repo};
+use crate::file::cache::Repo;
+use crate::file::file::{get_canonical_path, get_repo};
 use crate::tui::colors::{
     COLOR_DISABLED, COLOR_ENTRY, COLOR_HEADER, PREVIEW_STYLE, SELECTED_STYLE,
 };
