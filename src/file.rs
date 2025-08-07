@@ -1,3 +1,4 @@
+use crate::clone::RepoInfo;
 use color_eyre::Result;
 use color_eyre::eyre::eyre;
 use flate2::read::GzDecoder;
@@ -46,16 +47,23 @@ pub fn get_repo(path: &OsString) -> Result<Repo> {
     Ok(repo)
 }
 
-pub async fn download_file(url: &str, dir: &str) -> Result<PathBuf> {
-    let temp_dir = std::env::temp_dir();
-    let file_name = format!(
-        "{}_{}.tar.gz",
-        dir,
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)?
-            .as_secs()
-    );
-    let temp_file_path = temp_dir.join(file_name);
+pub async fn download_file(url: &str, repo_info: &RepoInfo) -> Result<PathBuf> {
+    let cache_dir = dirs::cache_dir()
+        .ok_or(eyre!("Failed to get cache directory"))?
+        .join(".ogito")
+        .join("cache");
+
+    std::fs::create_dir_all(&cache_dir)?;
+
+    let repo_path = cache_dir
+        .join(&repo_info.owner)
+        .join(&repo_info.repo)
+        .join(&repo_info.hash[..2])
+        .join(&repo_info.hash[2..]);
+
+    std::fs::create_dir_all(&repo_path)?;
+
+    let archive_path = repo_path.join("archive.tar.gz");
 
     let response = reqwest::get(url).await?;
     if !response.status().is_success() {
@@ -63,9 +71,9 @@ pub async fn download_file(url: &str, dir: &str) -> Result<PathBuf> {
     }
 
     let bytes = response.bytes().await?;
-    let mut file = File::create(&temp_file_path)?;
+    let mut file = File::create(&archive_path)?;
     Write::write_all(&mut file, &bytes)?;
-    Ok(temp_file_path)
+    Ok(archive_path)
 }
 
 pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {

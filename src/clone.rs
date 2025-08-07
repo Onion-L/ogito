@@ -118,6 +118,22 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     Ok(())
 }
 
+pub struct RepoInfo {
+    pub owner: String,
+    pub repo: String,
+    pub hash: String,
+}
+
+impl RepoInfo {
+    pub fn new(owner: &str, repo: &str, hash: &str) -> Self {
+        Self {
+            owner: owner.to_string(),
+            repo: repo.to_string(),
+            hash: hash.to_string(),
+        }
+    }
+}
+
 async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     if config.keep_history {
         let use_git = Confirm::new()
@@ -179,14 +195,16 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         }
     };
 
+    let repo_info = RepoInfo::new(&owner, &repo, &hash);
+
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
             "https://gitlab.com/{}/{}/repository/archive.tar.gz?ref={}",
-            owner, repo, hash
+            repo_info.owner, repo_info.repo, repo_info.hash
         ),
         Some(Site::Github) => format!(
             "https://github.com/{}/{}/archive/{}.tar.gz",
-            owner, repo, hash
+            repo_info.owner, repo_info.repo, repo_info.hash
         ),
         _ => String::new(),
     };
@@ -228,12 +246,11 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let dir = config.dir;
 
     pb.set_message("🚚 Downloading archive...");
-    let temp_file = download_file(&archive_url, dir).await?;
+    let temp_file = download_file(&archive_url, &repo_info).await?;
 
     pb.set_message("Extracting files...");
     extract_archive(&temp_file, dir)?;
 
-    std::fs::remove_file(temp_file)?;
     pb.finish_and_clear();
     let _ = handle.join();
     Ok(())
