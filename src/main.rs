@@ -21,7 +21,7 @@ async fn main() -> Result<()> {
     let matches = command!()
         .about("A simple git clone manager")
         .arg(arg!([url] "the link to the source file"))
-        .arg(arg!(-d --dir <DIRNAME> "the directory name").required(false))
+        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
         .arg(
             arg!(-b --branch [BRANCH] "the branch to clone")
                 .required(false)
@@ -29,11 +29,7 @@ async fn main() -> Result<()> {
                 .num_args(0..=1)
                 .default_missing_value("INTERACTIVE"),
         )
-        .arg(
-            arg!(-m --mode <MODE> "the mode of the operation")
-                .required(false)
-                .default_value("git"),
-        )
+        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .arg(
             Arg::new("keep-history")
@@ -45,48 +41,46 @@ async fn main() -> Result<()> {
         .arg_required_else_help(true)
         .get_matches();
 
-    let url = matches
-        .get_one::<String>("url")
-        .ok_or_else(|| eyre!("URL is required. ogito <URL>"))?;
-    let mode = matches
-        .get_one::<String>("mode")
-        .ok_or_else(|| eyre!("Mode is required. ogito -m <MODE>"))?;
+    let url = matches.get_one::<String>("url");
+    if let Some(url) = url {
+        let mode = matches.get_one::<String>("mode").unwrap();
+        let branch = matches.get_one::<String>("branch");
 
-    let force = matches.get_flag("force");
-    let branch = matches.get_one::<String>("branch");
-    let keep_history = matches.get_flag("keep-history");
-    let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
-    let dir = match matches.get_one::<String>("dir") {
-        Some(dir) => dir,
-        None => &repo_dir.to_string(),
-    };
+        let force = matches.get_flag("force");
+        let keep_history = matches.get_flag("keep-history");
 
-    let config = Config::from(dir, mode.into(), force, keep_history, branch);
-    let started = Instant::now();
+        let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
+        let dir = match matches.get_one::<String>("dir") {
+            Some(dir) => dir,
+            None => &repo_dir.to_string(),
+        };
 
-    // check if the directory exists
-    if !fs::metadata(dir).is_ok() {
-        clone(&url.to_string(), &config).await?;
-    } else {
-        let mut empty = fs::read_dir(dir)?;
-        if empty.next().is_some() {
-            let force = matches.get_flag("force")
-                || Confirm::new()
-                    .with_prompt("Do you want to overwrite existing files?")
-                    .default(false)
-                    .interact()
-                    .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
-            if force {
-                force_clone(&url.to_string(), dir, &config).await?;
-            } else {
-                println!("{}", style("❌ Directory is not empty").red().bold());
-                return Err(eyre!("Directory is not empty"));
-            }
-        } else {
+        let config = Config::from(dir, mode.into(), force, keep_history, branch);
+        let started = Instant::now();
+        // check if the directory exists
+        if !fs::metadata(dir).is_ok() {
             clone(&url.to_string(), &config).await?;
+        } else {
+            let mut empty = fs::read_dir(dir)?;
+            if empty.next().is_some() {
+                let force = matches.get_flag("force")
+                    || Confirm::new()
+                        .with_prompt("Do you want to overwrite existing files?")
+                        .default(false)
+                        .interact()
+                        .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+                if force {
+                    force_clone(&url.to_string(), dir, &config).await?;
+                } else {
+                    println!("{}", style("❌ Directory is not empty").red().bold());
+                    return Err(eyre!("Directory is not empty"));
+                }
+            } else {
+                clone(&url.to_string(), &config).await?;
+            }
         }
+        println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
     }
-    println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
 
     // TODO A new TUI, a template manager not a file manager
     // let tui = Confirm::new()

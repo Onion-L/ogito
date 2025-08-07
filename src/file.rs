@@ -60,7 +60,6 @@ pub async fn download_file(url: &str, repo_info: &RepoInfo) -> Result<PathBuf> {
         .join(&repo_info.repo)
         .join(&repo_info.hash[..2])
         .join(&repo_info.hash[2..]);
-
     std::fs::create_dir_all(&repo_path)?;
 
     let archive_path = repo_path.join("archive.tar.gz");
