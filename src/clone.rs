@@ -226,7 +226,6 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     });
 
     let dir = config.dir;
-
     pb.set_message("🚚 Downloading archive...");
     let temp_file = file::download_file(&archive_url, &cache_metadata).await?;
 

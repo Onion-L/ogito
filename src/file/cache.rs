@@ -62,3 +62,17 @@ impl CacheConfig {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Repo;
+    use std::path::PathBuf;
+
+    #[test]
+    fn test_repo_new() {
+        let repo = Repo::new();
+        assert!(repo.directories.is_empty());
+        assert!(repo.files.is_empty());
+        assert_eq!(repo.path, PathBuf::new());
+    }
+}

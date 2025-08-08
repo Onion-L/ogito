@@ -32,18 +32,14 @@ pub fn get_repo(path: &OsString) -> Result<Repo> {
 
 pub async fn download_file(url: &str, cache_metadata: &CacheMetadata) -> Result<PathBuf> {
     let cache = CacheConfig::new(cache_metadata);
-    std::fs::create_dir_all(&cache.cache_dir)?;
-
     std::fs::create_dir_all(&cache.cache_hash_path)?;
 
     let archive_path = cache.archive_path;
-
     if !archive_path.exists() {
         let response = reqwest::get(url).await?;
         if !response.status().is_success() {
             return Err(eyre!("Download Error: {}", response.status()));
         }
-
         let bytes = response.bytes().await?;
         let mut file = File::create(&archive_path)?;
         Write::write_all(&mut file, &bytes)?;
@@ -85,4 +81,34 @@ pub fn get_canonical_path(root: &PathBuf, current_path: &OsString) -> Result<Pat
     std::fs::canonicalize(&path)
         .map_err(|e| eyre!("Failed to canonicalize path: {}", e))
         .or_else(|_| Ok(path.clone()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::get_canonical_path;
+    use std::ffi::OsString;
+    use std::fs::File;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_get_canonical_path_success() {
+        let temp_dir = tempdir().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+
+        let test_file = temp_path.join("test.txt");
+        File::create(&test_file).unwrap();
+
+        let canonical = get_canonical_path(&temp_path, &OsString::from("test.txt")).unwrap();
+
+        assert!(canonical.is_absolute());
+        assert!(canonical.ends_with("test.txt"));
+    }
+
+    #[test]
+    fn test_get_canonical_path_nonexistent() {
+        let temp_dir = tempdir().unwrap();
+        let temp_path = temp_dir.path().to_path_buf();
+        let result = get_canonical_path(&temp_path, &OsString::from("nonexistent.txt")).unwrap();
+        assert!(result.ends_with("nonexistent.txt"));
+    }
 }

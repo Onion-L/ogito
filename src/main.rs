@@ -1,3 +1,15 @@
+mod clone;
+mod code;
+mod fetch;
+mod file;
+mod git;
+mod models;
+mod regex;
+mod tui;
+
+use crate::clone::{clone, force_clone};
+use crate::fetch::config::Config;
+use crate::regex::extract_path;
 use clap::{Arg, ArgAction, Command, arg, command};
 use color_eyre::eyre::ContextCompat;
 use color_eyre::{Result, eyre::eyre};
@@ -5,12 +17,6 @@ use console::Emoji;
 use console::style;
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
-use ogito::clone::{clone, force_clone};
-use ogito::fetch::config::Config;
-// use ogito::file::get_repo;
-// use ogito::tui::app::App;
-// use std::ffi::OsString;
-use ogito::regex::extract_path;
 use std::{fs, time::Instant};
 
 static FINISH: Emoji<'_, '_> = Emoji("🚀", "🚀");
@@ -18,41 +24,41 @@ static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    let new_command = Command::new("new")
+        .about("Create a new template")
+        .arg(arg!([url] "the link to the source file").required(true))
+        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
+        .arg(
+            arg!(-b --branch [BRANCH] "the branch to clone")
+                .require_equals(true)
+                .num_args(0..=1)
+                .default_missing_value("INTERACTIVE"),
+        )
+        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
+        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+        .arg(
+            Arg::new("keep-history")
+                .short('H')
+                .long("keep-history")
+                .help("keep the history of the repository")
+                .action(ArgAction::SetTrue),
+        );
+
     let ogito = command!()
         .about("A simple git clone manager")
-        .subcommand(
-            Command::new("new")
-                .about("Create a new template")
-                .arg(arg!([url] "the link to the source file").required(true))
-                .arg(arg!(-d --dir <DIRNAME> "the directory name"))
-                .arg(
-                    arg!(-b --branch [BRANCH] "the branch to clone")
-                        .require_equals(true)
-                        .num_args(0..=1)
-                        .default_missing_value("INTERACTIVE"),
-                )
-                .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
-                .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
-                .arg(
-                    Arg::new("keep-history")
-                        .short('H')
-                        .long("keep-history")
-                        .help("keep the history of the repository")
-                        .action(ArgAction::SetTrue),
-                ),
-        )
-        .subcommand(Command::new("list").about("List all templates"))
-        .subcommand(Command::new("remove").about("Remove a template"))
-        .subcommand(Command::new("update").about("Update a template"))
-        .subcommand(Command::new("add").about("Add a template"))
-        .subcommand(Command::new("clear").about("Clean the cache"))
+        .subcommand(new_command)
+        // .subcommand(Command::new("list").about("List all templates"))
+        // .subcommand(Command::new("remove").about("Remove a template"))
+        // .subcommand(Command::new("update").about("Update a template"))
+        // .subcommand(Command::new("add").about("Add a template"))
+        // .subcommand(Command::new("clear").about("Clean the cache"))
         .arg_required_else_help(true)
         .get_matches();
 
-    if let Some(list) = ogito.subcommand_matches("list") {
-        dbg!(list);
-        todo!()
-    }
+    // if let Some(list) = ogito.subcommand_matches("list") {
+    //     dbg!(list);
+    //     todo!()
+    // }
 
     if let Some(ogito_new) = ogito.subcommand_matches("new") {
         let url = ogito_new

@@ -28,19 +28,19 @@ npm install -g ogito
 
 ```bash
 # Basic usage
-ogito <repository URL>
+ogito new <repository URL>
 
 # Example
-ogito https://github.com/user/repo
+ogito new https://github.com/user/repo
 
 # Use specific directory name
-ogito https://github.com/user/repo -d dirname
+ogito new https://github.com/user/repo -d dirname
 
 # Use force mode to override existing directory
-ogito https://github.com/user/repo -d dirname -f
+ogito new https://github.com/user/repo -d dirname -f
 
 # Clone specific branch (you have to use --branch=branch_name or -b=branch_name for this option)
-ogito https://github.com/user/repo --branch=branch_name
+ogito new https://github.com/user/repo --branch=branch_name
 ```
 
 ### Command Line Options
