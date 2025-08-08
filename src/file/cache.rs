@@ -34,8 +34,8 @@ impl CacheMetadata {
 }
 
 #[derive(Debug, Clone)]
+
 pub struct CacheConfig {
-    pub cache_dir: PathBuf,
     pub cache_hash_path: PathBuf,
     pub archive_path: PathBuf,
 }
@@ -56,7 +56,6 @@ impl CacheConfig {
         let archive_path = cache_hash_path.join("archive.tar.gz");
 
         Self {
-            cache_dir,
             cache_hash_path,
             archive_path,
         }

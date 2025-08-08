@@ -84,7 +84,7 @@ async fn main() -> Result<()> {
         } else {
             let mut empty = fs::read_dir(dir)?;
             if empty.next().is_some() {
-                let force = ogito_new.get_flag("force")
+                let force = config.force
                     || Confirm::new()
                         .with_prompt("Do you want to overwrite existing files?")
                         .default(false)

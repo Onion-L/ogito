@@ -1,6 +1,7 @@
 use mime_guess::MimeGuess;
 use std::path::Path;
 
+#[allow(dead_code)]
 pub fn is_code_file<P: AsRef<Path>>(path: P) -> bool {
     let path = path.as_ref();
 
