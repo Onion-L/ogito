@@ -13,14 +13,10 @@ use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
-    if config.cache {
-        tar_clone(url, config).await?;
-    } else {
-        match config.mode {
-            Mode::Git => git_clone(url, config)?,
-            Mode::Tar => tar_clone(url, config).await?,
-            _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
-        }
+    match config.mode {
+        Mode::Git => git_clone(url, config)?,
+        Mode::Tar => tar_clone(url, config).await?,
+        _ => return Err(eyre!("Invalid mode: {:?}", config.mode)),
     }
     println!("{} Repository is ready!", style("✨").cyan().bold());
 
@@ -239,9 +235,6 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
 
     pb.finish_and_clear();
     let _ = handle.join();
-    if !config.cache {
-        fs::remove_file(temp_file)?;
-    }
 
     Ok(())
 }

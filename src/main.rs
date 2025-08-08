@@ -18,58 +18,59 @@ static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let matches = command!()
+    let ogito = command!()
         .about("A simple git clone manager")
-        .arg(arg!([url] "the link to the source file"))
-        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
-        .arg(
-            arg!(-b --branch [BRANCH] "the branch to clone")
-                .required(false)
-                .require_equals(true)
-                .num_args(0..=1)
-                .default_missing_value("INTERACTIVE"),
+        .subcommand(
+            Command::new("new")
+                .about("Create a new template")
+                .arg(arg!([url] "the link to the source file").required(true))
+                .arg(arg!(-d --dir <DIRNAME> "the directory name"))
+                .arg(
+                    arg!(-b --branch [BRANCH] "the branch to clone")
+                        .require_equals(true)
+                        .num_args(0..=1)
+                        .default_missing_value("INTERACTIVE"),
+                )
+                .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
+                .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+                .arg(
+                    Arg::new("keep-history")
+                        .short('H')
+                        .long("keep-history")
+                        .help("keep the history of the repository")
+                        .action(ArgAction::SetTrue),
+                ),
         )
-        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
-        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
-        .arg(
-            Arg::new("keep-history")
-                .short('H')
-                .long("keep-history")
-                .help("keep the history of the repository")
-                .action(ArgAction::SetTrue),
-        )
-        .arg(
-            Arg::new("cache")
-                .long("cache")
-                .help("save the repository to the cache")
-                .action(ArgAction::SetTrue),
-        )
-        .arg_required_else_help(true)
         .subcommand(Command::new("list").about("List all templates"))
+        .subcommand(Command::new("remove").about("Remove a template"))
+        .subcommand(Command::new("update").about("Update a template"))
+        .subcommand(Command::new("add").about("Add a template"))
+        .subcommand(Command::new("clear").about("Clean the cache"))
+        .arg_required_else_help(true)
         .get_matches();
 
-    let url = matches.get_one::<String>("url");
-
-    if let Some(list) = matches.subcommand_matches("list") {
+    if let Some(list) = ogito.subcommand_matches("list") {
         dbg!(list);
         todo!()
     }
 
-    if let Some(url) = url {
-        let mode = matches.get_one::<String>("mode").unwrap();
-        let branch = matches.get_one::<String>("branch");
+    if let Some(ogito_new) = ogito.subcommand_matches("new") {
+        let url = ogito_new
+            .get_one::<String>("url")
+            .ok_or_else(|| eyre!("URL is required"))?;
+        let mode = ogito_new.get_one::<String>("mode").unwrap();
+        let branch = ogito_new.get_one::<String>("branch");
 
-        let force = matches.get_flag("force");
-        let keep_history = matches.get_flag("keep-history");
-        let cache = matches.get_flag("cache");
+        let force = ogito_new.get_flag("force");
+        let keep_history = ogito_new.get_flag("keep-history");
 
         let (_, repo_dir) = extract_path(url).wrap_err("Invalid URL")?;
-        let dir = match matches.get_one::<String>("dir") {
+        let dir = match ogito_new.get_one::<String>("dir") {
             Some(dir) => dir,
             None => &repo_dir.to_string(),
         };
 
-        let config = Config::from(dir, mode.into(), cache, force, keep_history, branch);
+        let config = Config::from(dir, mode.into(), force, keep_history, branch);
         let started = Instant::now();
         // check if the directory exists
         if !fs::metadata(dir).is_ok() {
@@ -77,7 +78,7 @@ async fn main() -> Result<()> {
         } else {
             let mut empty = fs::read_dir(dir)?;
             if empty.next().is_some() {
-                let force = matches.get_flag("force")
+                let force = ogito_new.get_flag("force")
                     || Confirm::new()
                         .with_prompt("Do you want to overwrite existing files?")
                         .default(false)
