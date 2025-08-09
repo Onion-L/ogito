@@ -1,21 +1,4 @@
-use std::{ffi::OsString, path::PathBuf};
-
-#[derive(Debug)]
-pub struct Repo {
-    pub directories: Vec<OsString>,
-    pub files: Vec<OsString>,
-    pub path: PathBuf,
-}
-
-impl Repo {
-    pub fn new() -> Self {
-        Self {
-            directories: Vec::new(),
-            files: Vec::new(),
-            path: PathBuf::new(),
-        }
-    }
-}
+use std::path::PathBuf;
 
 pub struct CacheMetadata {
     pub owner: String,
@@ -42,12 +25,13 @@ pub struct CacheConfig {
 
 impl CacheConfig {
     pub fn new(cache_metadata: &CacheMetadata) -> Self {
-        let cache_dir = dirs::cache_dir()
+        let root_path = dirs::cache_dir()
             .expect("Failed to get cache directory")
-            .join(".ogito")
-            .join("cache");
+            .join(".ogito");
 
-        let cache_hash_path = cache_dir
+        let cache_path = root_path.join("cache");
+
+        let cache_hash_path = cache_path
             .join(&cache_metadata.owner)
             .join(&cache_metadata.repo)
             .join(&cache_metadata.hash[..2])
@@ -59,19 +43,5 @@ impl CacheConfig {
             cache_hash_path,
             archive_path,
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::Repo;
-    use std::path::PathBuf;
-
-    #[test]
-    fn test_repo_new() {
-        let repo = Repo::new();
-        assert!(repo.directories.is_empty());
-        assert!(repo.files.is_empty());
-        assert_eq!(repo.path, PathBuf::new());
     }
 }

@@ -1,11 +1,9 @@
 mod clone;
-mod code;
 mod fetch;
 mod file;
 mod git;
 mod models;
 mod regex;
-mod tui;
 
 use crate::clone::{clone, force_clone};
 use crate::fetch::config::Config;
@@ -24,41 +22,31 @@ static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let new_command = Command::new("new")
-        .about("Create a new template")
-        .arg(arg!([url] "the link to the source file").required(true))
-        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
-        .arg(
-            arg!(-b --branch [BRANCH] "the branch to clone")
-                .require_equals(true)
-                .num_args(0..=1)
-                .default_missing_value("INTERACTIVE"),
-        )
-        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
-        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
-        .arg(
-            Arg::new("keep-history")
-                .short('H')
-                .long("keep-history")
-                .help("keep the history of the repository")
-                .action(ArgAction::SetTrue),
-        );
-
     let ogito = command!()
         .about("A simple git clone manager")
-        .subcommand(new_command)
-        // .subcommand(Command::new("list").about("List all templates"))
-        // .subcommand(Command::new("remove").about("Remove a template"))
-        // .subcommand(Command::new("update").about("Update a template"))
-        // .subcommand(Command::new("add").about("Add a template"))
-        // .subcommand(Command::new("clear").about("Clean the cache"))
+        .subcommand(
+            Command::new("new")
+                .about("Create a new template")
+                .arg(arg!([url] "the link to the source file").required(true))
+                .arg(arg!(-d --dir <DIRNAME> "the directory name"))
+                .arg(
+                    arg!(-b --branch [BRANCH] "the branch to clone")
+                        .require_equals(true)
+                        .num_args(0..=1)
+                        .default_missing_value("INTERACTIVE"),
+                )
+                .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
+                .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+                .arg(
+                    Arg::new("keep-history")
+                        .short('H')
+                        .long("keep-history")
+                        .help("keep the history of the repository")
+                        .action(ArgAction::SetTrue),
+                ),
+        )
         .arg_required_else_help(true)
         .get_matches();
-
-    // if let Some(list) = ogito.subcommand_matches("list") {
-    //     dbg!(list);
-    //     todo!()
-    // }
 
     if let Some(ogito_new) = ogito.subcommand_matches("new") {
         let url = ogito_new
@@ -101,30 +89,15 @@ async fn main() -> Result<()> {
             }
         }
         println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
+        println!(
+            "{} {}",
+            FIRE,
+            style("The Repo is prepared and ready to use!")
+                .green()
+                .bold()
+        );
     }
-
     // TODO A new TUI, a template manager not a file manager
-    // let tui = Confirm::new()
-    //     .with_prompt("💻 Open TUI to manage the files?")
-    //     .default(false)
-    //     .interact()
-    //     .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
-
-    // if tui {
-    //     let terminal = &mut ratatui::init();
-    //     let path = fs::canonicalize(std::env::current_dir()?.join(dir))?;
-    //     let repo = get_repo(&OsString::from(dir))?;
-    //     App::from(path, repo).run(terminal)?;
-    //     ratatui::restore();
-    // }
-
-    println!(
-        "{} {}",
-        FIRE,
-        style("The Repo is prepared and ready to use!")
-            .green()
-            .bold()
-    );
 
     Ok(())
 }

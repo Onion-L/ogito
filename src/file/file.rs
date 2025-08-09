@@ -1,34 +1,11 @@
-use crate::file::cache::{CacheConfig, CacheMetadata, Repo};
+use crate::file::cache::{CacheConfig, CacheMetadata};
 use color_eyre::Result;
 use color_eyre::eyre::eyre;
 use flate2::read::GzDecoder;
-use std::ffi::OsString;
 use std::fs::{File, create_dir_all};
 use std::path::Path;
-use std::{fs, io::Write, path::PathBuf};
+use std::{io::Write, path::PathBuf};
 use tar::Archive;
-
-pub fn get_repo(path: &OsString) -> Result<Repo> {
-    let path = std::env::current_dir()?.join(path);
-    let mut repo = Repo::new();
-    repo.path = path.clone();
-
-    let entries: Vec<PathBuf> = fs::read_dir(path)?
-        .filter_map(|entry| entry.ok().map(|e| e.path()))
-        .collect();
-
-    for entry in entries.iter() {
-        if let Some(name) = entry.file_name().map(OsString::from) {
-            if entry.is_dir() {
-                repo.directories.push(name);
-            } else {
-                repo.files.push(name);
-            }
-        }
-    }
-
-    Ok(repo)
-}
 
 pub async fn download_file(url: &str, cache_metadata: &CacheMetadata) -> Result<PathBuf> {
     let cache = CacheConfig::new(cache_metadata);
@@ -74,41 +51,4 @@ pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<(
     }
 
     Ok(())
-}
-
-pub fn get_canonical_path(root: &PathBuf, current_path: &OsString) -> Result<PathBuf> {
-    let path = root.join(current_path);
-    std::fs::canonicalize(&path)
-        .map_err(|e| eyre!("Failed to canonicalize path: {}", e))
-        .or_else(|_| Ok(path.clone()))
-}
-
-#[cfg(test)]
-mod tests {
-    use super::get_canonical_path;
-    use std::ffi::OsString;
-    use std::fs::File;
-    use tempfile::tempdir;
-
-    #[test]
-    fn test_get_canonical_path_success() {
-        let temp_dir = tempdir().unwrap();
-        let temp_path = temp_dir.path().to_path_buf();
-
-        let test_file = temp_path.join("test.txt");
-        File::create(&test_file).unwrap();
-
-        let canonical = get_canonical_path(&temp_path, &OsString::from("test.txt")).unwrap();
-
-        assert!(canonical.is_absolute());
-        assert!(canonical.ends_with("test.txt"));
-    }
-
-    #[test]
-    fn test_get_canonical_path_nonexistent() {
-        let temp_dir = tempdir().unwrap();
-        let temp_path = temp_dir.path().to_path_buf();
-        let result = get_canonical_path(&temp_path, &OsString::from("nonexistent.txt")).unwrap();
-        assert!(result.ends_with("nonexistent.txt"));
-    }
 }
