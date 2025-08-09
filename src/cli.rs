@@ -1,0 +1,48 @@
+use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
+use color_eyre::Result;
+
+pub fn build() -> Command {
+    let new_command = Command::new("new")
+        .about("Create a new template")
+        .arg(arg!([url] "the link to the source file").required(true))
+        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
+        .arg(
+            arg!(-b --branch [BRANCH] "the branch to clone")
+                .require_equals(true)
+                .num_args(0..=1)
+                .default_missing_value("INTERACTIVE"),
+        )
+        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
+        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+        .arg(
+            Arg::new("keep-history")
+                .short('H')
+                .long("keep-history")
+                .help("keep the history of the repository")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("cache")
+                .long("cache")
+                .help("save the repository to the cache")
+                .action(ArgAction::SetTrue),
+        );
+
+    let list_command = Command::new("list").about("List cached templates");
+
+    command!()
+        .about("A simple git clone manager")
+        .subcommand(new_command)
+        .subcommand(list_command)
+        .subcommand_required(true)
+        .arg_required_else_help(true)
+}
+
+pub async fn dispatch(matches: ArgMatches) -> Result<()> {
+    match matches.subcommand() {
+        Some(("new", m)) => crate::cmd::new::run(m).await?,
+        Some(("list", m)) => crate::cmd::list::run(m).await?,
+        _ => {}
+    }
+    Ok(())
+}
