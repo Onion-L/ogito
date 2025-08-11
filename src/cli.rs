@@ -28,12 +28,13 @@ pub fn build() -> Command {
                 .action(ArgAction::SetTrue),
         );
 
-    let list_command = Command::new("list").about("List cached templates");
-
+    let clear_command = Command::new("clear")
+        .about("Clear the cache")
+        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue));
     command!()
         .about("A simple git clone manager")
         .subcommand(new_command)
-        .subcommand(list_command)
+        .subcommand(clear_command)
         .subcommand_required(true)
         .arg_required_else_help(true)
 }
@@ -41,7 +42,7 @@ pub fn build() -> Command {
 pub async fn dispatch(matches: ArgMatches) -> Result<()> {
     match matches.subcommand() {
         Some(("new", m)) => crate::cmd::new::run(m).await?,
-        Some(("list", m)) => crate::cmd::list::run(m).await?,
+        Some(("clear", m)) => crate::cmd::clear::run(m).await?,
         _ => {}
     }
     Ok(())

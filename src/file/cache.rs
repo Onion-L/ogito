@@ -27,7 +27,7 @@ impl CacheConfig {
     pub fn new(cache_metadata: &CacheMetadata) -> Self {
         let root_path = dirs::cache_dir()
             .expect("Failed to get cache directory")
-            .join(".ogito");
+            .join("ogito");
 
         let cache_path = root_path.join("cache");
 
