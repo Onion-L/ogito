@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An introduction to the ogito project, a simple and efficient Git repository cloning management tool.">
+    <meta name="keywords" content="ogito, git, clone, template, rust, cli">
+    <title>ogito - Project Introduction</title>
+</head>
+<body style="font-size: 1.1em; line-height: 1.4; margin: 1em; padding: 0;">
+    <header style="text-align: center; margin-bottom: 0;">
+        <h1 style="font-size: 3em; margin-bottom: 0.1em;">ogito 🍸</h1>
+        <nav style="font-size: 1.2em;">
+            <a href="#about">About</a> | 
+            <a href="#features">Features</a> | 
+            <a href="#installation">Installation</a> | 
+            <a href="#usage">Usage</a> | 
+            <a href="#commands">Commands</a>
+        </nav>
+    </header>
+
+    <main>
+        <article id="about">
+            <header>
+                <h2 style="font-size: 2em;">About ogito</h2>
+            </header>
+            <section>
+                <h3>What is it?</h3>
+                <p>A simple and efficient <abbr title="Command Line Interface">CLI</abbr> tool for managing Git repositories. `ogito` helps you quickly clone repositories to start clean projects. It's built with <mark>Rust</mark> for performance.</p>
+            </section>
+            <section>
+                <h3>Core Philosophy</h3>
+                <blockquote>
+                    <p>The vision for `ogito` is not to replace comprehensive scaffolders like `vite` or `create-react-app`. Instead, it aims to provide a more flexible and lightweight solution for developers to quickly start new projects based on their own curated set of templates. The core principle is <strong>user freedom</strong> and <em>control</em> over their own project boilerplates.</p>
+                </blockquote>
+            </section>
+        </article>
+
+        <hr>
+
+        <article id="features">
+            <h2 style="font-size: 2em;">Features</h2>
+            <ul>
+                <li>🚀 Fast cloning of GitHub repositories</li>
+                <li>🧹 Create clean project copies</li>
+                <li>🔄 Force mode to override existing directories</li>
+                <li>📊 Beautiful progress indicators and status feedback</li>
+                <li>💻 User-friendly command line interface</li>
+            </ul>
+        </article>
+
+        <hr>
+
+        <article id="installation">
+            <h2 style="font-size: 2em;">Installation</h2>
+            <p>You can install `ogito` using either Cargo or npm. Make sure you have the required package manager installed.</p>
+            <section>
+                <h3><a href="https://www.rust-lang.org/tools/install">Cargo</a></h3>
+                <p>Run the following command in your terminal:</p>
+                <pre><code style="background-color: #eee; border: 1px solid #999; display: block; padding: 10px;"><kbd>cargo install ogito</kbd></code></pre>
+            </section>
+            <section>
+                <h3><a href="https://nodejs.org/">NPM</a></h3>
+                <p>Run the following command in your terminal:</p>
+                <pre><code style="background-color: #eee; border: 1px solid #999; display: block; padding: 10px;"><kbd>npm install -g ogito</kbd></code></pre>
+            </section>
+        </article>
+
+        <hr>
+
+        <article id="usage">
+            <h2 style="font-size: 2em;">Usage Examples</h2>
+            <p>Here are some examples of how to use `ogito` from the command line.</p>
+            <table border="1" style="width:100%; border-collapse: collapse; text-align: left;">
+                <caption style="font-size: 1.5em; margin: 0.5em;">Command Line Options</caption>
+                <thead>
+                    <tr>
+                        <th style="padding: 8px;">Command</th>
+                        <th style="padding: 8px;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px;"><pre><code>ogito new &lt;repository URL&gt;</code></pre></td>
+                        <td style="padding: 8px;">Basic usage to clone a repository.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo -d dirname</code></pre></td>
+                        <td style="padding: 8px;">Clone into a specific directory named `dirname`.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo -f</code></pre></td>
+                        <td style="padding: 8px;">Force clone, overwriting the destination if it exists.</td>
+                    </tr>
+                     <tr>
+                        <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo --branch=dev</code></pre></td>
+                        <td style="padding: 8px;">Clone a specific branch, in this case `dev`.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </article>
+
+        <hr>
+
+        <aside>
+            <h2 style="font-size: 2em;">Additional Commands</h2>
+            <p>Here are some other commands you can use with `ogito`:</p>
+            <details open>
+                <summary style="font-size: 1.2em; cursor: pointer;">Command list</summary>
+                <ul id="commands">
+                    <li><b>add</b>: Add a new template from a local path or a git repository.</li>
+                    <li><b>new</b>: Create a new project from a specified template.</li>
+                    <li><b>update</b>: Update an existing template from its source.</li>
+                    <li><b>remove/delete</b>: Remove a template.</li>
+                    <li><b>list</b>: List all available templates.</li>
+                    <li><b>clear</b>: Clear the template cache.</li>
+                </ul>
+            </details>
+        </aside>
+
+    </main>
+
+    <hr>
+
+    <footer style="text-align: center; margin-top: 2em;">
+        <p>This project is open source under the <a href="LICENSE">MIT LICENSE</a>.</p>
+        <p><small>Copyright &copy; 2025</small></p>
+    </footer>
+</body>
+</html>
