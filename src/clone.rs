@@ -5,9 +5,9 @@ use crate::{
     models::{Mode, Site},
     regex::{extract_host, extract_path, is_valid_url},
 };
-use color_eyre::{Result, eyre::eyre};
+use color_eyre::{eyre::eyre, Result};
 use console::style;
-use dialoguer::{Confirm, Select, theme::ColorfulTheme};
+use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use git2::build::RepoBuilder;
 use indicatif::{ProgressBar, ProgressStyle};
 use std::{fs, path::Path, thread, time::Duration};

@@ -1,5 +1,5 @@
 use clap::ArgMatches;
-use color_eyre::{Result, eyre::eyre};
+use color_eyre::{eyre::eyre, Result};
 use dialoguer::Confirm;
 use indicatif::{HumanBytes, HumanDuration, ProgressBar, ProgressStyle};
 use std::fs::{self};
@@ -21,14 +21,26 @@ fn compute_dir_stats(path: &Path) -> Result<(u64, u64)> {
         let read_dir_result = fs::read_dir(&current);
         let entries_iter = match read_dir_result {
             Ok(iter) => iter,
-            Err(err) => return Err(eyre!("Failed to read directory {}: {}", current.display(), err)),
+            Err(err) => {
+                return Err(eyre!(
+                    "Failed to read directory {}: {}",
+                    current.display(),
+                    err
+                ))
+            }
         };
         for entry_result in entries_iter {
             let entry = entry_result?;
             let entry_path = entry.path();
             let metadata = match entry.metadata() {
                 Ok(md) => md,
-                Err(err) => return Err(eyre!("Failed to get metadata for {}: {}", entry_path.display(), err)),
+                Err(err) => {
+                    return Err(eyre!(
+                        "Failed to get metadata for {}: {}",
+                        entry_path.display(),
+                        err
+                    ))
+                }
             };
 
             if metadata.is_dir() {
@@ -82,7 +94,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         file_count_before,
         HumanBytes(total_bytes_before)
     );
-    
+
     if dry_run {
         let items = list_dir_entries(&cache_path)?;
         if items.is_empty() {

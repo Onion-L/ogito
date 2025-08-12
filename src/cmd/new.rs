@@ -4,8 +4,8 @@ use crate::{
     regex::extract_path,
 };
 use clap::ArgMatches;
-use color_eyre::{Result, eyre::eyre};
-use console::{Emoji, style};
+use color_eyre::{eyre::eyre, Result};
+use console::{style, Emoji};
 use dialoguer::Confirm;
 use indicatif::HumanDuration;
 use std::{fs, time::Instant};

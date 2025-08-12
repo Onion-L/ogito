@@ -1,4 +1,4 @@
-use clap::{Arg, ArgAction, ArgMatches, Command, arg, command};
+use clap::{arg, command, Arg, ArgAction, ArgMatches, Command};
 use color_eyre::Result;
 
 pub fn build() -> Command {
@@ -30,9 +30,7 @@ pub fn build() -> Command {
 
     let clear_command = Command::new("clear")
         .about("Clear the cache")
-        .arg(
-            arg!(-f --force "force the operation").action(ArgAction::SetTrue),
-        )
+        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
         .arg(
             Arg::new("dry-run")
                 .short('n')
@@ -40,7 +38,10 @@ pub fn build() -> Command {
                 .help("show what would be removed without deleting anything")
                 .action(ArgAction::SetTrue),
         )
-        .arg(arg!(-v --verbose "show detailed output for each item removed").action(ArgAction::SetTrue));
+        .arg(
+            arg!(-v --verbose "show detailed output for each item removed")
+                .action(ArgAction::SetTrue),
+        );
 
     command!()
         .about("A simple git clone manager")

@@ -1,4 +1,4 @@
-use color_eyre::{Result, eyre::eyre};
+use color_eyre::{eyre::eyre, Result};
 use regex::Regex;
 
 pub fn is_valid_url(input: &str) -> Result<bool> {

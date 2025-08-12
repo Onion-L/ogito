@@ -1,8 +1,8 @@
 use crate::file::cache::{CacheConfig, CacheMetadata};
-use color_eyre::Result;
 use color_eyre::eyre::eyre;
+use color_eyre::Result;
 use flate2::read::GzDecoder;
-use std::fs::{File, create_dir_all, remove_dir_all, remove_file, read_dir};
+use std::fs::{create_dir_all, read_dir, remove_dir_all, remove_file, File};
 use std::path::Path;
 use std::{io::Write, path::PathBuf};
 use tar::Archive;
@@ -55,11 +55,11 @@ pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<(
 
 pub fn clear_directory(path: &PathBuf) -> Result<()> {
     let entries = read_dir(path)?;
-    
+
     for entry in entries {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.is_dir() {
             remove_dir_all(path)?;
         } else {
