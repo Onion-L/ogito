@@ -30,7 +30,18 @@ pub fn build() -> Command {
 
     let clear_command = Command::new("clear")
         .about("Clear the cache")
-        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue));
+        .arg(
+            arg!(-f --force "force the operation").action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("dry-run")
+                .short('n')
+                .long("dry-run")
+                .help("show what would be removed without deleting anything")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-v --verbose "show detailed output for each item removed").action(ArgAction::SetTrue));
+
     command!()
         .about("A simple git clone manager")
         .subcommand(new_command)
