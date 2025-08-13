@@ -5,6 +5,7 @@ mod fetch;
 mod file;
 mod git;
 mod models;
+mod progress;
 mod regex;
 
 use color_eyre::Result;

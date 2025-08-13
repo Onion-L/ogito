@@ -1,3 +1,4 @@
+use crate::progress::create_spinner;
 use crate::{
     fetch::config::Config,
     file::{cache::CacheMetadata, file},
@@ -9,8 +10,7 @@ use color_eyre::{eyre::eyre, Result};
 use console::style;
 use dialoguer::{theme::ColorfulTheme, Confirm, Select};
 use git2::build::RepoBuilder;
-use indicatif::{ProgressBar, ProgressStyle};
-use std::{fs, path::Path, thread, time::Duration};
+use std::{fs, path::Path};
 
 pub async fn clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     match config.mode {
@@ -35,33 +35,8 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     }
     println!("{} ogito: {}", "🍸", style(url).bold());
 
-    let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::default_spinner()
-            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
-            .template("{spinner:.green} {msg}")?,
-    );
-    pb.set_message("Downloading repository...");
-
-    let pb_clone = pb.clone();
-    let handle = thread::spawn(move || {
-        let messages = [
-            "🔗 Connecting to remote server...",
-            "🔍 Getting repository information...",
-            "📥 Downloading files...",
-            "🔥 Checking file integrity...",
-        ];
-
-        for msg in messages {
-            thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message(msg);
-        }
-
-        while !pb_clone.is_finished() {
-            thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message("Downloading...");
-        }
-    });
+    let pb = create_spinner("🔗 Connecting to remote server...");
+    pb.set_message("📥 Cloning repository...");
 
     let dir_path = Path::new(config.dir);
     let mut builder = RepoBuilder::new();
@@ -97,7 +72,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
         None => builder.clone(url, dir_path),
     };
 
-    pb.finish_and_clear();
+    pb.finish_with_message("✅ Repository cloned successfully");
 
     let repo = match status {
         Ok(repo) => repo,
@@ -112,7 +87,6 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
         fs::remove_dir_all(git_dir)?;
     }
 
-    let _ = handle.join();
     Ok(())
 }
 
@@ -197,43 +171,14 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         style(&archive_url).bold()
     );
 
-    let pb = ProgressBar::new_spinner();
-    pb.set_style(
-        ProgressStyle::default_spinner()
-            .tick_chars("⠁⠂⠄⡀⢀⠠⠐⠈ ")
-            .template("{spinner:.green} {msg}")?,
-    );
-    pb.set_message("Downloading archive...");
-
-    let pb_clone = pb.clone();
-    let handle = thread::spawn(move || {
-        let messages = [
-            "🔗 Connecting to remote server...",
-            "🔍 Getting repository information...",
-            "📥 Downloading files...",
-            "🔥 Checking file integrity...",
-        ];
-
-        for msg in messages {
-            thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message(msg);
-        }
-
-        while !pb_clone.is_finished() {
-            thread::sleep(Duration::from_millis(500));
-            pb_clone.set_message("🚀 Downloading...");
-        }
-    });
+    let pb = create_spinner("📥 Downloading archive...");
 
     let dir = config.dir;
-    pb.set_message("🚚 Downloading archive...");
     let temp_file = file::download_file(&archive_url, &cache_metadata).await?;
 
-    pb.set_message("Extracting files...");
+    pb.set_message("🗜️ Extracting archive...");
     file::extract_archive(&temp_file, dir)?;
 
     pb.finish_and_clear();
-    let _ = handle.join();
-
     Ok(())
 }
