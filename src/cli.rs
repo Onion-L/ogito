@@ -20,12 +20,6 @@ pub fn build() -> Command {
                 .long("keep-history")
                 .help("keep the history of the repository")
                 .action(ArgAction::SetTrue),
-        )
-        .arg(
-            Arg::new("cache")
-                .long("cache")
-                .help("save the repository to the cache")
-                .action(ArgAction::SetTrue),
         );
 
     let clear_command = Command::new("clear")
