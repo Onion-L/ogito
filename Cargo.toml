@@ -1,6 +1,6 @@
 [package]
 name = "ogito"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2021"
 authors = ["Onion-L <onionl5236@gmail.com>"]
 description = "A simple and efficient Git repository cloning management tool"
@@ -10,7 +10,17 @@ homepage = "https://github.com/Onion-L/ogito"
 readme = "README.md"
 keywords = ["git", "tui", "cli", "degit", "terminal"]
 categories = ["command-line-utilities"]
-exclude = ["node_modules/", "npm/", "target/", ".gitignore", "*.lock", "package.json", "pnpm-lock.yaml", "tsconfig.json", "tsdown.config.ts"]
+exclude = [
+    "node_modules/",
+    "npm/",
+    "target/",
+    ".gitignore",
+    "*.lock",
+    "package.json",
+    "pnpm-lock.yaml",
+    "tsconfig.json",
+    "tsdown.config.ts",
+]
 
 [[bin]]
 name = "ogito"
