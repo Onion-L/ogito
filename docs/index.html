@@ -76,6 +76,7 @@
             <details>
                 <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito new</summary>
                 <p>Create a new project from a specified template or Git repository.</p>
+                <p>By default, `ogito new` uses Git mode. If you specify <code>-m tar</code>, it will use tar mode which automatically caches the downloaded archives.</p>
                 <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
                     <thead>
                         <tr>
@@ -86,7 +87,7 @@
                     <tbody>
                         <tr>
                             <td style="padding: 8px;"><pre><code>ogito new &lt;repository URL&gt;</code></pre></td>
-                            <td style="padding: 8px;">Basic usage to clone a repository.</td>
+                            <td style="padding: 8px;">Basic usage to clone a repository using Git mode.</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo -d dirname</code></pre></td>
@@ -101,8 +102,12 @@
                             <td style="padding: 8px;">Clone a specific branch, in this case `dev`.</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo --cache</code></pre></td>
-                            <td style="padding: 8px;">Save the repository to the local template cache.</td>
+                            <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo -m tar</code></pre></td>
+                            <td style="padding: 8px;">Use tar mode to clone (automatically cached).</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo --keep-history</code></pre></td>
+                            <td style="padding: 8px;">Keep the git history of the repository.</td>
                         </tr>
                     </tbody>
                 </table>
