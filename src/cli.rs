@@ -37,10 +37,19 @@ pub fn build() -> Command {
                 .action(ArgAction::SetTrue),
         );
 
+    let add_command = Command::new("add")
+        .about("Add a new template")
+        .arg(arg!([url] "the link to the source file").required(true))
+        .arg(arg!(-n --name <NAME> "the name of the template"))
+        .arg(arg!(-d --description <DESCRIPTION> "the description of the template"))
+        .arg(arg!(-a --alias <ALIAS> "the alias of the template"))
+        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue));
+
     command!()
         .about("A simple git clone manager")
         .subcommand(new_command)
         .subcommand(clear_command)
+        .subcommand(add_command)
         .subcommand_required(true)
         .arg_required_else_help(true)
 }
@@ -49,6 +58,7 @@ pub async fn dispatch(matches: ArgMatches) -> Result<()> {
     match matches.subcommand() {
         Some(("new", m)) => crate::cmd::new::run(m).await?,
         Some(("clear", m)) => crate::cmd::clear::run(m).await?,
+        Some(("add", m)) => crate::cmd::add::run(m).await?,
         _ => {}
     }
     Ok(())
