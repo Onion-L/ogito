@@ -23,14 +23,19 @@ pub struct CacheConfig {
     pub archive_path: PathBuf,
 }
 
+pub fn get_cache_root() -> PathBuf {
+    dirs::cache_dir()
+        .expect("Failed to get cache directory")
+        .join("ogito")
+}
+
+pub fn get_cache_dir() -> PathBuf {
+    get_cache_root().join("cache")
+}
+
 impl CacheConfig {
     pub fn new(cache_metadata: &CacheMetadata) -> Self {
-        let root_path = dirs::cache_dir()
-            .expect("Failed to get cache directory")
-            .join("ogito");
-
-        let cache_path = root_path.join("cache");
-
+        let cache_path = get_cache_dir();
         let cache_hash_path = cache_path
             .join(&cache_metadata.owner)
             .join(&cache_metadata.repo)

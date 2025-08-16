@@ -3,7 +3,7 @@ use crate::{
     fetch::config::Config,
     file::{cache::CacheMetadata, file},
     git::get_remote_refs,
-    models::{Mode, Site},
+    mode::{Mode, Site},
     regex::{extract_host, extract_path, is_valid_url},
 };
 use color_eyre::{eyre::eyre, Result};

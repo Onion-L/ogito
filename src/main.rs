@@ -4,7 +4,7 @@ mod cmd;
 mod fetch;
 mod file;
 mod git;
-mod models;
+mod mode;
 mod progress;
 mod regex;
 

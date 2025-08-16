@@ -43,6 +43,7 @@ pub fn build() -> Command {
         .arg(arg!(-n --name <NAME> "the name of the template"))
         .arg(arg!(-d --description <DESCRIPTION> "the description of the template"))
         .arg(arg!(-a --alias <ALIAS> "the alias of the template"))
+        .arg(arg!(-u --update "update the template").action(ArgAction::SetTrue))
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue));
 
     command!()

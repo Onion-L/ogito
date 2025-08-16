@@ -1,4 +1,4 @@
-use crate::models::Mode;
+use crate::mode::Mode;
 
 #[derive(Debug)]
 pub struct Config<'a> {
@@ -30,7 +30,7 @@ impl<'a> Config<'a> {
 #[cfg(test)]
 mod tests {
     use super::Config;
-    use crate::models::Mode;
+    use crate::mode::Mode;
 
     #[test]
     fn test_config_from_all_fields() {
