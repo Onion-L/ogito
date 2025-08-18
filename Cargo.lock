@@ -990,6 +990,7 @@ dependencies = [
  "reqwest",
  "serde",
  "tar",
+ "tempfile",
  "tokio",
  "toml",
 ]

@@ -60,3 +60,56 @@ pub fn list_dir_entries(path: &Path) -> Result<Vec<PathBuf>> {
     }
     Ok(items)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::{self, File};
+    use std::io::Write;
+    use tempfile::tempdir;
+
+    #[test]
+    fn test_compute_dir_stats() -> Result<()> {
+        let dir = tempdir()?;
+        let path = dir.path();
+
+        // Create a file
+        let file_path = path.join("file1.txt");
+        let mut file = File::create(&file_path)?;
+        file.write_all(b"hello")?;
+
+        // Create a subdirectory with a file
+        let sub_dir = path.join("subdir");
+        fs::create_dir(&sub_dir)?;
+        let sub_file_path = sub_dir.join("file2.txt");
+        let mut sub_file = File::create(&sub_file_path)?;
+        sub_file.write_all(b"world")?;
+
+        let (file_count, total_bytes) = compute_dir_stats(path)?;
+        assert_eq!(file_count, 2);
+        assert_eq!(total_bytes, 10);
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_list_dir_entries() -> Result<()> {
+        let dir = tempdir()?;
+        let path = dir.path();
+
+        let file_path = path.join("file1.txt");
+        File::create(&file_path)?;
+
+        let sub_dir = path.join("subdir");
+        fs::create_dir(&sub_dir)?;
+
+        let mut entries = list_dir_entries(path)?;
+        let mut expected = vec![file_path, sub_dir];
+        entries.sort();
+        expected.sort();
+
+        assert_eq!(entries, expected);
+
+        Ok(())
+    }
+}
