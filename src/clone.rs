@@ -1,7 +1,8 @@
+use crate::file;
 use crate::progress::create_spinner;
 use crate::{
     fetch::config::Config,
-    file::{cache::CacheMetadata, file},
+    file::cache::CacheMetadata,
     git::get_remote_refs,
     mode::{Mode, Site},
     regex::{extract_host, extract_path, is_valid_url},
