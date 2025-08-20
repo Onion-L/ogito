@@ -1,39 +1,51 @@
 use color_eyre::Result;
 use serde::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct TempConfig {
-    templates: HashMap<String, Template>,
+    templates: BTreeMap<String, Template>,
 }
 
 impl TempConfig {
-    pub fn new() -> Self {
-        Self {
-            templates: HashMap::new(),
-        }
-    }
-
     pub fn add_template(&mut self, name: String, template: Template) {
         self.templates.insert(name, template);
     }
 }
 
 pub struct TomlConfig {
-    toml_path: PathBuf,
+    path: PathBuf,
+    content: TempConfig,
 }
 
 impl TomlConfig {
-    pub fn new(toml_path: PathBuf) -> Self {
-        Self {
-            toml_path: toml_path,
+    pub fn load(path: &Path) -> Result<Self> {
+        if !path.exists() {
+            let content = TempConfig::default();
+            let toml_content = toml::to_string_pretty(&content)?;
+            fs::write(path, toml_content)?;
         }
+
+        let file_content = fs::read_to_string(path)?;
+        let content: TempConfig = toml::from_str(&file_content)?;
+        Ok(Self {
+            path: path.to_path_buf(),
+            content,
+        })
     }
 
-    pub fn read_file(&self) -> Result<TempConfig> {
-        let file_content = fs::read_to_string(&self.toml_path)?;
-        let toml_content: TempConfig = toml::from_str(&file_content)?;
-        Ok(toml_content)
+    pub fn add_template(&mut self, name: String, template: Template) {
+        self.content.add_template(name, template);
+    }
+
+    pub fn save(&self) -> Result<()> {
+        let toml_content = toml::to_string_pretty(&self.content)?;
+        fs::write(&self.path, toml_content)?;
+        Ok(())
     }
 }
 
@@ -50,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_add_template() {
-        let mut config = TempConfig::new();
+        let mut config = TempConfig::default();
         let template = Template {
             description: Some("A test template".to_string()),
             alias: Some("test".to_string()),

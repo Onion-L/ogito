@@ -4,8 +4,7 @@ use crate::file::cache::get_cache_root;
 use crate::regex::{extract_host, extract_path, is_valid_url};
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
-use config::{TempConfig, Template, TomlConfig};
-use std::fs;
+use config::{Template, TomlConfig};
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
     let url = matches
@@ -31,24 +30,16 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
 
     let root_path = get_cache_root();
     let template_path = root_path.join("template.toml");
-    if !template_path.exists() {
-        let default_config = TempConfig::new();
-        let toml_content = toml::to_string_pretty(&default_config)?;
-        fs::write(&template_path, toml_content)?;
-    }
 
-    let toml_config = TomlConfig::new(template_path.clone());
-    let mut toml_content = toml_config.read_file()?;
-
+    let mut config = TomlConfig::load(&template_path)?;
     let template = Template {
         description: description.cloned(),
         alias: alias.cloned(),
         url: url.clone(),
     };
 
-    toml_content.add_template(name, template);
-    let toml_content = toml::to_string_pretty(&toml_content)?;
-    fs::write(&template_path, toml_content)?;
+    config.add_template(name.clone(), template);
+    config.save()?;
 
     Ok(())
 }
