@@ -32,11 +32,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     if destination.exists() {
         println!(
             "{}",
-            style(format!(
-                "⚠️  Template directory '{}' already exists. Skipping clone.",
-                &name
-            ))
-            .yellow()
+            style(format!("⚠️ {} already exists. Skipping clone.", &name)).yellow()
         );
     } else {
         fs::create_dir_all(&destination)?;
