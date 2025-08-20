@@ -18,7 +18,7 @@
     "script": "tsx script/script.ts"
   },
 
-  "keywords": ["git", "tui", "cli", "degit", "terminal"],
+  "keywords": ["git", "cli", "degit", "terminal"],
   "author": "Onion-L <onionl5236@gmail.com>",
   "license": "MIT",
   "description": "A simple and efficient Git repository cloning management tool",
