@@ -1,13 +1,11 @@
-mod config;
-
 use crate::{
     file::cache::get_cache_root,
+    manifest::{ManifestFile, Template},
     mode::Mode,
     regex::{extract_path, is_valid_url},
 };
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
-use config::{Template, TomlConfig};
 use console::style;
 use std::fs;
 
@@ -48,7 +46,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     }
 
     let config_path = get_cache_root().join("template.toml");
-    let mut config = TomlConfig::load(&config_path)?;
+    let mut config = ManifestFile::load(&config_path)?;
     config.add_template(name.clone(), template.clone());
     config.save()?;
 

@@ -1,4 +1,5 @@
 use crate::file::cache::get_cache_root;
+use crate::manifest::Manifest;
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
 use std::fs;
@@ -13,7 +14,8 @@ pub async fn local_template(_matches: &ArgMatches, template_name: &String) -> Re
     }
 
     let toml_content = fs::read_to_string(config_path)?;
-    println!("{}", toml_content);
+    let toml_config: Manifest = toml::from_str(&toml_content)?;
+    println!("{:?}", toml_config);
 
     todo!("Implement local template {}", template_name);
 }

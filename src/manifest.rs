@@ -7,31 +7,31 @@ use std::{
 };
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
-pub struct TempConfig {
+pub struct Manifest {
     templates: BTreeMap<String, Template>,
 }
 
-impl TempConfig {
+impl Manifest {
     pub fn add_template(&mut self, name: String, template: Template) {
         self.templates.insert(name, template);
     }
 }
 
-pub struct TomlConfig {
+pub struct ManifestFile {
     path: PathBuf,
-    content: TempConfig,
+    content: Manifest,
 }
 
-impl TomlConfig {
+impl ManifestFile {
     pub fn load(path: &Path) -> Result<Self> {
         if !path.exists() {
-            let content = TempConfig::default();
+            let content = Manifest::default();
             let toml_content = toml::to_string_pretty(&content)?;
             fs::write(path, toml_content)?;
         }
 
         let file_content = fs::read_to_string(path)?;
-        let content: TempConfig = toml::from_str(&file_content)?;
+        let content: Manifest = toml::from_str(&file_content)?;
         Ok(Self {
             path: path.to_path_buf(),
             content,
@@ -62,7 +62,7 @@ mod tests {
 
     #[test]
     fn test_add_template() {
-        let mut config = TempConfig::default();
+        let mut config = Manifest::default();
         let template = Template {
             description: Some("A test template".to_string()),
             alias: Some("test".to_string()),
