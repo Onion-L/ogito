@@ -7,39 +7,43 @@ use color_eyre::{eyre::eyre, Result};
 use config::{Template, TomlConfig};
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
+    let (name, template) = build_template_from_args(matches)?;
+    let config_path = get_cache_root().join("template.toml");
+    let mut config = TomlConfig::load(&config_path)?;
+    config.add_template(name.clone(), template);
+    config.save()?;
+
+    Ok(())
+}
+
+/// Parses command-line arguments to construct the template name and data.
+fn build_template_from_args(matches: &ArgMatches) -> Result<(String, Template)> {
     let url = matches
         .get_one::<String>("url")
         .ok_or_else(|| eyre!("URL is required"))?;
 
     if !is_valid_url(url)? {
-        return Err(eyre!("Invalid URL"));
+        return Err(eyre!("Invalid URL: {}", url));
     }
 
-    let (owner, repo) = extract_path(url).ok_or_else(|| eyre!("Invalid URL"))?;
-    let host = extract_host(url).unwrap_or_else(|| "unknown".to_string());
-    let default_name = format!("{}:{}/{}", host, owner, repo);
     let name = match matches.get_one::<String>("name") {
         Some(name) => name.clone(),
-        None => default_name,
+        None => generate_default_name(url)?,
     };
 
-    let description = matches.get_one::<String>("description");
-    let alias = matches.get_one::<String>("alias");
-    let _force = matches.get_flag("force");
-    let _update = matches.get_flag("update");
-
-    let root_path = get_cache_root();
-    let template_path = root_path.join("template.toml");
-
-    let mut config = TomlConfig::load(&template_path)?;
     let template = Template {
-        description: description.cloned(),
-        alias: alias.cloned(),
+        description: matches.get_one::<String>("description").cloned(),
+        alias: matches.get_one::<String>("alias").cloned(),
         url: url.clone(),
     };
 
-    config.add_template(name.clone(), template);
-    config.save()?;
+    Ok((name, template))
+}
 
-    Ok(())
+/// Generates a default template name from a git URL, e.g., "github.com:user/repo".
+fn generate_default_name(url: &str) -> Result<String> {
+    let (owner, repo) =
+        extract_path(url).ok_or_else(|| eyre!("Could not extract path from URL"))?;
+    let host = extract_host(url).unwrap_or_else(|| "unknown".to_string());
+    Ok(format!("{}:{}/{}", host, owner, repo))
 }
