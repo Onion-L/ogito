@@ -1,31 +1,11 @@
 mod config;
-use config::{TempConfig, Template};
 
-use crate::{
-    file::cache::get_cache_root,
-    regex::{extract_host, extract_path, is_valid_url},
-};
+use crate::file::cache::get_cache_root;
+use crate::regex::{extract_host, extract_path, is_valid_url};
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
-use std::{fs, path::PathBuf};
-
-struct TomlConfig {
-    toml_path: PathBuf,
-}
-
-impl TomlConfig {
-    fn new(toml_path: PathBuf) -> Self {
-        Self {
-            toml_path: toml_path,
-        }
-    }
-
-    fn read_file(&self) -> Result<TempConfig> {
-        let file_content = fs::read_to_string(&self.toml_path)?;
-        let toml_content: TempConfig = toml::from_str(&file_content)?;
-        Ok(toml_content)
-    }
-}
+use config::{TempConfig, Template, TomlConfig};
+use std::fs;
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
     let url = matches
@@ -52,12 +32,13 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     let root_path = get_cache_root();
     let template_path = root_path.join("template.toml");
     if !template_path.exists() {
-        fs::write(&template_path, "")?;
+        let default_config = TempConfig::new();
+        let toml_content = toml::to_string_pretty(&default_config)?;
+        fs::write(&template_path, toml_content)?;
     }
 
     let toml_config = TomlConfig::new(template_path.clone());
-    let toml_content = toml_config.read_file()?;
-    dbg!(toml_content);
+    let mut toml_content = toml_config.read_file()?;
 
     let template = Template {
         description: description.cloned(),
@@ -65,11 +46,8 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         url: url.clone(),
     };
 
-    let mut temp_config = TempConfig::new();
-    temp_config.add_template(name, template);
-
-    let toml_content = toml::to_string_pretty(&temp_config)?;
-
+    toml_content.add_template(name, template);
+    let toml_content = toml::to_string_pretty(&toml_content)?;
     fs::write(&template_path, toml_content)?;
 
     Ok(())

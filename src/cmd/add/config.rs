@@ -1,5 +1,6 @@
+use color_eyre::Result;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::{collections::HashMap, fs, path::PathBuf};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TempConfig {
@@ -15,6 +16,24 @@ impl TempConfig {
 
     pub fn add_template(&mut self, name: String, template: Template) {
         self.templates.insert(name, template);
+    }
+}
+
+pub struct TomlConfig {
+    toml_path: PathBuf,
+}
+
+impl TomlConfig {
+    pub fn new(toml_path: PathBuf) -> Self {
+        Self {
+            toml_path: toml_path,
+        }
+    }
+
+    pub fn read_file(&self) -> Result<TempConfig> {
+        let file_content = fs::read_to_string(&self.toml_path)?;
+        let toml_content: TempConfig = toml::from_str(&file_content)?;
+        Ok(toml_content)
     }
 }
 
