@@ -6,8 +6,7 @@ use crate::{
 };
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
-use console::style;
-use std::fs;
+use std::path::Path;
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
     let url = matches
@@ -23,24 +22,31 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         None => generate_default_name(url)?,
     };
 
+    if name.contains("..") || Path::new(&name).is_absolute() {
+        return Err(eyre!(
+            "Invalid template name: '{}'. It cannot be an absolute path or contain '..'",
+            name
+        ));
+    }
+
+    let force = matches.get_flag("force");
     let template = build_template(matches, url)?;
     let templates_dir = get_cache_root().join("templates");
     let destination = templates_dir.join(&name);
 
-    if destination.exists() {
-        println!(
-            "{}",
-            style(format!("⚠️ {} already exists. Skipping clone.", &name)).yellow()
-        );
+    if destination.exists() && !force {
+        return Err(eyre!(format!(
+            "⚠️ {} already exists. Use --force to overwrite it.",
+            &name
+        )));
     } else {
-        fs::create_dir_all(&destination)?;
         let dest_string = destination
             .to_str()
             .ok_or_else(|| eyre!("Failed to convert destination path to string"))?
             .to_string();
 
         let clone_config =
-            crate::fetch::config::Config::from(&dest_string, Mode::Git, false, true, None);
+            crate::fetch::config::Config::from(&dest_string, Mode::Git, force, true, None);
 
         crate::clone::clone(&template.url, &clone_config).await?;
     }
