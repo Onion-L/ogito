@@ -1,4 +1,4 @@
-use color_eyre::Result;
+use color_eyre::{eyre::Ok, Result};
 use serde::{Deserialize, Serialize};
 use std::{
     collections::BTreeMap,
@@ -14,6 +14,17 @@ pub struct Manifest {
 impl Manifest {
     pub fn add_template(&mut self, name: String, template: Template) {
         self.templates.insert(name, template);
+    }
+    pub fn find(&self, name: &String) -> Option<&String> {
+        self.templates
+            .get_key_value(name)
+            .map(|(k, _)| k)
+            .or_else(|| {
+                self.templates
+                    .iter()
+                    .find(|(_, template)| template.alias.as_ref() == Some(name))
+                    .map(|(name, _)| name)
+            })
     }
 }
 

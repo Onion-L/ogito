@@ -1,11 +1,14 @@
-use crate::file::cache::get_cache_root;
+use crate::file::{cache::get_cache_root, copy::copy_template};
 use crate::manifest::Manifest;
 use clap::ArgMatches;
+use color_eyre::eyre::Ok;
 use color_eyre::{eyre::eyre, Result};
 use std::fs;
 
 pub async fn local_template(_matches: &ArgMatches, template_name: &String) -> Result<()> {
-    let config_path = get_cache_root().join("template.toml");
+    let cache_path = get_cache_root();
+    let config_path = cache_path.join("template.toml");
+    let template_path = cache_path.join("templates");
 
     if !config_path.exists() {
         return Err(eyre!(
@@ -13,9 +16,14 @@ pub async fn local_template(_matches: &ArgMatches, template_name: &String) -> Re
         ));
     }
 
-    let toml_content = fs::read_to_string(config_path)?;
+    let toml_content = fs::read_to_string(&config_path)?;
     let toml_config: Manifest = toml::from_str(&toml_content)?;
-    println!("{:?}", toml_config);
+    let path_name = toml_config
+        .find(template_name)
+        .ok_or_else(|| eyre!("Template '{}' not found", template_name))?;
+    let source = template_path.join(path_name);
 
-    todo!("Implement local template {}", template_name);
+    copy_template(source, template_name)?;
+
+    Ok(())
 }

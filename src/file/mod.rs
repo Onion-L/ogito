@@ -1,4 +1,5 @@
 pub mod cache;
+pub mod copy;
 
 use crate::file::cache::{CacheConfig, CacheMetadata};
 use color_eyre::eyre::eyre;
