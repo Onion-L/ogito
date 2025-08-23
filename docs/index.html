@@ -73,7 +73,7 @@
             <h2 style="font-size: 2em;">Usage</h2>
             <p>Here are examples of how to use `ogito` from the command line.</p>
             
-            <details>
+            <details open>
                 <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito new</summary>
                 <p>Create a new project from a specified template or Git repository.</p>
                 <p>By default, `ogito new` uses Git mode. If you specify <code>-m tar</code>, it will use tar mode which automatically caches the downloaded archives.</p>
@@ -153,6 +153,25 @@
             </details>
 
             <details>
+                <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito list</summary>
+                <p>List all available templates in the local cache.</p>
+                <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px;">Command</th>
+                            <th style="padding: 8px;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito list</code></pre></td>
+                            <td style="padding: 8px;">Display a table of all cached templates, showing their name, description, and alias.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+
+            <details>
                 <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito clear</summary>
                 <p>Clear the local template cache.</p>
                 <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
@@ -194,7 +213,6 @@
                 <ul id="commands">
                     <li><b>update</b>: Update an existing template from its source.</li>
                     <li><b>remove/delete</b>: Remove a template.</li>
-                    <li><b>list</b>: List all available templates.</li>
                 </ul>
             </details>
         </aside>
