@@ -2,10 +2,11 @@ use crate::file::cache::get_cache_root;
 use crate::manifest::ManifestFile;
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
+use comfy_table::{Cell, Table};
 
-pub async fn run(matches: &ArgMatches) -> Result<()> {
-    // let cache_path = get_cache_root();
-    let config_path = get_cache_root().join("template.toml");
+pub async fn run(_matches: &ArgMatches) -> Result<()> {
+    let cache_path = get_cache_root();
+    let config_path = cache_path.join("template.toml");
 
     if !config_path.exists() {
         return Err(eyre!(
@@ -21,15 +22,26 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         return Ok(());
     }
 
+    let mut table = Table::new();
+    table.set_header(vec!["Name", "Description", "Alias"]);
+
     for (name, template) in templates {
-        println!("{}", name);
-        if let Some(description) = &template.description {
-            println!("  - {}", description);
-        }
-        if let Some(alias) = &template.alias {
-            println!("  Alias: {}", alias);
-        }
+        let description = match &template.description {
+            Some(des) => des,
+            None => &"None".to_string(),
+        };
+        let alias = match &template.alias {
+            Some(alias) => alias,
+            None => &"None".to_string(),
+        };
+        table.add_row(vec![
+            Cell::new(name),
+            Cell::new(description),
+            Cell::new(alias),
+        ]);
     }
+
+    println!("{table}");
 
     Ok(())
 }
