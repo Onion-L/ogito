@@ -61,12 +61,6 @@ pub fn build() -> Command {
                 .long("json")
                 .help("output in JSON format")
                 .action(ArgAction::SetTrue),
-        )
-        .arg(
-            Arg::new("names-only")
-                .long("names-only")
-                .help("show only template names")
-                .action(ArgAction::SetTrue),
         );
 
     command!()
