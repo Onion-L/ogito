@@ -2,7 +2,7 @@ use crate::file::cache::get_cache_root;
 use crate::manifest::ManifestFile;
 use clap::ArgMatches;
 use color_eyre::{eyre::eyre, Result};
-use comfy_table::{Cell, Table};
+use comfy_table::{Cell, ContentArrangement, Table};
 
 pub async fn run(_matches: &ArgMatches) -> Result<()> {
     let cache_path = get_cache_root();
@@ -40,7 +40,7 @@ pub async fn run(_matches: &ArgMatches) -> Result<()> {
             Cell::new(alias),
         ]);
     }
-
+    table.set_content_arrangement(ContentArrangement::DynamicFullWidth);
     println!("{table}");
 
     Ok(())
