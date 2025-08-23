@@ -5,6 +5,7 @@ use clap::ArgMatches;
 use color_eyre::eyre::Ok;
 use color_eyre::{eyre::eyre, Result};
 use console::{style, Emoji};
+use dialoguer::Confirm;
 use indicatif::HumanDuration;
 use std::{fs, time::Instant};
 
@@ -14,7 +15,7 @@ static FIRE: Emoji<'_, '_> = Emoji("🔥", "🔥");
 pub async fn local_template(matches: &ArgMatches, template_name: &String) -> Result<()> {
     let started = Instant::now();
     let pb = create_spinner("🔍 Looking for template...");
-    
+
     let cache_path = get_cache_root();
     let config_path = cache_path.join("template.toml");
     let template_path = cache_path.join("templates");
@@ -32,7 +33,7 @@ pub async fn local_template(matches: &ArgMatches, template_name: &String) -> Res
         .find(template_name)
         .ok_or_else(|| eyre!("Template '{}' not found", template_name))?;
     let source = template_path.join(path_name);
-    
+
     pb.set_message("📁 Preparing destination directory...");
     let dir_str = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
@@ -40,9 +41,31 @@ pub async fn local_template(matches: &ArgMatches, template_name: &String) -> Res
     };
     let dest_path = sanitize_dir(dir_str)?;
 
+    // Check if destination directory exists and is not empty
+    let force = matches.get_flag("force");
+    if dest_path.exists() {
+        let mut empty = fs::read_dir(&dest_path)?;
+        if empty.next().is_some() {
+            if !force {
+                pb.finish_and_clear();
+                let confirm = Confirm::new()
+                    .with_prompt("Do you want to overwrite existing files?")
+                    .default(false)
+                    .interact()
+                    .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
+                if !confirm {
+                    return Err(eyre!("❌ Directory is not empty"));
+                }
+            }
+            // Remove existing directory content
+            pb.set_message("🗑️  Removing existing files...");
+            fs::remove_dir_all(&dest_path)?;
+        }
+    }
+
     pb.set_message("📋 Copying template files...");
     create_template(source, dest_path)?;
-    
+
     pb.finish_and_clear();
 
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
