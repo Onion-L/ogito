@@ -5,6 +5,7 @@ use color_eyre::{eyre::eyre, Result};
 use comfy_table::{Cell, ContentArrangement, Table};
 
 pub async fn run(_matches: &ArgMatches) -> Result<()> {
+    //TODO fuzzy search
     let cache_path = get_cache_root();
     let config_path = cache_path.join("template.toml");
 
