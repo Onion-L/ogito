@@ -1,7 +1,8 @@
+use crate::file;
 use crate::progress::create_spinner;
 use crate::{
     fetch::config::Config,
-    file::{cache::CacheMetadata, file},
+    file::cache::CacheMetadata,
     git::get_remote_refs,
     mode::{Mode, Site},
     regex::{extract_host, extract_path, is_valid_url},
@@ -33,7 +34,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
     if !is_valid_url(url)? {
         return Err(eyre!("The source is not a valid URL"));
     }
-    println!("{} ogito: {}", "🍸", style(url).bold());
+    println!("🍸 ogito: {}", style(url).bold());
 
     let pb = create_spinner("🔗 Connecting to remote server...");
     pb.set_message("📥 Cloning repository...");
@@ -47,7 +48,7 @@ fn git_clone(url: &str, config: &Config) -> Result<()> {
             if branch != "INTERACTIVE" {
                 builder.branch(branch);
             } else {
-                let refs = get_remote_refs(&url)?;
+                let refs = get_remote_refs(url)?;
                 let binding = refs.clone();
                 let refs_name: Vec<String> = binding
                     .into_iter()
@@ -109,20 +110,20 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     let (owner, repo) = extract_path(url).ok_or_else(|| eyre!("Invalid URL"))?;
     let host = extract_host(url);
 
-    let refs = get_remote_refs(&url)?;
+    let refs = get_remote_refs(url)?;
     let hash = match config.branch {
         Some(branch) => {
             if branch != "INTERACTIVE" {
                 let remote_ref = refs
                     .iter()
                     .find(|r| {
-                        r.name == format!("refs/heads/{}", branch)
-                            || r.name == format!("refs/tags/{}", branch)
+                        r.name == format!("refs/heads/{branch}")
+                            || r.name == format!("refs/tags/{branch}")
                     })
                     .ok_or_else(|| eyre!("Branch or tag '{}' not found.", branch))?;
                 remote_ref.hash.clone()
             } else {
-                let refs = get_remote_refs(&url)?;
+                let refs = get_remote_refs(url)?;
                 let binding = refs.clone();
 
                 let refs_name: Vec<String> = binding
@@ -151,7 +152,7 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
         }
     };
 
-    let cache_metadata = CacheMetadata::new(&owner, &repo, &hash);
+    let cache_metadata = CacheMetadata::new(owner, repo, &hash);
 
     let archive_url = match host.map(Site::from) {
         Some(Site::Gitlab) => format!(
@@ -166,8 +167,7 @@ async fn tar_clone<'a>(url: &str, config: &Config<'a>) -> Result<()> {
     };
 
     println!(
-        "{} Downloading archive from: {}",
-        "📦",
+        "📦 Downloading archive from: {}",
         style(&archive_url).bold()
     );
 

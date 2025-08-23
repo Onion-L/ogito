@@ -3,22 +3,28 @@ use color_eyre::Result;
 
 pub fn build() -> Command {
     let new_command = Command::new("new")
-        .about("Create a new template")
-        .arg(arg!([url] "the link to the source file").required(true))
-        .arg(arg!(-d --dir <DIRNAME> "the directory name"))
+        .about("Create a new project from a template")
+        .arg(arg!([source] "The template source (URL or local name)").required(true))
+        .arg(arg!(-d --dir <DIRNAME> "The directory name of the new project"))
         .arg(
-            arg!(-b --branch [BRANCH] "the branch to clone")
+            arg!(-b --branch [BRANCH] "The branch to clone (if using a URL)")
                 .require_equals(true)
                 .num_args(0..=1)
                 .default_missing_value("INTERACTIVE"),
         )
-        .arg(arg!(-m --mode <MODE> "the mode of the operation").default_value("git"))
-        .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-m --mode <MODE> "The mode of the operation (if using a URL)")
+                .default_value("git"),
+        )
+        .arg(
+            arg!(-f --force "Force the operation, overwriting existing files")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("keep-history")
                 .short('H')
                 .long("keep-history")
-                .help("keep the history of the repository")
+                .help("Keep the history of the repository (if using a URL)")
                 .action(ArgAction::SetTrue),
         );
 

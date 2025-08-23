@@ -1,5 +1,6 @@
 mod dir;
 
+use crate::file::clear_directory;
 use clap::ArgMatches;
 use color_eyre::Result;
 use dialoguer::Confirm;
@@ -7,8 +8,6 @@ use dir::{compute_dir_stats, list_dir_entries};
 use indicatif::{HumanBytes, HumanDuration, ProgressBar, ProgressStyle};
 use std::fs::{self};
 use std::time::Instant;
-
-use crate::file::file::clear_directory;
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
     let force = matches.get_flag("force");
@@ -90,10 +89,10 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
             println!("Removing: {}", item.display());
             if item.is_dir() {
                 if let Err(err) = fs::remove_dir_all(&item) {
-                    println!("  ↳ Failed: {}", err);
+                    println!("  ↳ Failed: {err}");
                 }
             } else if let Err(err) = fs::remove_file(&item) {
-                println!("  ↳ Failed: {}", err);
+                println!("  ↳ Failed: {err}");
             }
         }
     } else {
