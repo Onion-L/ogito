@@ -86,8 +86,8 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td style="padding: 8px;"><pre><code>ogito new &lt;repository URL&gt;</code></pre></td>
-                            <td style="padding: 8px;">Basic usage to clone a repository using Git mode.</td>
+                            <td style="padding: 8px;"><pre><code>ogito new &lt;repository URL | template name&gt;</code></pre></td>
+                            <td style="padding: 8px;">Basic usage to clone a repository using Git mode or create a project from a locally cached template.</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo -d dirname</code></pre></td>
@@ -108,6 +108,45 @@
                         <tr>
                             <td style="padding: 8px;"><pre><code>ogito new https://github.com/user/repo --keep-history</code></pre></td>
                             <td style="padding: 8px;">Keep the git history of the repository.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito new my-template</code></pre></td>
+                            <td style="padding: 8px;">Create a new project from a locally cached template named `my-template`.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+
+            <details>
+                <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito add</summary>
+                <p>Add a new template from a Git repository to the local cache.</p>
+                <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px;">Command</th>
+                            <th style="padding: 8px;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito add &lt;repository URL&gt;</code></pre></td>
+                            <td style="padding: 8px;">Add a template from a Git repository. The template name will be derived from the URL (e.g., owner/repo).</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito add &lt;repository URL&gt; --name &lt;name&gt;</code></pre></td>
+                            <td style="padding: 8px;">Add a template with a custom name.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito add &lt;repository URL&gt; --description &lt;description&gt;</code></pre></td>
+                            <td style="padding: 8px;">Add a template with a description.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito add &lt;repository URL&gt; --alias &lt;alias&gt;</code></pre></td>
+                            <td style="padding: 8px;">Add a template with an alias.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito add &lt;repository URL&gt; --force</code></pre></td>
+                            <td style="padding: 8px;">Overwrite an existing template with the same name.</td>
                         </tr>
                     </tbody>
                 </table>
@@ -153,7 +192,6 @@
             <details open>
                 <summary style="font-size: 1.2em; cursor: pointer;">Command list</summary>
                 <ul id="commands">
-                    <li><b>add</b>: Add a new template from a local path or a git repository.</li>
                     <li><b>update</b>: Update an existing template from its source.</li>
                     <li><b>remove/delete</b>: Remove a template.</li>
                     <li><b>list</b>: List all available templates.</li>
