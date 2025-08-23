@@ -40,7 +40,7 @@ pub async fn run(_matches: &ArgMatches) -> Result<()> {
             Cell::new(alias),
         ]);
     }
-    table.set_content_arrangement(ContentArrangement::DynamicFullWidth);
+    table.set_content_arrangement(ContentArrangement::Dynamic);
     println!("{table}");
 
     Ok(())
