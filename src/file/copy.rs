@@ -1,10 +1,10 @@
 use color_eyre::eyre::Result;
 use fs_extra::dir::{copy, CopyOptions};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
-pub fn copy_template(source: PathBuf, destination: &str) -> Result<()> {
+pub fn create_template(source: PathBuf, destination: PathBuf) -> Result<()> {
     let source_path = source;
-    let dest_path = Path::new(destination);
+    let dest_path = destination;
 
     if !source_path.exists() {
         return Err(color_eyre::eyre::eyre!(

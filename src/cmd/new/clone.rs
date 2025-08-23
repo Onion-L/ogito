@@ -1,6 +1,7 @@
 use crate::{
     clone::{clone, force_clone},
     fetch::config::Config,
+    file::path::sanitize_dir,
     regex::extract_path,
 };
 use clap::ArgMatches;
@@ -20,18 +21,24 @@ pub async fn direct_clone(matches: &ArgMatches, url: &String) -> Result<()> {
     let keep_history = matches.get_flag("keep-history");
 
     let (_, repo_dir) = extract_path(url).ok_or_else(|| eyre!("Invalid URL"))?;
-    let dir = match matches.get_one::<String>("dir") {
+    let dir_str = match matches.get_one::<String>("dir") {
         Some(dir) => dir,
         None => &repo_dir.to_string(),
     };
 
-    let config = Config::from(dir, mode.into(), force, keep_history, branch);
+    let dir_path = sanitize_dir(dir_str)?;
+    let dir_string = dir_path
+        .to_str()
+        .ok_or_else(|| eyre!("Invalid directory name: contains non-UTF-8 characters"))?
+        .to_string();
+
+    let config = Config::from(&dir_string, mode.into(), force, keep_history, branch);
     let started = Instant::now();
 
-    if !fs::metadata(dir).is_ok() {
+    if !dir_path.exists() {
         clone(&url.to_string(), &config).await?;
     } else {
-        let mut empty = fs::read_dir(dir)?;
+        let mut empty = fs::read_dir(&dir_path)?;
         if empty.next().is_some() {
             let force = config.force
                 || Confirm::new()
@@ -40,7 +47,7 @@ pub async fn direct_clone(matches: &ArgMatches, url: &String) -> Result<()> {
                     .interact()
                     .map_err(|e| eyre!("Failed to interact with user: {}", e))?;
             if force {
-                force_clone(&url.to_string(), dir, &config).await?;
+                force_clone(&url.to_string(), &dir_string, &config).await?;
             } else {
                 println!("{}", style("❌ Directory is not empty").red().bold());
                 return Err(eyre!("Directory is not empty"));

@@ -1,11 +1,11 @@
-use crate::file::{cache::get_cache_root, copy::copy_template};
+use crate::file::{cache::get_cache_root, copy::create_template, path::sanitize_dir};
 use crate::manifest::Manifest;
 use clap::ArgMatches;
 use color_eyre::eyre::Ok;
 use color_eyre::{eyre::eyre, Result};
 use std::fs;
 
-pub async fn local_template(_matches: &ArgMatches, template_name: &String) -> Result<()> {
+pub async fn local_template(matches: &ArgMatches, template_name: &String) -> Result<()> {
     let cache_path = get_cache_root();
     let config_path = cache_path.join("template.toml");
     let template_path = cache_path.join("templates");
@@ -22,8 +22,13 @@ pub async fn local_template(_matches: &ArgMatches, template_name: &String) -> Re
         .find(template_name)
         .ok_or_else(|| eyre!("Template '{}' not found", template_name))?;
     let source = template_path.join(path_name);
+    let dir_str = match matches.get_one::<String>("dir") {
+        Some(dir) => dir,
+        None => &template_name.to_string(),
+    };
+    let dest_path = sanitize_dir(dir_str)?;
 
-    copy_template(source, template_name)?;
+    create_template(source, dest_path)?;
 
     Ok(())
 }
