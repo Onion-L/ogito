@@ -89,10 +89,10 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
             println!("Removing: {}", item.display());
             if item.is_dir() {
                 if let Err(err) = fs::remove_dir_all(&item) {
-                    println!("  ↳ Failed: {}", err);
+                    println!("  ↳ Failed: {err}");
                 }
             } else if let Err(err) = fs::remove_file(&item) {
-                println!("  ↳ Failed: {}", err);
+                println!("  ↳ Failed: {err}");
             }
         }
     } else {

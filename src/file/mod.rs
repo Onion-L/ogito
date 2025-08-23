@@ -37,7 +37,7 @@ pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<(
 
     for entry_result in archive.entries()? {
         let mut entry = entry_result?;
-        let path = entry.path()?.to_owned();
+        let path = entry.path()?.into_owned();
         let mut components = path.components();
         if components.next().is_none() {
             continue;

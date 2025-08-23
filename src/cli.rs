@@ -12,8 +12,14 @@ pub fn build() -> Command {
                 .num_args(0..=1)
                 .default_missing_value("INTERACTIVE"),
         )
-        .arg(arg!(-m --mode <MODE> "The mode of the operation (if using a URL)").default_value("git"))
-        .arg(arg!(-f --force "Force the operation, overwriting existing files").action(ArgAction::SetTrue))
+        .arg(
+            arg!(-m --mode <MODE> "The mode of the operation (if using a URL)")
+                .default_value("git"),
+        )
+        .arg(
+            arg!(-f --force "Force the operation, overwriting existing files")
+                .action(ArgAction::SetTrue),
+        )
         .arg(
             Arg::new("keep-history")
                 .short('H')

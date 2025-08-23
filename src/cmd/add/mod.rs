@@ -59,18 +59,18 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn build_template(matches: &ArgMatches, url: &String) -> Result<Template> {
+fn build_template(matches: &ArgMatches, url: &str) -> Result<Template> {
     let template = Template {
         description: matches.get_one::<String>("description").cloned(),
         alias: matches.get_one::<String>("alias").cloned(),
-        url: url.clone(),
+        url: url.to_owned(),
     };
 
     Ok(template)
 }
 
-fn generate_default_name(url: &String) -> Result<String> {
+fn generate_default_name(url: &str) -> Result<String> {
     let (owner, repo) =
         extract_path(url).ok_or_else(|| eyre!("Could not extract path from URL"))?;
-    Ok(format!("{}/{}", owner, repo))
+    Ok(format!("{owner}/{repo}"))
 }
