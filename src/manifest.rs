@@ -8,7 +8,7 @@ use std::{
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Manifest {
-    templates: BTreeMap<String, Template>,
+    pub templates: BTreeMap<String, Template>,
 }
 
 impl Manifest {
@@ -29,8 +29,8 @@ impl Manifest {
 }
 
 pub struct ManifestFile {
-    path: PathBuf,
-    content: Manifest,
+    pub path: PathBuf,
+    pub content: Manifest,
 }
 
 impl ManifestFile {
