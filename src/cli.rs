@@ -52,16 +52,7 @@ pub fn build() -> Command {
         .arg(arg!(-u --update "update the template").action(ArgAction::SetTrue))
         .arg(arg!(-f --force "force the operation").action(ArgAction::SetTrue));
 
-    let list_command = Command::new("list")
-        .about("List all templates")
-        .arg(arg!(-v --verbose "show detailed output for each template"))
-        .arg(arg!(-f --filter <PATTERN> "filter templates by name or alias"))
-        .arg(
-            Arg::new("json")
-                .long("json")
-                .help("output in JSON format")
-                .action(ArgAction::SetTrue),
-        );
+    let list_command = Command::new("list").about("List all templates");
 
     command!()
         .about("A simple git clone manager")
