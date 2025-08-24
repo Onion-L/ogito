@@ -16,6 +16,7 @@ This document outlines the future development direction for `ogito`. The goal is
 - [ ] Implement a validation system for template structures.
 - [ ] Allow running pre/post-generation scripts defined in templates.
 - [ ] **Improve `ogito new` command argument structure:** Change `ogito new <template-name> -d <project-name>` to `ogito new <template-name> [<project-name>]`. If `<project-name>` is omitted, prompt the user interactively for the name.
+- [ ] **Predefine common template aliases:** Add built-in aliases for popular frameworks (e.g., `react`, `vue`, `node`) that map to official starter templates, simplifying the onboarding process for new users.
 
 ### Developer Experience & Project Health
 
