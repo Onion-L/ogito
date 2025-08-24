@@ -54,12 +54,37 @@ pub fn build() -> Command {
 
     let list_command = Command::new("list").about("List all templates");
 
+    let remove_command = Command::new("remove")
+        .about("Remove one or more templates")
+        .alias("rm")
+        .alias("delete")
+        .arg(
+            arg!([TEMPLATES] "Name(s) of the template(s) to remove")
+                .num_args(1..)
+                .conflicts_with("all"),
+        )
+        .arg(
+            arg!(-a --all "Remove all templates")
+                .action(ArgAction::SetTrue)
+                .conflicts_with("TEMPLATES"),
+        )
+        .arg(arg!(-f --force "Force the operation, skip confirmation").action(ArgAction::SetTrue))
+        .arg(
+            Arg::new("dry-run")
+                .short('n')
+                .long("dry-run")
+                .help("Show what would be removed without deleting anything")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-q --quiet "Suppress non-error output").action(ArgAction::SetTrue));
+
     command!()
         .about("A simple git clone manager")
         .subcommand(new_command)
         .subcommand(clear_command)
         .subcommand(add_command)
         .subcommand(list_command)
+        .subcommand(remove_command)
         .subcommand_required(true)
         .arg_required_else_help(true)
 }
@@ -70,6 +95,7 @@ pub async fn dispatch(matches: ArgMatches) -> Result<()> {
         Some(("clear", m)) => crate::cmd::clear::run(m).await?,
         Some(("add", m)) => crate::cmd::add::run(m).await?,
         Some(("list", m)) => crate::cmd::list::run(m).await?,
+        Some(("remove", m)) => crate::cmd::remove::run(m).await?,
         _ => {}
     }
     Ok(())
