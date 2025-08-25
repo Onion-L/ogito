@@ -1,4 +1,4 @@
-mod dir;
+pub mod dir;
 
 use crate::file::clear_directory;
 use clap::ArgMatches;
