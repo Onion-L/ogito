@@ -175,6 +175,37 @@
             </details>
 
             <details>
+                <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito remove</summary>
+                <p>Remove one or more templates.</p>
+                <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
+                    <thead>
+                        <tr>
+                            <th style="padding: 8px;">Command</th>
+                            <th style="padding: 8px;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito remove &lt;name1&gt; &lt;name2&gt;</code></pre></td>
+                            <td style="padding: 8px;">Remove one or more specific templates by name.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito remove --all</code></pre></td>
+                            <td style="padding: 8px;">Remove all cached templates.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito remove &lt;name&gt; -f</code></pre></td>
+                            <td style="padding: 8px;">Force remove the template(s) without confirmation.</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;"><pre><code>ogito remove &lt;name&gt; --dry-run</code></pre></td>
+                            <td style="padding: 8px;">Simulate removal and show what would be deleted without changing any files.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
+
+            <details>
                 <summary style="font-size: 1.5em; cursor: pointer; margin-top: 1em;">ogito clear</summary>
                 <p>Clear the local template cache.</p>
                 <table border="1" style="width:100%; border-collapse: collapse; text-align: left; margin-top: 0.5em;">
@@ -215,7 +246,6 @@
                 <summary style="font-size: 1.2em; cursor: pointer;">Command list</summary>
                 <ul id="commands">
                     <li><b>update</b>: Update an existing template from its source.</li>
-                    <li><b>remove/delete</b>: Remove a template.</li>
                 </ul>
             </details>
         </aside>

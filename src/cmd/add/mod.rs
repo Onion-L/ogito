@@ -17,9 +17,10 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         return Err(eyre!("Invalid URL: {}", url));
     }
 
-    let name = match matches.get_one::<String>("name") {
-        Some(name) => name.clone(),
-        None => generate_default_name(url)?,
+    let name = if let Some(name) = matches.get_one::<String>("name") {
+        name.clone()
+    } else {
+        generate_default_name(url)?
     };
 
     if name.contains("..") || Path::new(&name).is_absolute() {
