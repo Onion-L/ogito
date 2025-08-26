@@ -1,5 +1,6 @@
 use crate::cmd::clear::dir::{compute_dir_stats, list_dir_entries};
 use crate::file::cache::get_cache_root;
+use crate::manifest::{Manifest, ManifestFile};
 use clap::ArgMatches;
 use color_eyre::Result;
 use dialoguer::Confirm;
@@ -17,7 +18,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
 
     if !templates_dir.exists() {
         if !quiet {
-            println!("✅ Template directory does not exist. Nothing to remove.");
+            println!("Template directory does not exist. Nothing to remove.");
         }
         return Ok(());
     }
@@ -47,9 +48,12 @@ async fn handle_remove_all(
     quiet: bool,
 ) -> Result<()> {
     let (file_count, total_bytes) = compute_dir_stats(templates_dir)?;
+    let config_path = get_cache_root().join("template.toml");
+    let mut config = ManifestFile::load(&config_path)?;
+
     if file_count == 0 && total_bytes == 0 {
         if !quiet {
-            println!("✅ No templates found. Nothing to remove.");
+            println!("No templates found. Nothing to remove.");
         }
         return Ok(());
     }
@@ -93,6 +97,7 @@ async fn handle_remove_all(
     }
 
     fs::remove_dir_all(templates_dir)?;
+    Manifest::clear(&mut config.content);
 
     if !quiet {
         println!("🗑️ All templates removed successfully.");
@@ -111,22 +116,25 @@ async fn handle_remove_specific(
     let mut targets = Vec::new();
     let mut total_bytes = 0;
     let mut total_files = 0;
+    let config_path = get_cache_root().join("template.toml");
+    let mut config = ManifestFile::load(&config_path)?;
 
     for name in &template_names {
-        let path = templates_dir.join(name);
-        if path.exists() && path.is_dir() {
-            let (file_count, bytes) = compute_dir_stats(&path)?;
-            total_files += file_count;
-            total_bytes += bytes;
-            targets.push((name.clone(), path));
-        } else if !quiet {
-            println!("⚠️ Template '{}' not found. Skipping.", name);
+        let actual_name = Manifest::find(&config.content, name);
+        if let Some(name) = actual_name {
+            let path = templates_dir.join(name);
+            if path.exists() && path.is_dir() {
+                let (file_count, bytes) = compute_dir_stats(&path)?;
+                total_files += file_count;
+                total_bytes += bytes;
+                targets.push((name.clone(), path));
+            }
         }
     }
 
     if targets.is_empty() {
         if !quiet {
-            println!("✅ No valid templates found to remove.");
+            println!("No valid templates found to remove.");
         }
         return Ok(());
     }
@@ -177,6 +185,8 @@ async fn handle_remove_specific(
 
     for (name, path) in &targets {
         fs::remove_dir_all(path)?;
+        config.remove_template(name);
+
         if let Some(pb) = &spinner {
             pb.set_message(format!("Removed '{}'", name));
         }
@@ -189,6 +199,8 @@ async fn handle_remove_specific(
     if !quiet {
         println!("🗑️ {} template(s) removed successfully.", targets.len());
     }
+
+    config.save()?;
 
     Ok(())
 }
