@@ -78,6 +78,31 @@ pub fn build() -> Command {
         )
         .arg(arg!(-q --quiet "Suppress non-error output").action(ArgAction::SetTrue));
 
+    let update_command = Command::new("update")
+        .about("Update one or more templates from their source")
+        .arg(
+            arg!([TEMPLATES] "Name(s) of the template(s) to update")
+                .num_args(1..)
+                .conflicts_with("all"),
+        )
+        .arg(
+            arg!(-a --all "Update all templates")
+                .action(ArgAction::SetTrue)
+                .conflicts_with("TEMPLATES"),
+        )
+        .arg(
+            arg!(-f --force "Force the operation, overwrite existing files")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("dry-run")
+                .short('n')
+                .long("dry-run")
+                .help("Show what would be updated without actually updating")
+                .action(ArgAction::SetTrue),
+        )
+        .arg(arg!(-q --quiet "Suppress non-error output").action(ArgAction::SetTrue));
+
     command!()
         .about("A simple git clone manager")
         .subcommand(new_command)
@@ -85,6 +110,7 @@ pub fn build() -> Command {
         .subcommand(add_command)
         .subcommand(list_command)
         .subcommand(remove_command)
+        .subcommand(update_command)
         .subcommand_required(true)
         .arg_required_else_help(true)
 }
@@ -96,6 +122,7 @@ pub async fn dispatch(matches: ArgMatches) -> Result<()> {
         Some(("add", m)) => crate::cmd::add::run(m).await?,
         Some(("list", m)) => crate::cmd::list::run(m).await?,
         Some(("remove", m)) => crate::cmd::remove::run(m).await?,
+        Some(("update", m)) => crate::cmd::update::run(m).await?,
         _ => {}
     }
     Ok(())
