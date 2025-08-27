@@ -17,11 +17,17 @@
     "postinstall": "node ./dist/install.js",
     "script": "tsx script/script.ts"
   },
-
-  "keywords": ["git", "cli", "degit", "terminal"],
+  "keywords": [
+    "template",
+    "scaffold",
+    "cli",
+    "project-generator",
+    "boilerplate",
+    "starter"
+  ],
   "author": "Onion-L <onionl5236@gmail.com>",
   "license": "MIT",
-  "description": "A simple and efficient Git repository cloning management tool",
+  "description": "A lightweight CLI tool for managing and generating projects from custom templates",
   "devDependencies": {
     "@types/node": "^24.0.3",
     "tsdown": "^0.12.8",

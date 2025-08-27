@@ -3,12 +3,12 @@ name = "ogito"
 version = "1.5.0"
 edition = "2021"
 authors = ["Onion-L <onionl5236@gmail.com>"]
-description = "A simple and efficient Git repository cloning management tool"
+description = "A lightweight CLI tool for managing and generating projects from custom templates"
 license = "MIT"
 repository = "https://github.com/Onion-L/ogito"
 homepage = "https://github.com/Onion-L/ogito"
 readme = "README.md"
-keywords = ["git", "cli", "degit", "terminal"]
+keywords = ["template", "scaffold", "cli", "project-generator", "boilerplate"]
 categories = ["command-line-utilities"]
 exclude = [
     "node_modules/",

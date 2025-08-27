@@ -104,7 +104,7 @@ pub fn build() -> Command {
         .arg(arg!(-q --quiet "Suppress non-error output").action(ArgAction::SetTrue));
 
     command!()
-        .about("A simple git clone manager")
+        .about("A lightweight CLI tool for managing and generating projects from custom templates")
         .subcommand(new_command)
         .subcommand(clear_command)
         .subcommand(add_command)
