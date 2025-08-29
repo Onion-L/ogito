@@ -13,9 +13,9 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         .ok_or_else(|| eyre!("Source is required"))?;
 
     if is_valid_url(source)? {
-        direct_clone(matches, source).await?
+        direct_clone(matches, source).await?;
     } else {
-        local_template(matches, source).await?
+        local_template(matches, source).await?;
     }
 
     Ok(())

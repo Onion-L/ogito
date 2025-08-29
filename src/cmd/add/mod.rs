@@ -31,7 +31,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     }
 
     let force = matches.get_flag("force");
-    let template = build_template(matches, url)?;
+    let template = build_template(matches, url);
     let templates_dir = get_cache_root().join("templates");
     let destination = templates_dir.join(&name);
 
@@ -40,17 +40,17 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
             "⚠️ {} already exists. Use --force to overwrite it.",
             &name
         )));
-    } else {
-        let dest_string = destination
-            .to_str()
-            .ok_or_else(|| eyre!("Failed to convert destination path to string"))?
-            .to_string();
-
-        let clone_config =
-            crate::fetch::config::Config::from(&dest_string, Mode::Git, force, true, None);
-
-        crate::clone::clone(&template.url, &clone_config).await?;
     }
+
+    let dest_string = destination
+        .to_str()
+        .ok_or_else(|| eyre!("Failed to convert destination path to string"))?
+        .to_string();
+
+    let clone_config =
+        crate::fetch::config::Config::from(&dest_string, Mode::Git, force, true, None);
+
+    crate::clone::clone(&template.url, &clone_config).await?;
 
     let config_path = get_cache_root().join("template.toml");
     let mut config = ManifestFile::load(&config_path)?;
@@ -60,14 +60,12 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     Ok(())
 }
 
-fn build_template(matches: &ArgMatches, url: &str) -> Result<Template> {
-    let template = Template {
+fn build_template(matches: &ArgMatches, url: &str) -> Template {
+    Template {
         description: matches.get_one::<String>("description").cloned(),
         alias: matches.get_one::<String>("alias").cloned(),
         url: url.to_owned(),
-    };
-
-    Ok(template)
+    }
 }
 
 fn generate_default_name(url: &str) -> Result<String> {

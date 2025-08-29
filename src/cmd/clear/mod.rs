@@ -9,7 +9,7 @@ use indicatif::{HumanBytes, HumanDuration, ProgressBar, ProgressStyle};
 use std::fs::{self};
 use std::time::Instant;
 
-pub async fn run(matches: &ArgMatches) -> Result<()> {
+pub fn run(matches: &ArgMatches) -> Result<()> {
     let force = matches.get_flag("force");
     let dry_run = matches.get_flag("dry-run");
     let verbose = matches.get_flag("verbose");

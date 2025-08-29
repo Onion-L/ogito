@@ -8,7 +8,7 @@ use indicatif::{HumanBytes, ProgressBar, ProgressStyle};
 use std::fs;
 use std::path::Path;
 
-pub async fn run(matches: &ArgMatches) -> Result<()> {
+pub fn run(matches: &ArgMatches) -> Result<()> {
     let force = matches.get_flag("force");
     let dry_run = matches.get_flag("dry-run");
     let quiet = matches.get_flag("quiet");
@@ -24,7 +24,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
     }
 
     if all {
-        handle_remove_all(&templates_dir, dry_run, force, quiet).await
+        handle_remove_all(&templates_dir, dry_run, force, quiet)
     } else {
         let template_names: Vec<String> = matches
             .get_many::<String>("TEMPLATES")
@@ -37,16 +37,11 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
             return Ok(());
         }
 
-        handle_remove_specific(&templates_dir, template_names, dry_run, force, quiet).await
+        handle_remove_specific(&templates_dir, &template_names, dry_run, force, quiet)
     }
 }
 
-async fn handle_remove_all(
-    templates_dir: &Path,
-    dry_run: bool,
-    force: bool,
-    quiet: bool,
-) -> Result<()> {
+fn handle_remove_all(templates_dir: &Path, dry_run: bool, force: bool, quiet: bool) -> Result<()> {
     let (file_count, total_bytes) = compute_dir_stats(templates_dir)?;
     let config_path = get_cache_root().join("template.toml");
     let mut config = ManifestFile::load(&config_path)?;
@@ -106,9 +101,9 @@ async fn handle_remove_all(
     Ok(())
 }
 
-async fn handle_remove_specific(
+fn handle_remove_specific(
     templates_dir: &Path,
-    template_names: Vec<String>,
+    template_names: &[String],
     dry_run: bool,
     force: bool,
     quiet: bool,
@@ -119,7 +114,7 @@ async fn handle_remove_specific(
     let config_path = get_cache_root().join("template.toml");
     let mut config = ManifestFile::load(&config_path)?;
 
-    for name in &template_names {
+    for name in template_names {
         let actual_name = Manifest::find(&config.content, name);
         if let Some(name) = actual_name {
             let path = templates_dir.join(name);
@@ -142,7 +137,7 @@ async fn handle_remove_specific(
     if !quiet {
         println!("Preparing to remove the following templates:");
         for (name, _) in &targets {
-            println!("  - {}", name);
+            println!("  - {name}");
         }
         println!(
             "Total size: {} ({} files)",
@@ -170,7 +165,9 @@ async fn handle_remove_specific(
         }
     }
 
-    let spinner = if !quiet {
+    let spinner = if quiet {
+        None
+    } else {
         let pb = ProgressBar::new_spinner();
         pb.set_style(
             ProgressStyle::with_template("{spinner} Removing templates...")
@@ -179,8 +176,6 @@ async fn handle_remove_specific(
         );
         pb.enable_steady_tick(std::time::Duration::from_millis(80));
         Some(pb)
-    } else {
-        None
     };
 
     for (name, path) in &targets {
@@ -188,7 +183,7 @@ async fn handle_remove_specific(
         config.remove_template(name);
 
         if let Some(pb) = &spinner {
-            pb.set_message(format!("Removed '{}'", name));
+            pb.set_message(format!("Removed '{name}'"));
         }
     }
 

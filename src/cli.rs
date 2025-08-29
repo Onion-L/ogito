@@ -118,10 +118,10 @@ pub fn build() -> Command {
 pub async fn dispatch(matches: ArgMatches) -> Result<()> {
     match matches.subcommand() {
         Some(("new", m)) => crate::cmd::new::run(m).await?,
-        Some(("clear", m)) => crate::cmd::clear::run(m).await?,
+        Some(("clear", m)) => crate::cmd::clear::run(m)?,
         Some(("add", m)) => crate::cmd::add::run(m).await?,
-        Some(("list", m)) => crate::cmd::list::run(m).await?,
-        Some(("remove", m)) => crate::cmd::remove::run(m).await?,
+        Some(("list", m)) => crate::cmd::list::run(m)?,
+        Some(("remove", m)) => crate::cmd::remove::run(m)?,
         Some(("update", m)) => crate::cmd::update::run(m).await?,
         _ => {}
     }

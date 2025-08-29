@@ -42,7 +42,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
                 templates_to_update.len()
             );
             for template_name in &templates_to_update {
-                println!("  - {}", template_name);
+                println!("  - {template_name}");
             }
         }
         return Ok(());
@@ -55,7 +55,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
         if let Some(actual_name) = config.content.find(&template_name) {
             if let Some(template) = templates.get(actual_name) {
                 match update_template(actual_name, template, force, quiet).await {
-                    Ok(_) => {
+                    Ok(()) => {
                         updated_count += 1;
                         if !quiet {
                             if actual_name == &template_name {
@@ -157,7 +157,7 @@ async fn update_template(
     }
 
     if !quiet {
-        let spinner = create_spinner(&format!("Updating template: {}", template_name));
+        let spinner = create_spinner(&format!("Updating template: {template_name}"));
         spinner.set_message("Fetching latest changes...");
     }
 

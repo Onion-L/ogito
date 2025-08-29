@@ -18,34 +18,48 @@ pub async fn download_file(url: &str, cache_metadata: &CacheMetadata) -> Result<
     let archive_path = cache.archive_path;
     if !archive_path.exists() {
         let response = reqwest::get(url).await?;
+
         if !response.status().is_success() {
-            return Err(eyre!("Download Error: {}", response.status()));
+            return Err(eyre!(
+                "Download failed with status {}: {}",
+                response.status(),
+                url
+            ));
         }
+
         let bytes = response.bytes().await?;
+
         let mut file = File::create(&archive_path)?;
+
         Write::write_all(&mut file, &bytes)?;
+
         return Ok(archive_path);
     }
 
     Ok(archive_path)
 }
 
-pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> std::io::Result<()> {
+pub fn extract_archive(temp_file_path: &PathBuf, dir: &str) -> Result<()> {
     let tar_gz = File::open(temp_file_path)?;
+
     let tar = GzDecoder::new(tar_gz);
     let mut archive = Archive::new(tar);
 
     for entry_result in archive.entries()? {
         let mut entry = entry_result?;
+
         let path = entry.path()?.into_owned();
+
         let mut components = path.components();
         if components.next().is_none() {
             continue;
         }
+
         let new_path: PathBuf = components.collect();
         if new_path.as_os_str().is_empty() {
             continue;
         }
+
         let target_path = Path::new(dir).join(new_path);
         if let Some(parent) = target_path.parent() {
             create_dir_all(parent)?;
@@ -62,12 +76,13 @@ pub fn clear_directory(path: &PathBuf) -> Result<()> {
 
     for entry in entries {
         let entry = entry?;
+
         let path = entry.path();
 
         if path.is_dir() {
-            remove_dir_all(path)?;
+            remove_dir_all(&path)?;
         } else {
-            remove_file(path)?;
+            remove_file(&path)?;
         }
     }
     Ok(())

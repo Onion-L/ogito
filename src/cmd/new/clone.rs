@@ -35,9 +35,7 @@ pub async fn direct_clone(matches: &ArgMatches, url: &String) -> Result<()> {
     let config = Config::from(&dir_string, mode.into(), force, keep_history, branch);
     let started = Instant::now();
 
-    if !dir_path.exists() {
-        clone(&url.to_string(), &config).await?;
-    } else {
+    if dir_path.exists() {
         let mut empty = fs::read_dir(&dir_path)?;
         if empty.next().is_some() {
             let force = config.force
@@ -55,6 +53,8 @@ pub async fn direct_clone(matches: &ArgMatches, url: &String) -> Result<()> {
         } else {
             clone(&url.to_string(), &config).await?;
         }
+    } else {
+        clone(&url.to_string(), &config).await?;
     }
 
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));

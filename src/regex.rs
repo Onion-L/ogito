@@ -11,8 +11,8 @@ pub fn extract_path(url: &str) -> Option<(&str, &str)> {
     let re = Regex::new(r"https?://[^/]+/(.*)").ok()?;
     let path = re.captures(url)?.get(1).map(|m| m.as_str())?;
     let (owner, repo) = (
-        path.split("/").next()?,
-        path.split("/").last()?.split(".").next()?,
+        path.split('/').next()?,
+        path.split('/').next_back()?.split('.').next()?,
     );
     Some((owner, repo))
 }

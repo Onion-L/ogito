@@ -38,13 +38,14 @@ pub struct RemoteRef {
 
 pub fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
     let mut git = Git::new();
-    let output = git
-        .args(vec![url])
-        .ls_remote()
-        .map_err(|e| eyre!("Failed to execute git ls-remote: {}", e))?;
+    let output = git.args(vec![url]).ls_remote()?;
 
-    let stdout = String::from_utf8(output.stdout)
-        .map_err(|e| eyre!("Failed to convert output to string: {}", e))?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(eyre!("git ls-remote failed for {}: {}", url, stderr.trim()));
+    }
+
+    let stdout = String::from_utf8(output.stdout)?;
 
     let refs = stdout
         .lines()
@@ -60,6 +61,10 @@ pub fn get_remote_refs(url: &str) -> Result<Vec<RemoteRef>> {
             }
         })
         .collect::<Vec<RemoteRef>>();
+
+    if refs.is_empty() {
+        return Err(eyre!("No remote references found for {}", url));
+    }
 
     Ok(refs)
 }
