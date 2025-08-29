@@ -29,10 +29,10 @@
   "license": "MIT",
   "description": "A lightweight CLI tool for managing and generating projects from custom templates",
   "devDependencies": {
-    "@types/node": "^24.0.3",
-    "tsdown": "^0.12.8",
-    "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "@types/node": "^24.3.0",
+    "tsdown": "^0.12.9",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
     "tar": "^7.4.3"
