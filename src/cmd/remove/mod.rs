@@ -98,6 +98,8 @@ fn handle_remove_all(templates_dir: &Path, dry_run: bool, force: bool, quiet: bo
         println!("🗑️ All templates removed successfully.");
     }
 
+    config.save()?;
+
     Ok(())
 }
 
