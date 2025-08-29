@@ -6,7 +6,7 @@ use color_eyre::Result;
 use dialoguer::Confirm;
 use indicatif::{HumanBytes, ProgressBar, ProgressStyle};
 use std::fs;
-use std::path::PathBuf;
+use std::path::Path;
 
 pub async fn run(matches: &ArgMatches) -> Result<()> {
     let force = matches.get_flag("force");
@@ -42,7 +42,7 @@ pub async fn run(matches: &ArgMatches) -> Result<()> {
 }
 
 async fn handle_remove_all(
-    templates_dir: &PathBuf,
+    templates_dir: &Path,
     dry_run: bool,
     force: bool,
     quiet: bool,
@@ -107,7 +107,7 @@ async fn handle_remove_all(
 }
 
 async fn handle_remove_specific(
-    templates_dir: &PathBuf,
+    templates_dir: &Path,
     template_names: Vec<String>,
     dry_run: bool,
     force: bool,
