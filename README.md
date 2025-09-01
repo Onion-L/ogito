@@ -1,7 +1,6 @@
 # ogito🍸
 
 ![Crates.io Version](https://img.shields.io/crates/v/ogito)
-![Crates.io License](https://img.shields.io/crates/l/ogito)
 ![Crates.io Total Downloads](https://img.shields.io/crates/d/ogito)
 
 A lightweight CLI tool for managing and generating projects from custom templates. `ogito` allows you to quickly create new projects from your personal collection of templates. For more information, please visit [ogito.app](https://ogito.netlify.app).
