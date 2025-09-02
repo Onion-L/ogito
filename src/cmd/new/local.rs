@@ -1,4 +1,7 @@
-use crate::file::{cache::get_cache_root, copy::create_template, path::sanitize_dir};
+use crate::file::{
+    cache::get_cache_root, copy::create_template, json::update_package_json_in_dir,
+    path::sanitize_dir,
+};
 use crate::manifest::Manifest;
 use crate::progress::create_spinner;
 use clap::ArgMatches;
@@ -64,7 +67,12 @@ pub async fn local_template(matches: &ArgMatches, template_name: &String) -> Res
     }
 
     pb.set_message("📋 Copying template files...");
-    create_template(source, dest_path)?;
+    create_template(source, dest_path.clone())?;
+
+    // Update package.json name if it exists
+    if let Some(dir_name) = dest_path.file_name().and_then(|n| n.to_str()) {
+        update_package_json_in_dir(&dest_path, dir_name)?;
+    }
 
     pb.finish_and_clear();
 

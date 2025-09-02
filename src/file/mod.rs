@@ -1,5 +1,6 @@
 pub mod cache;
 pub mod copy;
+pub mod json;
 pub mod path;
 
 use crate::file::cache::{CacheConfig, CacheMetadata};

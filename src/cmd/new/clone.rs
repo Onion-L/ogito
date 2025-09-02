@@ -1,7 +1,7 @@
 use crate::{
     clone::{clone, force_clone},
     fetch::config::Config,
-    file::path::sanitize_dir,
+    file::{json::update_package_json_in_dir, path::sanitize_dir},
     regex::extract_path,
 };
 use clap::ArgMatches;
@@ -55,6 +55,10 @@ pub async fn direct_clone(matches: &ArgMatches, url: &String) -> Result<()> {
         }
     } else {
         clone(&url.to_string(), &config).await?;
+    }
+
+    if let Some(dir_name) = dir_path.file_name().and_then(|n| n.to_str()) {
+        update_package_json_in_dir(&dir_path, dir_name)?;
     }
 
     println!("{} Done in {}", FINISH, HumanDuration(started.elapsed()));
