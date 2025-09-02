@@ -49,6 +49,61 @@ Based on comprehensive testing of the ogito CLI tool, here are the key findings:
 3. Add `--yes` flag to skip all confirmations
 4. Improve cache directory consistency
 
+**Command-Specific Enhancements:**
+
+**`add` command** (`ogito/src/cmd/add/mod.rs`):
+- Add real-time download progress indicators
+- Implement repository size pre-check with `--size-limit` parameter
+- Add `--progress` flag for detailed progress display
+- Improve Git operation error handling with specific messages
+
+**`new` command** (`ogito/src/cmd/new/local.rs`):
+- Add `--yes` parameter to skip all confirmation prompts
+- Improve directory conflict handling with better overwrite options
+- Add batch project creation support
+- Optimize template lookup with fuzzy matching
+
+**`remove` command** (`ogito/src/cmd/remove/mod.rs`):
+- Enhance `--force` flag with better error handling
+- Add global `--yes` flag support
+- Improve batch deletion user experience with progress display
+- Add deletion confirmation with detailed content preview
+
+**`update` command** (`ogito/src/cmd/update/mod.rs`):
+- Add parallel processing for multiple template updates
+- Implement detailed progress indicators
+- Add update results summary reporting
+- Support selective updates by time or version
+
+**`clear` command** (`ogito/src/cmd/clear/mod.rs`):
+- Unify cache directory path logic (fix `cache/` vs `templates/` inconsistency)
+- Add separate cleanup options for template and cache directories
+- Improve disk space statistics display
+- Add cleanup confirmation with detailed file list preview
+
+**`list` command** (`ogito/src/cmd/list/mod.rs`):
+- Add search and filtering functionality (by name, description, alias)
+- Support sorting options (by name, size, update time)
+- Add detailed view mode with more template information
+- Implement pagination support for large template collections
+
+**Supporting Modules:**
+
+**Progress handling** (`ogito/src/progress.rs`):
+- Create unified progress indicator system
+- Support multi-level progress display (main + sub-template progress)
+- Add progress style configuration options
+
+**Cache management** (`ogito/src/file/cache.rs`):
+- Unify cache directory structure definitions
+- Add cache size calculation functionality
+- Implement cache cleanup and compression features
+
+**Configuration management** (`ogito/src/manifest.rs`):
+- Add template validation functionality
+- Support template metadata extensions
+- Implement template import/export functionality
+
 **Medium-term Enhancements:**
 1. Add template search and filtering
 2. Implement template validation and linting
@@ -81,53 +136,6 @@ The tool demonstrates solid Rust implementation with:
 - Clean CLI interface with `clap`
 - Good test coverage (20 passing tests)
 - Appropriate use of async/await for network operations
-
-
-`ogito` is a command-line interface (CLI) tool designed to manage and generate projects from a user's personal code templates.
-
-## Core Philosophy
-
-The vision for `ogito` is not to replace comprehensive scaffolders like `vite` or `create-react-app`. Instead, it aims to provide a more flexible and lightweight solution for developers to quickly start new projects based on their own curated set of templates. The core principle is user freedom and control over their own project boilerplates.
-
-## Key Technologies
-
-*   **Core Application:** Rust
-*   **CLI Framework:** `clap` (inferred)
-*   **Scripting/Tooling:** TypeScript with `pnpm` for package management.
-
-## Project Structure
-
-*   `src/`: Contains all the core Rust application logic.
-    *   `main.rs`: The entry point of the Rust application.
-    *   `cli.rs`: Defines the structure of the command-line arguments and subcommands.
-    *   `cmd/`: Contains the implementation for each subcommand (e.g., `add.rs`, `new.rs`).
-*   `npm/`, `script/`: Helper scripts and tooling written in TypeScript.
-*   `Cargo.toml`: Defines Rust dependencies, project metadata, and workspace configuration.
-*   `package.json`: Defines Node.js dependencies and scripts for the TypeScript tooling.
-*   `templates/` (Suggested): A directory (to be created) where user-defined templates will be stored.
-
-## Common Commands
-
-Here are the essential commands for developing, testing, and maintaining this project.
-
-### Rust Workflow
-
-*   **Run in development:** `cargo run -- <SUBCOMMAND> <OPTIONS>`
-    *   *Example:* `cargo run -- new my-awesome-project`
-*   **Build for release:** `cargo build --release`
-*   **Run tests:** `cargo test`
-*   **Check formatting:** `cargo fmt -- --check`
-*   **Apply formatting:** `cargo fmt`
-*   **Lint with Clippy:** `cargo clippy -- -D warnings`
-
-### NPM/Scripting Workflow
-
-*   **Install dependencies:** `pnpm install`
-*   **Run a script:** `pnpm run <script_name>`
-
-## Development Goals (Your Plan)
-
-The primary goal is to implement the full set of intended subcommands.
 
 ### Current Implementation Status
 
