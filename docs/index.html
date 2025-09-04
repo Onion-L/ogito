@@ -139,14 +139,17 @@
                         automatically caches the downloaded archives.
                     </p>
                     <p>
-                        <strong style="color: #d9534f"
-                            >Important Note:</strong
-                        >
+                        <strong style="color: #d9534f">Important Note:</strong>
                         When creating a new project,
-                        <mark><code>ogito</code> does not modify</mark>
-                        configuration files (e.g.,
-                        <code>package.json</code>). You will need to manually
-                        update fields like <code>name</code> yourself.
+                        <mark
+                            ><code>ogito</code> now automatically updates</mark
+                        >
+                        the <code>name</code> field in
+                        <code>package.json</code> files to match the specified
+                        directory name, but only for projects that contain a
+                        <code>package.json</code> file. For other configuration
+                        files or projects without <code>package.json</code>, you
+                        may still need to manually update relevant fields.
                     </p>
                     <table
                         border="1"
