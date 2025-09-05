@@ -2,13 +2,14 @@
 
 ## Supported Versions
 
-| Version | Supported | Security Updates |
-| ------- | --------- | ---------------- |
-| `main`  | ✔️        | ✔️               |
-| `1.0.x` | ✔️        | ✔️               |
-| `0.x.x` | ❌        | ❌               |
+| Version | Supported             |
+|---------|-----------------------|
+| `1.5.x` | ✅ Active support     |
+| `1.4.x` | ⚠️ Security fixes only |
+| `1.3.x` | ❌ End of life        |
+| `<1.3`  | ❌ Not supported      |
 
-The project is currently **1.0.x** and follows [Semantic Versioning](https://semver.org/). We provide security fixes only for the latest stable minor release (`1.0.x`). Please upgrade to the most recent `1.0` patch release (or the `main` branch) to receive fixes.
+`ogito` follows [Semantic Versioning](https://semver.org/). We provide security fixes for the latest stable release and the previous minor version for 6 months after a new minor release.
 
 ## Reporting a Vulnerability
 
